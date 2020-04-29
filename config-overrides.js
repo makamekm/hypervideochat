@@ -1,21 +1,15 @@
 const path = require("path");
-const { injectBabelPlugin } = require("react-app-rewired");
-const { override, addWebpackAlias } = require("customize-cra");
+const { override, addWebpackAlias, getBabelLoader } = require("customize-cra");
 
 const mode = process.env.NODE_ENV === "development" ? "dev" : "prod";
 
-module.exports = function override(config, env) {
-  config = injectBabelPlugin(["styled-jsx/babel"], config);
-
-  return override(
-    addWebpackAlias({
-      "@env": path.resolve(__dirname, "src/env", mode),
-      "~": path.resolve(__dirname, "src/"),
-    })
-  )(config, env);
+const prependBabelPlugin = (plugin) => (config) => {
+  getBabelLoader(config).options.plugins.unshift(plugin);
+  return config;
 };
 
 module.exports = override(
+  prependBabelPlugin("styled-jsx/babel"),
   addWebpackAlias({
     "@env": path.resolve(__dirname, "src/env", mode),
     "~": path.resolve(__dirname, "src/"),

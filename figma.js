@@ -14,17 +14,26 @@ runFigmaReact({
     //     componentProps[value] = `${elementType || "any"}`;
     //   }
     // },
-    // function addOnChange(state, { props: componentProps }) {
-    //   const { props, nodeProps } = state;
-    //   if (Object.keys(props).includes("onChange")) {
-    //     const args = props.onChange.split(".");
-    //     const value = args[0];
-    //     const elementType = args[1];
-    //     nodeProps["onChange"] = value;
-    //     componentProps[value] = `React.ChangeEventHandler<${elementType ||
-    //       "any"}>`;
-    //   }
-    // },
+    function addTabIndex(state, { props: componentProps }) {
+      const { props, nodeProps } = state;
+      if (Object.keys(props).includes("tabIndex")) {
+        nodeProps["tabIndex"] = props.tabIndex || "0";
+        if (props.tabIndex) {
+          componentProps[props.tabIndex] = `number`;
+        }
+      }
+    },
+    function addOnKeyDown(state, { props: componentProps }) {
+      const { props, nodeProps } = state;
+      if (Object.keys(props).includes("onKeyDown")) {
+        const args = props.onKeyDown.split(".");
+        const value = args[0];
+        const elementType = args[1];
+        nodeProps["onKeyDown"] = value;
+        componentProps[value] = `React.KeyboardEventHandler<${elementType ||
+          "any"}>`;
+      }
+    },
     ...contentPlugins,
   ],
 }).catch((err) => {
