@@ -28,7 +28,7 @@ const Dimmer = ({ text }: { text?: string }) => (
           </g>
         </svg>
       </div>
-      <div className="initial-loader__row">{text || "[ ...LOADING... ]"}</div>
+      <div className="initial-loader__row">{text || "[ ... LOADING ... ]"}</div>
     </div>
   </div>
 );

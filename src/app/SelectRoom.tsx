@@ -35,8 +35,14 @@ export const SelectRoom: React.FC = observer(() => {
       <div className="logo">
         <Logo />
       </div>
-      <div className="header mt-3">VIDEO CHAT</div>
-      <div className="text-medium">... everithing is on your devices ...</div>
+
+      <div className="header mt-3">
+        <div className="row started">
+          <div className="text-small">JUST A</div>
+          <div>VIDEO CHAT</div>
+        </div>
+      </div>
+      <div className="text-medium">... no servers, no spies ...</div>
       <div className="column centered">
         <div className="limit-width mt-4">
           <SelectRoomInput
@@ -47,6 +53,17 @@ export const SelectRoom: React.FC = observer(() => {
         </div>
         <div className="limit-width mt-4">
           <EnterRoomButton onClick={onOpenRoom} onKeyDown={onKeyDown} />
+        </div>
+        <div className="text-small limit-width-alt text-transparent mt-4">
+          <p>
+            We don't use servers, so we don't collect any data. All your
+            messages and video & voice stream will be directly passed to your
+            interlocutor.
+          </p>
+          <p>
+            This application also does not use cookies, but to collect messages
+            and calls it uses local storage built in your browser.
+          </p>
         </div>
       </div>
       <style jsx>{`
@@ -59,6 +76,10 @@ export const SelectRoom: React.FC = observer(() => {
         }
         .limit-width {
           width: 350px;
+          max-width: calc(100vw - 40px);
+        }
+        .limit-width-alt {
+          width: 400px;
           max-width: calc(100vw - 40px);
         }
       `}</style>

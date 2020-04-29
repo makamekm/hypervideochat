@@ -1,7 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react";
 import { useHistory } from "react-router";
-import { Logo } from "~/design-system/logo";
 import { Logo404 } from "~/design-system/logo404";
 
 export const NotFound: React.FC = observer(() => {
@@ -15,7 +14,7 @@ export const NotFound: React.FC = observer(() => {
         <Logo404 />
       </div>
       <div className="header size-large mt-3">404</div>
-      <div className="header size-small">You can try another route</div>
+      <div className="text-big mt-2">... You can try another route ...</div>
       <div className="column centered mt-4">
         <div className="text-big link" onClick={goHome}>
           Go Home

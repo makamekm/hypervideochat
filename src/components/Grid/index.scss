@@ -35,6 +35,18 @@
     align-items: flex-start;
   }
 
+  &.middled {
+    justify-content: center;
+  }
+
+  &.started {
+    justify-content: flex-end;
+  }
+
+  &.ended {
+    justify-content: flex-start;
+  }
+
   &.filled > * {
     width: 100%;
   }
@@ -56,5 +68,17 @@
 
   &.lefted {
     justify-content: flex-start;
+  }
+
+  &.middled {
+    align-items: center;
+  }
+
+  &.started {
+    align-items: flex-end;
+  }
+
+  &.ended {
+    align-items: flex-start;
   }
 }
