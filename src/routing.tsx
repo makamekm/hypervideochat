@@ -8,7 +8,7 @@ export const RoutedContent = () => {
     <Switch>
       <Redirect from="/" to="/select-room" exact />
       <Redirect from="/index.html" to="/select-room" exact />
-      <Route component={SelectRoom} />
+      <Route path="/select-room" exact component={SelectRoom} />
 
       {/*    404    */}
       {/* <Route component={Error404} /> */}

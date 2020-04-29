@@ -2,14 +2,19 @@ import React from "react";
 import { SelectRoomInput } from "~/design-system/select-room-input";
 import { observer, useLocalStore } from "mobx-react";
 import { EnterRoomButton } from "~/design-system/enter-room-button";
+import { useHistory } from "react-router";
 
 export const SelectRoom: React.FC = observer(() => {
+  const history = useHistory();
   const state = useLocalStore(() => ({
     value: "",
   }));
   const onOpenRoom = React.useCallback(() => {
-    state.value = "";
-  }, [state]);
+    if (state.value) {
+      history.push(`/room/${state.value}`);
+      state.value = "";
+    }
+  }, [history, state]);
   const onChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       state.value = e.currentTarget.value;
