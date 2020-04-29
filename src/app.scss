@@ -1,0 +1,17 @@
+@import "./components/Grid/variables.scss";
+@import "./components/Spacing/variables.scss";
+
+:root {
+  --main-bg-color: #282c34;
+  --main-color: #ffffff;
+  --main-link-color: #61dafb;
+  --main-font-family: Manrope, sans-serif;
+}
+
+@import "./components/Normalize/index.scss";
+@import "./components/Grid/index.scss";
+@import "./components/Animations/index.scss";
+@import "./components/Header/index.scss";
+@import "./components/Link/index.scss";
+@import "./components/Spacing/index.scss";
+@import "./components/Text/index.scss";

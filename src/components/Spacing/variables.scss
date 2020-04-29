@@ -1,0 +1,10 @@
+$num-of-classes: 10;
+$rem-divider: 10 / 1.5;
+$directions: ("top", "bottom", "left", "right");
+$types: ("margin", "padding");
+$queries: (
+  $screen-xs: "xs",
+  $screen-sm: "sm",
+  $screen-md: "md",
+  $screen-lg: "lg",
+);

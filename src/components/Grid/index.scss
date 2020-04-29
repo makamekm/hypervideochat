@@ -1,0 +1,36 @@
+.container {
+  padding-right: ceil(($grid-gutter-width / 2));
+  padding-left: floor(($grid-gutter-width / 2));
+  margin-right: auto;
+  margin-left: auto;
+
+  @media (min-width: $screen-sm-min) {
+    width: $container-sm;
+  }
+
+  @media (min-width: $screen-md-min) {
+    width: $container-md;
+  }
+
+  @media (min-width: $screen-lg-min) {
+    width: $container-lg;
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  &.width-fill > * {
+    width: 100%;
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}

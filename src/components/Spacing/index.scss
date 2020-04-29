@@ -1,0 +1,23 @@
+@mixin generate-margins {
+  @each $type in $types {
+    @each $direction in $directions {
+      @for $i from 0 through ($num-of-classes) - 1 {
+        .#{str-slice($type, 0, 1)}#{str-slice($direction, 0, 1)}-#{$i} {
+          #{$type}-#{$direction}: (#{$i / $rem-divider * $i}rem);
+        }
+      }
+    }
+    @each $query, $z in $queries {
+      @media (min-width: #{$query}) {
+        @each $direction in $directions {
+          @for $i from 0 through ($num-of-classes) - 1 {
+            .#{str-slice($type, 0, 1)}#{str-slice($direction, 0, 1)}-#{$z}-#{$i} {
+              #{$type}-#{$direction}: (#{$i / $rem-divider * $i}rem);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+@include generate-margins();
