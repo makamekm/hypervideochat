@@ -92,7 +92,7 @@ export const SelectRoomInputGenerated: React.FC<{
           box-sizing: border-box;
           pointer-events: auto;
           debug-h: LEFT_RIGHT;
-          width: 296px;
+          width: 294px;
           margin-left: 43px;
           margin-right: 16px;
           flex-grow: 1;
@@ -135,7 +135,7 @@ export const SelectRoomInputGenerated: React.FC<{
           min-width: 18.000028610229492px;
           debug-v: CENTER;
           height: 18.000028610229492px;
-          margin-top: -0.9999713897705078px;
+          margin-top: -1.9999713897705078px;
         }
         .figma-9 {
           position: absolute;
@@ -150,7 +150,7 @@ export const SelectRoomInputGenerated: React.FC<{
         }
 
         .input-wrapper {
-          min-height: 40px;
+          min-height: 50px;
           transition: background 0.2s, box-shadow 0.2s;
           will-change: background, box-shadow;
           background: #dddddd;
