@@ -28,14 +28,14 @@ export const SelectRoom: React.FC = observer(() => {
     <div className="container column centered text-center">
       <div className="header">SELECT CHAT</div>
       <div className="column centered">
-        <div className="input mt-4">
+        <div className="limit-width mt-4">
           <SelectRoomInput
             value={state.value}
             onChange={onChange}
             onKeyDown={onKeyDown}
           />
         </div>
-        <div className="button mt-4">
+        <div className="limit-width mt-4">
           <EnterRoomButton onClick={onOpenRoom} onKeyDown={onKeyDown} />
         </div>
       </div>
@@ -43,11 +43,9 @@ export const SelectRoom: React.FC = observer(() => {
         .container {
           height: 100vh;
         }
-        .input {
+        .limit-width {
           width: 350px;
-        }
-        .button {
-          width: 350px;
+          max-width: calc(100vw - 40px);
         }
       `}</style>
     </div>
