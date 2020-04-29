@@ -1,6 +1,8 @@
 import React from "react";
 import { observer } from "mobx-react";
 import { useHistory } from "react-router";
+import { Logo } from "~/design-system/logo";
+import { Logo404 } from "~/design-system/logo404";
 
 export const NotFound: React.FC = observer(() => {
   const history = useHistory();
@@ -9,7 +11,10 @@ export const NotFound: React.FC = observer(() => {
   }, [history]);
   return (
     <div className="container column centered text-center">
-      <div className="header size-large">404</div>
+      <div className="logo">
+        <Logo404 />
+      </div>
+      <div className="header size-large mt-3">404</div>
       <div className="header size-small">You can try another route</div>
       <div className="column centered mt-4">
         <div className="text-big link" onClick={goHome}>
@@ -19,6 +24,10 @@ export const NotFound: React.FC = observer(() => {
       <style jsx>{`
         .container {
           height: 100%;
+        }
+        .logo {
+          width: 80px;
+          height: 80px;
         }
       `}</style>
     </div>

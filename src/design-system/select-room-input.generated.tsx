@@ -25,22 +25,20 @@ export const SelectRoomInputGenerated: React.FC<{
             </div>
           </div>
           <div className="figma-9">
-            <div id="3:1" className="figma-8">
+            <div id="20:0" className="figma-8">
               <svg
                 className="vector figma-7"
-                height="18"
-                width="18"
+                height="24"
+                width="24"
                 fill="none"
                 preserveAspectRatio="none"
-                viewBox="0 0 18 18"
+                viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path
-                  d="M18 8.50002C18.0034 9.81988 17.695 11.1219 17.1 12.3C16.3944 13.7118 15.3097 14.8992 13.9674 15.7293C12.6251 16.5594 11.0782 16.9994 9.49998 17C8.18012 17.0034 6.8781 16.6951 5.69999 16.1L0 18L1.9 12.3C1.30493 11.1219 0.996557 9.81988 0.999998 8.50002C1.00061 6.92178 1.44061 5.37487 2.27072 4.03257C3.10082 2.69027 4.28825 1.60559 5.69999 0.900027C6.8781 0.304959 8.18012 -0.00341276 9.49998 2.8488e-05H9.99998C12.0843 0.11502 14.053 0.994788 15.5291 2.47088C17.0052 3.94698 17.885 5.91567 18 8.00002V8.50002Z"
-                  stroke="black"
-                  strokeLinecap="round"
-                  strokeWidth="2"
-                />
+                <path d="M4 9H20" stroke="black" strokeLinecap="round" strokeWidth="2" />
+                <path d="M4 15H20" stroke="black" strokeLinecap="round" strokeWidth="2" />
+                <path d="M10 3L8 21" stroke="black" strokeLinecap="round" strokeWidth="2" />
+                <path d="M16 3L14 21" stroke="black" strokeLinecap="round" strokeWidth="2" />
               </svg>
             </div>
           </div>
@@ -131,11 +129,14 @@ export const SelectRoomInputGenerated: React.FC<{
           pointer-events: auto;
           z-index: 1;
           debug-h: LEFT;
-          margin-left: 15px;
-          min-width: 18.000028610229492px;
+          margin-left: 12px;
+          min-width: 24px;
+          max-width: 24px;
           debug-v: CENTER;
-          height: 18.000028610229492px;
-          margin-top: -1.9999713897705078px;
+          height: 24px;
+          margin-top: -2px;
+          min-height: 24px;
+          max-height: 24px;
         }
         .figma-9 {
           position: absolute;

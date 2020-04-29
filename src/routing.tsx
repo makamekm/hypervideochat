@@ -8,8 +8,8 @@ import { NotFound } from "./app/NotFound";
 export const RoutedContent = () => {
   return (
     <AnimatedSwitch
-      atEnter={{ opacity: 0, top: -50 }}
-      atLeave={{ opacity: 0, top: 50 }}
+      atEnter={{ opacity: 0, top: -25 }}
+      atLeave={{ opacity: 0, top: 25 }}
       atActive={{ opacity: 1, top: 0 }}
       className="switch-wrapper"
     >

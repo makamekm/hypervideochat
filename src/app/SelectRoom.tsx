@@ -3,6 +3,7 @@ import { SelectRoomInput } from "~/design-system/select-room-input";
 import { observer, useLocalStore } from "mobx-react";
 import { EnterRoomButton } from "~/design-system/enter-room-button";
 import { useHistory } from "react-router";
+import { Logo } from "~/design-system/logo";
 
 export const SelectRoom: React.FC = observer(() => {
   const history = useHistory();
@@ -31,8 +32,11 @@ export const SelectRoom: React.FC = observer(() => {
   );
   return (
     <div className="container column centered text-center">
-      <div className="header">SELECT CHAT</div>
-      <div className="text-medium">Everithing is on your devices</div>
+      <div className="logo">
+        <Logo />
+      </div>
+      <div className="header mt-3">VIDEO CHAT</div>
+      <div className="text-medium">... everithing is on your devices ...</div>
       <div className="column centered">
         <div className="limit-width mt-4">
           <SelectRoomInput
@@ -48,6 +52,10 @@ export const SelectRoom: React.FC = observer(() => {
       <style jsx>{`
         .container {
           height: 100%;
+        }
+        .logo {
+          width: 80px;
+          height: 80px;
         }
         .limit-width {
           width: 350px;
