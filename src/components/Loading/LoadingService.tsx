@@ -11,7 +11,7 @@ export interface LoadingStore {
 
 const removeLoadinghandler = () => {
   const bodyElement = document.querySelector("body");
-  const loaderElement = document.querySelector(".initial-loader-wrap");
+  const loaderElement = document.querySelector("#initializer");
   bodyElement.removeChild(loaderElement);
 };
 

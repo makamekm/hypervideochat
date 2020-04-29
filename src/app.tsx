@@ -10,12 +10,13 @@ import "./app.scss";
 import { AppLayout } from "./app/AppLayout";
 import { LoadingScreen } from "./components/Loading/LoadingScreen";
 import { LoadingService } from "./components/Loading/LoadingService";
+import { RoomService } from "./app/RoomService";
 
 const basePath = process.env.BASE_PATH || "/";
 
 export const App = () => {
   const [ServiceProvider] = React.useState<React.FC>(() =>
-    ServiceProviderFactory(LoadingService)
+    ServiceProviderFactory(LoadingService, RoomService)
   );
 
   return (

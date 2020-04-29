@@ -53,6 +53,7 @@ export const LoadingDimmer: React.FC<{
 
     if (show) {
       clearTimeout(staticState.timeout);
+      document.body.classList.remove("loaded");
       store.show = true;
     } else {
       clearTimeout(staticState.timeout);

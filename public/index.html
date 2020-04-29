@@ -46,6 +46,7 @@
         }
       }
       .initial-loader-wrap {
+        z-index: 999;
         top: 0;
         left: 0;
         width: 100vw;
@@ -59,10 +60,13 @@
         position: fixed;
         z-index: 99999;
         background-color: #282c34;
-        transition: opacity 200ms cubic-bezier(0.215, 0.61, 0.355, 1);
+        transition: opacity 200ms cubic-bezier(0.215, 0.61, 0.355, 1),
+          transform 200ms cubic-bezier(0.215, 0.61, 0.355, 1);
+        transform: translateY(0px);
       }
       .loaded .initial-loader-wrap {
         opacity: 0;
+        transform: translateY(20px);
       }
       .initial-loader {
         min-width: 240px;
@@ -96,7 +100,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <!-- START Loader -->
-    <div class="initial-loader-wrap">
+    <div class="initial-loader-wrap" id="initializer">
       <div class="initial-loader">
         <div class="initial-loader__row">
           <svg
