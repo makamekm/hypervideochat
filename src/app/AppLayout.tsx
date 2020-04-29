@@ -13,6 +13,7 @@ export const AppLayout: React.FC = ({ children }) => {
       <style jsx>{`
         .column {
           height: 100vh;
+          min-height: 100vh;
         }
         .main {
           flex: 1;
