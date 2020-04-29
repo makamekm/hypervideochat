@@ -6,6 +6,7 @@
   --main-color: #ffffff;
   --main-link-color: #61dafb;
   --main-font-family: Manrope, sans-serif;
+  --color-primary: rgba(47, 206, 250, 1);
 }
 
 @import "./components/Normalize/index.scss";
@@ -15,3 +16,7 @@
 @import "./components/Link/index.scss";
 @import "./components/Spacing/index.scss";
 @import "./components/Text/index.scss";
+
+div {
+  font-family: inherit !important;
+}

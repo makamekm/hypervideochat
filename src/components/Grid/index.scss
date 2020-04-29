@@ -23,6 +23,18 @@
   align-items: flex-start;
   justify-content: center;
 
+  &.centered {
+    align-items: center;
+  }
+
+  &.righted {
+    align-items: flex-end;
+  }
+
+  &.lefted {
+    align-items: flex-start;
+  }
+
   &.width-fill > * {
     width: 100%;
   }
@@ -33,4 +45,16 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+
+  &.centered {
+    justify-content: center;
+  }
+
+  &.righted {
+    justify-content: flex-end;
+  }
+
+  &.lefted {
+    justify-content: flex-start;
+  }
 }
