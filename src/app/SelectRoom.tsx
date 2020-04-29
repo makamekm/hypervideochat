@@ -32,6 +32,7 @@ export const SelectRoom: React.FC = observer(() => {
   return (
     <div className="container column centered text-center">
       <div className="header">SELECT CHAT</div>
+      <div className="text-medium">Everithing is on your devices</div>
       <div className="column centered">
         <div className="limit-width mt-4">
           <SelectRoomInput
@@ -46,7 +47,7 @@ export const SelectRoom: React.FC = observer(() => {
       </div>
       <style jsx>{`
         .container {
-          height: 100vh;
+          height: 100%;
         }
         .limit-width {
           width: 350px;

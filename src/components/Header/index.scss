@@ -5,4 +5,12 @@
   justify-content: center;
   font-size: 3rem;
   font-weight: 200;
+
+  &.size-large {
+    font-size: 5rem;
+  }
+
+  &.size-small {
+    font-size: 2rem;
+  }
 }

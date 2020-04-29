@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Switch, Redirect } from "react-router";
 import { SelectRoom } from "./app/SelectRoom";
+import { NotFound } from "./app/NotFound";
 
 //------ Route Definitions --------
 export const RoutedContent = () => {
@@ -11,7 +12,7 @@ export const RoutedContent = () => {
       <Route path="/select-room" exact component={SelectRoom} />
 
       {/*    404    */}
-      {/* <Route component={Error404} /> */}
+      <Route component={NotFound} />
     </Switch>
   );
 };
