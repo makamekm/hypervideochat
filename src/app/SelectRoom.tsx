@@ -25,7 +25,7 @@ export const SelectRoom: React.FC = observer(() => {
     [onOpenRoom]
   );
   return (
-    <div className="container column width-fill text-center">
+    <div className="container column centered text-center">
       <div className="header">SELECT CHAT</div>
       <div className="column centered">
         <div className="input mt-4">
