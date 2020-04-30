@@ -1,6 +1,7 @@
 import React from "react";
 import hark from "hark";
-import hyperswarm from "hyperswarm-web";
+import ndjson from "ndjson";
+import hyperswarm from "@geut/discovery-swarm-webrtc";
 import crypto from "crypto";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
@@ -26,11 +27,9 @@ export interface IConnection {
   id: string;
   speaking: boolean;
   socket;
+  send: (data) => void;
   stream?: MediaStream;
 }
-
-const SEND_STREAM_DELAY = 500;
-const SWARM_JOIN_DELAY = 500;
 
 export const RoomService = createService(
   () => {
@@ -114,11 +113,10 @@ export const RoomService = createService(
       },
       async getDisplayStream(): Promise<MediaStream> {
         return await (navigator.mediaDevices as any).getDisplayMedia({
-          audio: state.selectedMic
-            ? {
-                deviceId: state.selectedMic,
-              }
-            : true,
+          audio: {
+            deviceId: state.selectedMic,
+            echoCancellation: true,
+          },
           video: true,
         });
       },
@@ -131,16 +129,29 @@ export const RoomService = createService(
           return v.toString(16);
         });
       },
+      onMessage(connection: IConnection, data) {
+        console.log("message", data);
+      },
       connect(socket, details) {
         const id = state.uuid();
+        const incoming = ndjson.parse();
+        const outgoing = ndjson.stringify();
+        socket.pipe(incoming);
+        outgoing.pipe(socket);
+
         state.connections.push({
           id,
           socket,
           speaking: false,
+          send: (data) => outgoing.write(data),
+        });
+        const connection = state.connections.find((c) => c.id === id);
+
+        incoming.on("data", (data) => {
+          state.onMessage(connection, data);
         });
 
         socket.on("stream", (stream) => {
-          const connection = state.connections.find((c) => c.id === id);
           connection.stream = stream;
 
           const speech = hark(stream);
@@ -158,11 +169,7 @@ export const RoomService = createService(
           });
         });
 
-        setTimeout(() => {
-          if (state.localStream) {
-            socket.addStream(state.localStream);
-          }
-        }, SEND_STREAM_DELAY);
+        socket.addStream(state.localStream);
       },
       disconnect(socket, details) {
         const index = state.connections.findIndex(
@@ -174,23 +181,25 @@ export const RoomService = createService(
       },
       async getCamStream() {
         return await navigator.mediaDevices.getUserMedia({
-          audio: state.selectedMic
-            ? {
-                deviceId: state.selectedMic,
-              }
-            : true,
-          video: state.selectedCam
-            ? {
-                deviceId: state.selectedCam,
-              }
-            : true,
+          audio: {
+            deviceId: state.selectedMic,
+            echoCancellation: true,
+          },
+          video: {
+            deviceId: state.selectedCam,
+          },
         });
       },
       async run() {
         state.isLoading = true;
         storage.swarm = hyperswarm({
+          bootstrap: [
+            "https://geut-webrtc-signal.herokuapp.com",
+            "http://localhost:4000",
+          ],
           maxPeers: 24,
         });
+        storage.swarm.join(Buffer.from(state.topic));
         await storage.loadDevicesPromise;
         try {
           state.localStream = await state.getStream();
@@ -202,13 +211,10 @@ export const RoomService = createService(
         state.updateMicState();
         storage.swarm.on("connection", (socket, details) => {
           state.connect(socket, details);
-          socket.once("close", () => {
-            state.disconnect(socket, details);
-          });
         });
-        setTimeout(() => {
-          storage.swarm.join(state.topic);
-        }, SWARM_JOIN_DELAY);
+        storage.swarm.on("connection-closed", (socket, details) => {
+          state.disconnect(socket, details);
+        });
         state.isLoading = false;
       },
       get topic() {
