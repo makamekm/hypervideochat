@@ -1,4 +1,5 @@
 import React from "react";
+import hark from "hark";
 import hyperswarm from "hyperswarm-web";
 import crypto from "crypto";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
@@ -45,7 +46,7 @@ export const RoomService = createService(
 
     const state = useLocalStore(() => ({
       connections: [] as IConnection[],
-      mainScreen: null,
+      speakingConnectionId: null,
       mics: [] as any[],
       speakers: [] as any[],
       cameras: [] as any[],
@@ -60,6 +61,16 @@ export const RoomService = createService(
       currentScreenState: false,
       screenState: false,
       camState: true,
+      get mainStream() {
+        const speaker = state.connections.find(
+          (connection) => connection.id === state.speakingConnectionId
+        );
+        if (speaker) {
+          return speaker.stream;
+        } else {
+          return state.connections[0]?.stream;
+        }
+      },
       updateLocalStream() {
         if (state.prevLocalStream) {
           state.connections.forEach((connection) => {
@@ -130,6 +141,11 @@ export const RoomService = createService(
         socket.on("stream", (stream) => {
           const connection = state.connections.find((c) => c.id === id);
           connection.stream = stream;
+          const speech = hark(stream);
+          speech.on("speaking", () => {
+            console.log("Speaking!");
+            state.speakingConnectionId = id;
+          });
         });
         socket.addStream(state.localStream);
       },

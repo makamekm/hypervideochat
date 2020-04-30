@@ -33,15 +33,18 @@ export const Room: React.FC = observer(() => {
   return (
     <div className="no-select">
       <div className="main-video">
-        <VideoStream stream={service.localStream} />
+        <VideoStream stream={service.mainStream} />
       </div>
       <div className="overlay">
         <div className="column split-layout">
           <div className="row started split-panels">
             <div className="column started pt-2 pb-2 pr-3 pl-3">
               <div className="header">{service.room}</div>
+              <div className="sub-video mb-2">
+                <VideoStream stream={service.localStream} />
+              </div>
             </div>
-            <div className="column started pt-2 pb-2 pr-3 pl-3">
+            <div className="column started pt-2 pb-2 pr-3 pl-3 overflowed">
               {service.connections.map((connection) => {
                 return (
                   <div className="sub-video mb-2" key={connection.id}>
@@ -125,15 +128,13 @@ export const Room: React.FC = observer(() => {
             <label className="mb-2">Choose audio input:</label>
             <select
               className="select"
+              value={service.selectedMic}
               onChange={(e) => {
                 service.selectedMic = e.currentTarget.value;
               }}
             >
               {service.mics.map((dev) => (
-                <option
-                  value={dev.deviceId}
-                  selected={service.selectedMic === dev.deviceId}
-                >
+                <option key={dev.deviceId} value={dev.deviceId}>
                   {dev.label}
                 </option>
               ))}
@@ -143,15 +144,13 @@ export const Room: React.FC = observer(() => {
             <label className="mb-2">Choose video input:</label>
             <select
               className="select"
+              value={service.selectedCam}
               onChange={(e) => {
                 service.selectedCam = e.currentTarget.value;
               }}
             >
               {service.cameras.map((dev) => (
-                <option
-                  value={dev.deviceId}
-                  selected={service.selectedCam === dev.deviceId}
-                >
+                <option key={dev.deviceId} value={dev.deviceId}>
                   {dev.label}
                 </option>
               ))}
@@ -265,8 +264,8 @@ export const Room: React.FC = observer(() => {
           display: flex;
           justify-content: stretch;
           align-items: stretch;
-          width: ${160 * 2}px;
-          height: ${90 * 2}px;
+          width: ${160 * 1.5}px;
+          height: ${90 * 1.5}px;
           background: #000000;
           overflow: hidden;
           border-radius: 5px;
@@ -274,6 +273,12 @@ export const Room: React.FC = observer(() => {
         .sub-video > :global(video) {
           width: inherit;
           height: inherit;
+        }
+        .overflowed {
+          max-height: calc(100vh - 100px);
+          height: calc(100vh - 100px);
+          overflow-x: visible;
+          overflow-y: auto;
         }
       `}</style>
     </div>
