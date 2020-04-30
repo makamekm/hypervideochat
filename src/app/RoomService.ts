@@ -24,7 +24,7 @@ const createHotPromise = () => {
 
 export interface IConnection {
   id: string;
-  version: number;
+  speaking: boolean;
   socket;
   stream?: MediaStream;
 }
@@ -136,7 +136,7 @@ export const RoomService = createService(
         state.connections.push({
           id,
           socket,
-          version: 0,
+          speaking: false,
         });
         socket.on("stream", (stream) => {
           const connection = state.connections.find((c) => c.id === id);
@@ -144,7 +144,17 @@ export const RoomService = createService(
           const speech = hark(stream);
           speech.on("speaking", () => {
             console.log("Speaking!");
-            state.speakingConnectionId = id;
+            const speaker = state.connections.find(
+              (connection) => connection.id === state.speakingConnectionId
+            );
+            if (!speaker) {
+              state.speakingConnectionId = id;
+            }
+            connection.speaking = true;
+          });
+          speech.on("stopped_speaking", function() {
+            console.log("stopped_speaking");
+            connection.speaking = false;
           });
         });
         socket.addStream(state.localStream);
