@@ -5,7 +5,7 @@ export const Logo404Generated: React.FC<{}> = observer(props => {
   return (
     <>
       <div className="figma-1">
-        <div id="20:22" className="figma-0">
+        <div id="20:41" className="figma-0">
           <div className="figma-5">
             <div id="20:23" className="figma-4">
               <svg

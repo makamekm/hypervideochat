@@ -40,11 +40,11 @@
   }
 
   &.started {
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 
   &.ended {
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 
   &.filled > * {
@@ -75,10 +75,10 @@
   }
 
   &.started {
-    align-items: flex-end;
+    align-items: flex-start;
   }
 
   &.ended {
-    align-items: flex-start;
+    align-items: flex-end;
   }
 }
