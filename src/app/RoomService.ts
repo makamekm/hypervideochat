@@ -29,20 +29,15 @@ export interface IConnection {
   stream?: MediaStream;
 }
 
+const SEND_STREAM_DELAY = 500;
+const SWARM_JOIN_DELAY = 500;
+
 export const RoomService = createService(
   () => {
     const [storage] = React.useState(() => ({
       swarm: null as any,
       loadDevicesPromise: createHotPromise(),
     }));
-    React.useEffect(() => {
-      storage.swarm = hyperswarm({
-        maxPeers: Infinity,
-      });
-      return () => {
-        storage.swarm.destroy();
-      };
-    }, [storage]);
 
     const state = useLocalStore(() => ({
       connections: [] as IConnection[],
@@ -143,7 +138,6 @@ export const RoomService = createService(
           socket,
           speaking: false,
         });
-        console.log("connection!");
 
         socket.on("stream", (stream) => {
           const connection = state.connections.find((c) => c.id === id);
@@ -163,7 +157,12 @@ export const RoomService = createService(
             connection.speaking = false;
           });
         });
-        socket.addStream(state.localStream);
+
+        setTimeout(() => {
+          if (state.localStream) {
+            socket.addStream(state.localStream);
+          }
+        }, SEND_STREAM_DELAY);
       },
       disconnect(socket, details) {
         const index = state.connections.findIndex(
@@ -189,6 +188,9 @@ export const RoomService = createService(
       },
       async run() {
         state.isLoading = true;
+        storage.swarm = hyperswarm({
+          maxPeers: 24,
+        });
         await storage.loadDevicesPromise;
         try {
           state.localStream = await state.getStream();
@@ -204,13 +206,15 @@ export const RoomService = createService(
             state.disconnect(socket, details);
           });
         });
-        storage.swarm.join(state.topic);
+        setTimeout(() => {
+          storage.swarm.join(state.topic);
+        }, SWARM_JOIN_DELAY);
         state.isLoading = false;
       },
       get topic() {
         return crypto
           .createHash("sha256")
-          .update(state.room)
+          .update("HYPERCHAT_" + state.room)
           .digest();
       },
       get storage() {
@@ -227,6 +231,7 @@ export const RoomService = createService(
           state.localStream = null;
           state.connections.splice(0, state.connections.length);
         }
+        storage.swarm.destroy();
       },
       onRoomChange(room: number) {
         if (room) {
