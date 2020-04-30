@@ -40,11 +40,11 @@ export const Room: React.FC = observer(() => {
           <div className="row started split-panels">
             <div className="column started pt-2 pb-2 pr-3 pl-3">
               <div className="header">{service.room}</div>
-              <div className="sub-video mb-2">
+              <div className="sub-video mb-2 no-mobile">
                 <VideoStream stream={service.localStream} />
               </div>
             </div>
-            <div className="column started pt-2 pb-2 pr-3 pl-3 overflowed">
+            <div className="column started pt-2 pb-2 pr-3 pl-3 overflowed no-mobile">
               {service.connections.map((connection) => {
                 return (
                   <div className="sub-video mb-2" key={connection.id}>
@@ -97,7 +97,7 @@ export const Room: React.FC = observer(() => {
               )}
             </div>
             {!service.screenState && (
-              <div className="pt-2 pb-2 pr-2 pl-2">
+              <div className="pt-2 pb-2 pr-2 pl-2 no-mobile">
                 <ScreenButton
                   onClick={() => {
                     service.screenState = true;
@@ -105,7 +105,7 @@ export const Room: React.FC = observer(() => {
                 />
               </div>
             )}
-            <div className="pt-2 pb-2 pr-2 pl-2">
+            <div className="pt-2 pb-2 pr-2 pl-2 no-mobile">
               <SettingButton
                 onClick={() => {
                   state.settings = true;
@@ -279,6 +279,11 @@ export const Room: React.FC = observer(() => {
           height: calc(100vh - 100px);
           overflow-x: visible;
           overflow-y: auto;
+        }
+        @media screen and (max-width: 600px) {
+          .no-mobile {
+            display: none;
+          }
         }
       `}</style>
     </div>

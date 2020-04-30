@@ -86,7 +86,12 @@ export const RoomService = createService(
       },
       async getStream() {
         if (state.screenState) {
-          return await state.getDisplayStream();
+          try {
+            return await state.getDisplayStream();
+          } catch {
+            state.screenState = false;
+            return await state.getCamStream();
+          }
         } else {
           return await state.getCamStream();
         }
@@ -131,16 +136,19 @@ export const RoomService = createService(
           return v.toString(16);
         });
       },
-      async connect(socket, details) {
+      connect(socket, details) {
         const id = state.uuid();
         state.connections.push({
           id,
           socket,
           speaking: false,
         });
+        console.log("connection!");
+
         socket.on("stream", (stream) => {
           const connection = state.connections.find((c) => c.id === id);
           connection.stream = stream;
+
           const speech = hark(stream);
           speech.on("speaking", () => {
             const speaker = state.connections.find(
@@ -157,7 +165,7 @@ export const RoomService = createService(
         });
         socket.addStream(state.localStream);
       },
-      async disconnect(socket, details) {
+      disconnect(socket, details) {
         const index = state.connections.findIndex(
           (connection) => connection.socket === socket
         );
@@ -170,13 +178,11 @@ export const RoomService = createService(
           audio: state.selectedMic
             ? {
                 deviceId: state.selectedMic,
-                // deviceId: state.mics[0].deviceId,
               }
             : true,
           video: state.selectedCam
             ? {
                 deviceId: state.selectedCam,
-                // deviceId: state.cameras[0].deviceId,
               }
             : true,
         });
@@ -184,26 +190,33 @@ export const RoomService = createService(
       async run() {
         state.isLoading = true;
         await storage.loadDevicesPromise;
-        state.localStream = await state.getStream();
+        try {
+          state.localStream = await state.getStream();
+        } catch (e) {
+          alert("You need to allow video and audio sharing");
+          throw e;
+        }
         state.updateCamState();
         state.updateMicState();
-        const topic = crypto
-          .createHash("sha256")
-          .update(state.room)
-          .digest();
-        storage.swarm.join(topic);
         storage.swarm.on("connection", (socket, details) => {
           state.connect(socket, details);
           socket.once("close", () => {
             state.disconnect(socket, details);
           });
         });
+        storage.swarm.join(state.topic);
         state.isLoading = false;
+      },
+      get topic() {
+        return crypto
+          .createHash("sha256")
+          .update(state.room)
+          .digest();
       },
       get storage() {
         return storage;
       },
-      async stop() {
+      stop() {
         if (state.localStream) {
           state.localStream.getTracks().forEach((track) => track.stop());
           state.connections.forEach((connection) => {
