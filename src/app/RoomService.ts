@@ -143,7 +143,6 @@ export const RoomService = createService(
           connection.stream = stream;
           const speech = hark(stream);
           speech.on("speaking", () => {
-            console.log("Speaking!");
             const speaker = state.connections.find(
               (connection) => connection.id === state.speakingConnectionId
             );
@@ -153,7 +152,6 @@ export const RoomService = createService(
             connection.speaking = true;
           });
           speech.on("stopped_speaking", function() {
-            console.log("stopped_speaking");
             connection.speaking = false;
           });
         });
