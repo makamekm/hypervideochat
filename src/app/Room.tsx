@@ -39,7 +39,7 @@ export const Room: React.FC = observer(() => {
         <div className="column split-layout">
           <div className="row started split-panels">
             <div className="column started pt-2 pb-2 pr-3 pl-3">
-              <div className="header">{service.room}</div>
+              <div className="header title">{service.room}</div>
               <div className="sub-video mb-2 no-mobile">
                 <VideoStream stream={service.localStream} />
               </div>
@@ -49,6 +49,13 @@ export const Room: React.FC = observer(() => {
                 return (
                   <div className="sub-video mb-2" key={connection.id}>
                     <VideoStream stream={connection.stream} />
+                    <div
+                      className={classNames("username", {
+                        visible: !connection.stream,
+                      })}
+                    >
+                      {connection.username}
+                    </div>
                   </div>
                 );
               })}
@@ -156,6 +163,17 @@ export const Room: React.FC = observer(() => {
               ))}
             </select>
           </div>
+          <div className="column mb-3">
+            <label className="mb-2">Username:</label>
+            <input
+              type="text"
+              className="input"
+              value={service.username}
+              onChange={(e) => {
+                service.username = e.currentTarget.value;
+              }}
+            />
+          </div>
           <div className="column righted fill mt-2">
             <button
               className="button"
@@ -200,6 +218,9 @@ export const Room: React.FC = observer(() => {
           opacity: 1;
         }
         .select {
+          color: #000;
+        }
+        .input {
           color: #000;
         }
         .button {
@@ -261,6 +282,7 @@ export const Room: React.FC = observer(() => {
           height: 100%;
         }
         .sub-video {
+          position: relative;
           display: flex;
           justify-content: stretch;
           align-items: stretch;
@@ -274,11 +296,40 @@ export const Room: React.FC = observer(() => {
           width: inherit;
           height: inherit;
         }
+        .sub-video > .username {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translateY(-50%) translateX(-50%);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
+          white-space: nowrap;
+          color: #fff;
+          opacity: 0;
+          transition: opacity 0.2s;
+          will-change: opacity;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        .sub-video:hover > .username {
+          opacity: 1;
+        }
+        .sub-video > .username.visible {
+          opacity: 1;
+        }
         .overflowed {
           max-height: calc(100vh - 100px);
           height: calc(100vh - 100px);
           overflow-x: visible;
           overflow-y: auto;
+        }
+        .title {
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 300px;
+          white-space: nowrap;
         }
         @media screen and (max-width: 600px) {
           .no-mobile {

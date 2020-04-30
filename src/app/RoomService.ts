@@ -5,7 +5,7 @@ import hyperswarm from "@geut/discovery-swarm-webrtc";
 import crypto from "crypto";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
-import { useOnChange } from "~/hooks";
+import { useOnChange, useSimpleSyncLocalStorage } from "~/hooks";
 import { LoadingService } from "~/components/Loading/LoadingService";
 
 const LOAD_DEVICES_DELAY = 100;
@@ -28,6 +28,7 @@ export interface IConnection {
   speaking: boolean;
   socket;
   send: (data) => void;
+  username?: string;
   stream?: MediaStream;
 }
 
@@ -55,6 +56,7 @@ export const RoomService = createService(
       currentScreenState: false,
       screenState: false,
       camState: true,
+      username: "",
       get mainStream() {
         const speaker = state.connections.find(
           (connection) => connection.id === state.speakingConnectionId
@@ -97,6 +99,14 @@ export const RoomService = createService(
           state.updateMicState();
         }
       },
+      updateUsername() {
+        state.connections.forEach((connection) =>
+          connection.send({
+            type: "username",
+            value: state.username,
+          })
+        );
+      },
       updateMicState() {
         if (state.localStream) {
           state.localStream.getAudioTracks().forEach((track) => {
@@ -131,6 +141,9 @@ export const RoomService = createService(
       },
       onMessage(connection: IConnection, data) {
         console.log("message", data);
+        if (data.type === "username") {
+          connection.username = data.value;
+        }
       },
       connect(socket, details) {
         const id = state.uuid();
@@ -167,6 +180,11 @@ export const RoomService = createService(
           speech.on("stopped_speaking", function() {
             connection.speaking = false;
           });
+        });
+
+        connection.send({
+          type: "username",
+          value: state.username,
         });
 
         socket.addStream(state.localStream);
@@ -281,5 +299,7 @@ export const RoomService = createService(
     useOnChange(state, "camState", state.updateCamState);
     useOnChange(state, "selectedCam", state.updateScreenState);
     useOnChange(state, "selectedMic", state.updateScreenState);
+    useOnChange(state, "username", state.updateUsername);
+    useSimpleSyncLocalStorage(state, "username");
   }
 );

@@ -12,7 +12,7 @@ export const VideoStream: React.FC<{
   React.useEffect(() => {
     if (element.current) {
       element.current.srcObject = stream;
-      element.current.play();
+      // element.current.play();
     }
   });
   return (
