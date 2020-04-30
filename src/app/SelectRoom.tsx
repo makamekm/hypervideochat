@@ -4,8 +4,10 @@ import { observer, useLocalStore } from "mobx-react";
 import { EnterRoomButton } from "~/design-system/enter-room-button";
 import { useHistory } from "react-router";
 import { Logo } from "~/design-system/logo";
+import { useLayoutConfig } from "./LayoutService";
 
 export const SelectRoom: React.FC = observer(() => {
+  useLayoutConfig({});
   const history = useHistory();
   const state = useLocalStore(() => ({
     value: "",

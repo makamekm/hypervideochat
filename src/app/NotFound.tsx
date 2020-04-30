@@ -2,12 +2,14 @@ import React from "react";
 import { observer } from "mobx-react";
 import { useHistory } from "react-router";
 import { Logo404 } from "~/design-system/logo404";
+import { useLayoutConfig } from "./LayoutService";
 
 export const NotFound: React.FC = observer(() => {
   const history = useHistory();
   const goHome = React.useCallback(() => {
     history.push(`/`);
   }, [history]);
+  useLayoutConfig({});
   return (
     <div className="container column centered text-center">
       <div className="logo">
