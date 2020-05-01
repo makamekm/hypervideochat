@@ -41,7 +41,7 @@ export const Room: React.FC = observer(() => {
             <div className="column started pt-2 pb-2 pr-3 pl-3">
               <div className="header title">{service.room}</div>
               <div className="sub-video mb-2 no-mobile">
-                <VideoStream stream={service.localStream} />
+                <VideoStream stream={service.localStream} muted />
               </div>
             </div>
             <div className="column started pt-2 pb-2 pr-3 pl-3 overflowed no-mobile">

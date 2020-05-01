@@ -6,16 +6,21 @@ export const VideoStream: React.FC<{
   className?: string;
   stream: MediaStream;
   hide?: boolean;
-}> = observer(({ className, stream, hide }) => {
+  muted?: boolean;
+}> = observer(({ className, stream, hide, muted }) => {
   const element = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
     if (element.current) {
       element.current.srcObject = stream;
-      // element.current.play();
     }
   });
   return (
-    <video autoPlay className={classNames(className, { hide })} ref={element} />
+    <video
+      autoPlay
+      muted={muted}
+      className={classNames(className, { hide })}
+      ref={element}
+    />
   );
 });
