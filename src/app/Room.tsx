@@ -39,8 +39,8 @@ export const Room: React.FC = observer(() => {
         <div className="column split-layout">
           <div className="row started split-panels">
             <div className="column started pt-2 pb-2 pr-3 pl-3">
-              <div className="header title">{service.room}</div>
-              <div className="sub-video mb-2 no-mobile">
+              <div className="header size-small title mb-2">{service.room}</div>
+              <div className="sub-video my-video mb-2 no-mobile">
                 <VideoStream stream={service.localStream} muted />
               </div>
             </div>
@@ -291,6 +291,10 @@ export const Room: React.FC = observer(() => {
           background: #000000;
           overflow: hidden;
           border-radius: 5px;
+        }
+        .my-video {
+          width: ${160 * 1}px;
+          height: ${90 * 1}px;
         }
         .sub-video > :global(video) {
           width: inherit;

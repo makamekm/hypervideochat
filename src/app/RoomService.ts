@@ -133,7 +133,12 @@ export const RoomService = createService(
           audio: {
             deviceId: state.selectedMic,
             echoCancellation: true,
-          },
+            googAutoGainControl: false,
+            autoGainControl: false,
+            noiseSuppression: true,
+            sampleRate: 48000,
+            channelCount: 1,
+          } as any,
           video: true,
         });
       },
@@ -185,6 +190,7 @@ export const RoomService = createService(
           initiator: false,
           trickle: false,
           stream: state.localStream,
+          iceTransportPolicy: "relay",
         });
         peer.on("error", (err) => {
           console.error(err);
@@ -233,6 +239,7 @@ export const RoomService = createService(
           initiator: true,
           trickle: false,
           stream: state.localStream,
+          iceTransportPolicy: "relay",
         });
         peer.on("error", (err) => {
           console.error(err);
@@ -352,7 +359,12 @@ export const RoomService = createService(
           audio: {
             deviceId: state.selectedMic,
             echoCancellation: true,
-          },
+            googAutoGainControl: false,
+            autoGainControl: false,
+            noiseSuppression: true,
+            sampleRate: 48000,
+            channelCount: 1,
+          } as any,
           video: {
             deviceId: state.selectedCam,
           },
@@ -372,8 +384,8 @@ export const RoomService = createService(
 
         storage.id = state.uuid();
         storage.hub = signalhub(state.topic.toString("hex"), [
-          "https://signalhub-hzbibrznqa.now.sh",
-          // "https://signalhub-jccqtwhdwc.now.sh",
+          // "https://signalhub-hzbibrznqa.now.sh",
+          "https://signalhub-jccqtwhdwc.now.sh",
         ]);
         storage.hub
           .subscribe(state.topic.toString("hex"))

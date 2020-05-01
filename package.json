@@ -34,7 +34,8 @@
     "signalhub": "^4.9.0",
     "simple-peer": "^9.7.0",
     "typescript": "^3.7.5",
-    "underscore": "^1.10.2"
+    "underscore": "^1.10.2",
+    "visibilityjs": "^2.0.2"
   },
   "scripts": {
     "start": "react-app-rewired start",
