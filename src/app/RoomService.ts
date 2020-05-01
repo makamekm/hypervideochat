@@ -29,7 +29,7 @@ export interface IConnection {
   id: string;
   speaking: boolean;
   peer;
-  send: (data) => void;
+  send?: (data) => void;
   username?: string;
   stream?: MediaStream;
 }
@@ -190,6 +190,10 @@ export const RoomService = createService(
           console.error(err);
           destroyPeer();
         });
+        peer.on("stream", (stream) => {
+          clearTimeout(connectionInitTimeout);
+          state.connectStream(peer, id, stream);
+        });
         peer.on("connect", () => {
           clearTimeout(connectionInitTimeout);
           state.connect(peer, id);
@@ -235,6 +239,10 @@ export const RoomService = createService(
           destroyPeer();
         });
         storage.initialPeerMap[id] = peer;
+        peer.on("stream", (stream) => {
+          clearTimeout(connectionInitTimeout);
+          state.connectStream(peer, id, stream);
+        });
         peer.on("connect", () => {
           clearTimeout(connectionInitTimeout);
           state.connect(peer, id);
@@ -262,28 +270,44 @@ export const RoomService = createService(
         peer.pipe(incoming);
         outgoing.pipe(peer);
 
-        state.connections.push({
-          id,
-          peer,
-          speaking: false,
-          send: (data) => outgoing.write(data),
-        });
+        let connection = state.connections.find((c) => c.id === id);
 
-        const connection = state.connections.find((c) => c.id === id);
+        if (!connection) {
+          state.connections.push({
+            id,
+            peer,
+            speaking: false,
+            send: (data) => outgoing.write(data),
+          });
+          connection = state.connections.find((c) => c.id === id);
+        } else {
+          connection.send = (data) => outgoing.write(data);
+        }
 
         incoming.on("data", (data) => {
           state.onMessage(connection, data);
-        });
-
-        peer.on("stream", (stream) => {
-          connection.stream = stream;
-          state.trackSpeech(id, stream);
         });
 
         connection.send({
           type: "username",
           value: state.username,
         });
+
+        console.log(peer);
+      },
+      connectStream(peer, id, stream) {
+        const connection = state.connections.find((c) => c.id === id);
+        if (connection) {
+          connection.stream = stream;
+        } else {
+          state.connections.push({
+            id,
+            peer,
+            speaking: false,
+            stream,
+          });
+        }
+        state.trackSpeech(id, stream);
       },
       trackSpeech(id: string, stream: MediaStream) {
         const speech = hark(stream);

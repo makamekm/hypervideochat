@@ -11,7 +11,7 @@ export const VideoStream: React.FC<{
   const element = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
-    if (element.current) {
+    if (element.current && element.current.srcObject !== stream) {
       element.current.srcObject = stream;
     }
   });
