@@ -42,6 +42,8 @@ export const RoomService = createService(
       hub: null as any,
       broadcast: null as (data) => void,
       loadDevicesPromise: createHotPromise(),
+      peerMap: {} as any,
+      initialPeerMap: {} as any,
     }));
 
     const state = useLocalStore(() => ({
@@ -144,95 +146,110 @@ export const RoomService = createService(
           return v.toString(16);
         });
       },
-      peersMap: {} as any,
       onHubPrivateMessage(data) {
         if (data.type === "handshake" && data.id) {
-          if (!state.peersMap[data.id]) {
-            const timeout = setTimeout(() => {
-              if (state.peersMap[data.id]) {
-                state.peersMap[data.id].destroy();
-                delete state.peersMap[data.id];
-              }
-            }, CONNECTION_TIMEOUT);
-            const peer = new SimplePeer({
-              initiator: false,
-              trickle: false,
-            });
-            peer.on("error", (err) => {
-              console.error(err);
-              if (state.remotesMap[data.id]) {
-                state.remotesMap[data.id].destroy();
-                delete state.remotesMap[data.id];
-              }
-            });
-            peer.on("connect", () => {
-              clearTimeout(timeout);
-              state.connect(peer, data.id);
-            });
-            peer.on("close", () => {
-              state.disconnect(peer, data.id);
-              delete state.peersMap[data.id];
-            });
-            peer.on("signal", (signal) => {
-              storage.hub.broadcast(data.id, {
-                type: "handshake-peer",
-                signal,
-                id: storage.id,
-              });
-            });
-            state.peersMap[data.id] = peer;
-          }
-          state.peersMap[data.id].signal(data.signal);
+          state.createPeer(data.id);
+          storage.peerMap[data.id].signal(data.signal);
         } else if (
           data.type === "handshake-peer" &&
           data.id &&
-          state.remotesMap[data.id]
+          storage.initialPeerMap[data.id]
         ) {
-          state.remotesMap[data.id].signal(data.signal);
+          storage.initialPeerMap[data.id].signal(data.signal);
         }
       },
-      remotesMap: {} as any,
       onHubMessage(data) {
-        if (
-          data.type === "connect" &&
-          data.id &&
-          data.id !== storage.id &&
-          !state.remotesMap[data.id]
-        ) {
-          const timeout = setTimeout(() => {
-            if (state.remotesMap[data.id]) {
-              state.remotesMap[data.id].destroy();
-              delete state.remotesMap[data.id];
-            }
-          }, CONNECTION_TIMEOUT);
-          const peer = new SimplePeer({
-            initiator: true,
-            trickle: false,
-          });
-          peer.on("error", (err) => {
-            console.error(err);
-            if (state.remotesMap[data.id]) {
-              state.remotesMap[data.id].destroy();
-              delete state.remotesMap[data.id];
-            }
-          });
-          state.remotesMap[data.id] = peer;
-          peer.on("connect", () => {
-            clearTimeout(timeout);
-            state.connect(peer, data.id);
-          });
-          peer.on("close", () => {
-            state.disconnect(peer, data.id);
-            delete state.remotesMap[data.id];
-          });
-          peer.on("signal", (signal) => {
-            storage.hub.broadcast(data.id, {
-              type: "handshake",
-              signal,
-              id: storage.id,
-            });
-          });
+        if (data.type === "connect" && data.id && data.id !== storage.id) {
+          state.createInitiatorPeer(data.id);
         }
+      },
+      createPeer(id: string) {
+        if (storage.peerMap[id]) {
+          return;
+        }
+        const deletePeer = () => {
+          if (storage.peerMap[id]) {
+            delete storage.peerMap[id];
+          }
+        };
+        const destroyPeer = () => {
+          if (storage.peerMap[id]) {
+            storage.peerMap[id].destroy();
+            deletePeer();
+          }
+        };
+        const connectionInitTimeout = setTimeout(() => {
+          destroyPeer();
+        }, CONNECTION_TIMEOUT);
+        const peer = new SimplePeer({
+          initiator: false,
+          trickle: false,
+          stream: state.localStream,
+        });
+        peer.on("error", (err) => {
+          console.error(err);
+          destroyPeer();
+        });
+        peer.on("connect", () => {
+          clearTimeout(connectionInitTimeout);
+          state.connect(peer, id);
+        });
+        peer.on("close", () => {
+          state.disconnect(peer, id);
+          deletePeer();
+        });
+        peer.on("signal", (signal) => {
+          storage.hub.broadcast(id, {
+            type: "handshake-peer",
+            signal,
+            id: storage.id,
+          });
+        });
+        storage.peerMap[id] = peer;
+      },
+      createInitiatorPeer(id: string) {
+        if (storage.initialPeerMap[id]) {
+          return;
+        }
+        const deletePeer = () => {
+          if (storage.initialPeerMap[id]) {
+            delete storage.initialPeerMap[id];
+          }
+        };
+        const destroyPeer = () => {
+          if (storage.initialPeerMap[id]) {
+            storage.initialPeerMap[id].destroy();
+            deletePeer();
+          }
+        };
+        const connectionInitTimeout = setTimeout(() => {
+          destroyPeer();
+        }, CONNECTION_TIMEOUT);
+        const peer = new SimplePeer({
+          initiator: true,
+          trickle: false,
+          stream: state.localStream,
+        });
+        peer.on("error", (err) => {
+          console.error(err);
+          destroyPeer();
+        });
+        storage.initialPeerMap[id] = peer;
+        peer.on("connect", () => {
+          clearTimeout(connectionInitTimeout);
+          state.connect(peer, id);
+        });
+        peer.on("close", () => {
+          state.disconnect(peer, id);
+          deletePeer();
+        });
+        peer.on("signal", (signal) => {
+          storage.hub.broadcast(id, {
+            type: "handshake",
+            signal,
+            id: storage.id,
+          });
+        });
       },
       onMessage(connection: IConnection, data) {
         if (data.type === "username") {
@@ -251,6 +268,7 @@ export const RoomService = createService(
           speaking: false,
           send: (data) => outgoing.write(data),
         });
+
         const connection = state.connections.find((c) => c.id === id);
 
         incoming.on("data", (data) => {
@@ -259,19 +277,32 @@ export const RoomService = createService(
 
         peer.on("stream", (stream) => {
           connection.stream = stream;
+          state.trackSpeech(id, stream);
+        });
 
-          const speech = hark(stream);
-          speech.on("speaking", () => {
+        connection.send({
+          type: "username",
+          value: state.username,
+        });
+      },
+      trackSpeech(id: string, stream: MediaStream) {
+        const speech = hark(stream);
+        speech.on("speaking", () => {
+          const currentConnection = state.connections.find((c) => c.id === id);
+          if (currentConnection) {
             const speaker = state.connections.find(
               (connection) => connection.id === state.speakingConnectionId
             );
             if (!speaker || !speaker.speaking) {
               state.speakingConnectionId = id;
             }
-            connection.speaking = true;
-          });
-          speech.on("stopped_speaking", function() {
-            connection.speaking = false;
+            currentConnection.speaking = true;
+          }
+        });
+        speech.on("stopped_speaking", () => {
+          const currentConnection = state.connections.find((c) => c.id === id);
+          if (currentConnection) {
+            currentConnection.speaking = false;
             const speaker = state.connections.find(
               (connection) => connection.id === state.speakingConnectionId
             );
@@ -283,15 +314,8 @@ export const RoomService = createService(
                 state.speakingConnectionId = newSpeaker.id;
               }
             }
-          });
+          }
         });
-
-        connection.send({
-          type: "username",
-          value: state.username,
-        });
-
-        peer.addStream(state.localStream);
       },
       disconnect(peer, id) {
         const index = state.connections.findIndex(
