@@ -1,7 +1,8 @@
 import React from "react";
 import hark from "hark";
 import ndjson from "ndjson";
-import hyperswarm from "@geut/discovery-swarm-webrtc";
+import signalhub from "signalhub";
+import SimplePeer from "simple-peer";
 import crypto from "crypto";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
@@ -9,6 +10,7 @@ import { useOnChange, useSimpleSyncLocalStorage } from "~/hooks";
 import { LoadingService } from "~/components/Loading/LoadingService";
 
 const LOAD_DEVICES_DELAY = 100;
+const CONNECTION_TIMEOUT = 5000;
 
 class HotPromise<T = void> extends Promise<T> {
   resolve: () => void;
@@ -26,7 +28,7 @@ const createHotPromise = () => {
 export interface IConnection {
   id: string;
   speaking: boolean;
-  socket;
+  peer;
   send: (data) => void;
   username?: string;
   stream?: MediaStream;
@@ -35,7 +37,10 @@ export interface IConnection {
 export const RoomService = createService(
   () => {
     const [storage] = React.useState(() => ({
-      swarm: null as any,
+      // swarm: null as any,
+      id: null,
+      hub: null as any,
+      broadcast: null as (data) => void,
       loadDevicesPromise: createHotPromise(),
     }));
 
@@ -70,12 +75,12 @@ export const RoomService = createService(
       updateLocalStream() {
         if (state.prevLocalStream) {
           state.connections.forEach((connection) => {
-            connection.socket.removeStream(state.prevLocalStream);
+            connection.peer.removeStream(state.prevLocalStream);
           });
         }
         if (state.localStream) {
           state.connections.forEach((connection) => {
-            connection.socket.addStream(state.localStream);
+            connection.peer.addStream(state.localStream);
           });
         }
         state.prevLocalStream = state.localStream;
@@ -139,22 +144,110 @@ export const RoomService = createService(
           return v.toString(16);
         });
       },
+      peersMap: {} as any,
+      onHubPrivateMessage(data) {
+        if (data.type === "handshake" && data.id) {
+          if (!state.peersMap[data.id]) {
+            const timeout = setTimeout(() => {
+              if (state.peersMap[data.id]) {
+                state.peersMap[data.id].destroy();
+                delete state.peersMap[data.id];
+              }
+            }, CONNECTION_TIMEOUT);
+            const peer = new SimplePeer({
+              initiator: false,
+              trickle: false,
+            });
+            peer.on("error", (err) => {
+              console.error(err);
+              if (state.remotesMap[data.id]) {
+                state.remotesMap[data.id].destroy();
+                delete state.remotesMap[data.id];
+              }
+            });
+            peer.on("connect", () => {
+              clearTimeout(timeout);
+              state.connect(peer, data.id);
+            });
+            peer.on("close", () => {
+              state.disconnect(peer, data.id);
+              delete state.peersMap[data.id];
+            });
+            peer.on("signal", (signal) => {
+              storage.hub.broadcast(data.id, {
+                type: "handshake-peer",
+                signal,
+                id: storage.id,
+              });
+            });
+            state.peersMap[data.id] = peer;
+          }
+          state.peersMap[data.id].signal(data.signal);
+        } else if (
+          data.type === "handshake-peer" &&
+          data.id &&
+          state.remotesMap[data.id]
+        ) {
+          state.remotesMap[data.id].signal(data.signal);
+        }
+      },
+      remotesMap: {} as any,
+      onHubMessage(data) {
+        if (
+          data.type === "connect" &&
+          data.id &&
+          data.id !== storage.id &&
+          !state.remotesMap[data.id]
+        ) {
+          const timeout = setTimeout(() => {
+            if (state.remotesMap[data.id]) {
+              state.remotesMap[data.id].destroy();
+              delete state.remotesMap[data.id];
+            }
+          }, CONNECTION_TIMEOUT);
+          const peer = new SimplePeer({
+            initiator: true,
+            trickle: false,
+          });
+          peer.on("error", (err) => {
+            console.error(err);
+            if (state.remotesMap[data.id]) {
+              state.remotesMap[data.id].destroy();
+              delete state.remotesMap[data.id];
+            }
+          });
+          state.remotesMap[data.id] = peer;
+          peer.on("connect", () => {
+            clearTimeout(timeout);
+            state.connect(peer, data.id);
+          });
+          peer.on("close", () => {
+            state.disconnect(peer, data.id);
+            delete state.remotesMap[data.id];
+          });
+          peer.on("signal", (signal) => {
+            storage.hub.broadcast(data.id, {
+              type: "handshake",
+              signal,
+              id: storage.id,
+            });
+          });
+        }
+      },
       onMessage(connection: IConnection, data) {
-        console.log("message", data);
         if (data.type === "username") {
           connection.username = data.value;
         }
       },
-      connect(socket, details) {
-        const id = state.uuid();
+      connect(peer, id) {
         const incoming = ndjson.parse();
         const outgoing = ndjson.stringify();
-        socket.pipe(incoming);
-        outgoing.pipe(socket);
+        peer.pipe(incoming);
+        outgoing.pipe(peer);
 
         state.connections.push({
           id,
-          socket,
+          peer,
           speaking: false,
           send: (data) => outgoing.write(data),
         });
@@ -164,7 +257,7 @@ export const RoomService = createService(
           state.onMessage(connection, data);
         });
 
-        socket.on("stream", (stream) => {
+        peer.on("stream", (stream) => {
           connection.stream = stream;
 
           const speech = hark(stream);
@@ -172,7 +265,7 @@ export const RoomService = createService(
             const speaker = state.connections.find(
               (connection) => connection.id === state.speakingConnectionId
             );
-            if (!speaker) {
+            if (!speaker || !speaker.speaking) {
               state.speakingConnectionId = id;
             }
             connection.speaking = true;
@@ -187,14 +280,14 @@ export const RoomService = createService(
           value: state.username,
         });
 
-        socket.addStream(state.localStream);
+        peer.addStream(state.localStream);
       },
-      disconnect(socket, details) {
+      disconnect(peer, id) {
         const index = state.connections.findIndex(
-          (connection) => connection.socket === socket
+          (connection) => connection.peer === peer
         );
         if (index >= 0) {
-          state.connections.splice(state.connections.indexOf(socket), 1);
+          state.connections.splice(state.connections.indexOf(peer), 1);
         }
       },
       async getCamStream() {
@@ -210,14 +303,6 @@ export const RoomService = createService(
       },
       async run() {
         state.isLoading = true;
-        storage.swarm = hyperswarm({
-          bootstrap: [
-            "https://geut-webrtc-signal.herokuapp.com",
-            "http://localhost:4000",
-          ],
-          maxPeers: 24,
-        });
-        storage.swarm.join(Buffer.from(state.topic));
         await storage.loadDevicesPromise;
         try {
           state.localStream = await state.getStream();
@@ -227,12 +312,28 @@ export const RoomService = createService(
         }
         state.updateCamState();
         state.updateMicState();
-        storage.swarm.on("connection", (socket, details) => {
-          state.connect(socket, details);
+
+        storage.id = state.uuid();
+        storage.hub = signalhub(state.topic.toString("hex"), [
+          "https://signalhub-hzbibrznqa.now.sh",
+          // "https://signalhub-jccqtwhdwc.now.sh",
+        ]);
+        storage.hub
+          .subscribe(state.topic.toString("hex"))
+          .on("data", (message) => {
+            state.onHubMessage(message);
+          });
+        storage.hub.subscribe(storage.id).on("data", (message) => {
+          state.onHubPrivateMessage(message);
         });
-        storage.swarm.on("connection-closed", (socket, details) => {
-          state.disconnect(socket, details);
+        storage.broadcast = (message) => {
+          storage.hub.broadcast(state.topic.toString("hex"), message);
+        };
+        storage.broadcast({
+          type: "connect",
+          id: storage.id,
         });
+
         state.isLoading = false;
       },
       get topic() {
@@ -253,9 +354,10 @@ export const RoomService = createService(
             }
           });
           state.localStream = null;
-          state.connections.splice(0, state.connections.length);
         }
-        storage.swarm.destroy();
+        state.connections.forEach((connection) => connection.peer.destroy());
+        state.connections.splice(0, state.connections.length);
+        storage.hub.stop();
       },
       onRoomChange(room: number) {
         if (room) {
