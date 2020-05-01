@@ -272,6 +272,17 @@ export const RoomService = createService(
           });
           speech.on("stopped_speaking", function() {
             connection.speaking = false;
+            const speaker = state.connections.find(
+              (connection) => connection.id === state.speakingConnectionId
+            );
+            if (!speaker || !speaker.speaking) {
+              const newSpeaker = state.connections.find(
+                (connection) => connection.speaking
+              );
+              if (newSpeaker) {
+                state.speakingConnectionId = newSpeaker.id;
+              }
+            }
           });
         });
 
