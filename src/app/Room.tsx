@@ -112,7 +112,7 @@ export const Room: React.FC = observer(() => {
                 />
               </div>
             )}
-            <div className="pt-2 pb-2 pr-2 pl-2 no-mobile">
+            <div className="pt-2 pb-2 pr-2 pl-2">
               <SettingButton
                 onClick={() => {
                   state.settings = true;
