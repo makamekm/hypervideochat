@@ -384,8 +384,8 @@ export const RoomService = createService(
 
         storage.id = state.uuid();
         storage.hub = signalhub(state.topic.toString("hex"), [
-          // "https://signalhub-hzbibrznqa.now.sh",
-          "https://signalhub-jccqtwhdwc.now.sh",
+          "https://signalhub-hzbibrznqa.now.sh",
+          // "https://signalhub-jccqtwhdwc.now.sh",
         ]);
         storage.hub
           .subscribe(state.topic.toString("hex"))
