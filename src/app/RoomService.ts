@@ -292,8 +292,6 @@ export const RoomService = createService(
           type: "username",
           value: state.username,
         });
-
-        console.log(peer);
       },
       connectStream(peer, id, stream) {
         const connection = state.connections.find((c) => c.id === id);
@@ -428,23 +426,25 @@ export const RoomService = createService(
     }));
 
     React.useEffect(() => {
-      setTimeout(
-        () =>
-          navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
-            for (let deviceInfo of deviceInfos) {
-              if (deviceInfo.kind === "audioinput") {
-                state.mics.push(deviceInfo);
-              } else if (deviceInfo.kind === "audiooutput") {
-                state.speakers.push(deviceInfo);
-              } else if (deviceInfo.kind === "videoinput") {
-                state.cameras.push(deviceInfo);
-              }
+      setTimeout(async () => {
+        await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: true,
+        });
+        navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
+          for (let deviceInfo of deviceInfos) {
+            if (deviceInfo.kind === "audioinput") {
+              state.mics.push(deviceInfo);
+            } else if (deviceInfo.kind === "audiooutput") {
+              state.speakers.push(deviceInfo);
+            } else if (deviceInfo.kind === "videoinput") {
+              state.cameras.push(deviceInfo);
             }
-            state.loadingDevices = false;
-            storage.loadDevicesPromise.resolve();
-          }),
-        LOAD_DEVICES_DELAY
-      );
+          }
+          state.loadingDevices = false;
+          storage.loadDevicesPromise.resolve();
+        });
+      }, LOAD_DEVICES_DELAY);
     }, [storage, state]);
 
     return state;

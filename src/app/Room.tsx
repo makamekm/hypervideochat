@@ -168,7 +168,7 @@ export const Room: React.FC = observer(() => {
             <input
               type="text"
               className="input"
-              value={service.username}
+              value={service.username || ""}
               onChange={(e) => {
                 service.username = e.currentTarget.value;
               }}

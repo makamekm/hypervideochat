@@ -13,6 +13,7 @@ export const VideoStream: React.FC<{
   React.useEffect(() => {
     if (element.current && element.current.srcObject !== stream) {
       element.current.srcObject = stream;
+      element.current.play();
     }
   });
   return (
