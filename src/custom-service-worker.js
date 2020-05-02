@@ -1,58 +1,82 @@
 /* eslint-disable no-restricted-globals */
+import signalhub from "signalhub";
+import crypto from "crypto";
 
-console.log("hello from sw.js", self);
+console.log("hello from sw.js", self, Notification.permission);
 
-// function displayNotification() {
-//   if (Notification.permission === "granted") {
-//     // navigator.serviceWorker.getRegistration().then((reg) => {
-//     //   const options = {
-//     //     body: "Here is a notification body!",
-//     //     // icon: 'images/example.png',
-//     //     vibrate: [100, 50, 100],
-//     //     data: {
-//     //       dateOfArrival: Date.now(),
-//     //       primaryKey: 1,
-//     //     },
-//     //     actions: [
-//     //       {
-//     //         action: "explore",
-//     //         title: "Explore this new world",
-//     //         icon: "images/checkmark.png",
-//     //       },
-//     //       {
-//     //         action: "close",
-//     //         title: "Close notification",
-//     //         icon: "images/xmark.png",
-//     //       },
-//     //     ],
-//     //   };
-//     //   reg.showNotification("Hello world!", options);
-//     // });
+const channels = ["test"];
+const hubs = channels.map((name) => {
+  const hub = signalhub(getTopic(name), [
+    "https://signalhub-hzbibrznqa.now.sh",
+    // "https://signalhub-jccqtwhdwc.now.sh",
+  ]);
 
-//     // const img = "/images/jason-leung-HM6TMmevbZQ-unsplash.jpg";
-//     const text = "Take a look at this brand new t-shirt!";
-//     const title = "New Product Available";
-//     const options = {
-//       body: text,
-//       // icon: "/images/jason-leung-HM6TMmevbZQ-unsplash.jpg",
-//       vibrate: [200, 100, 200],
-//       tag: "new-product",
-//       // image: img,
-//       // badge: "https://spyna.it/icons/android-icon-192x192.png",
-//       actions: [
-//         {
-//           action: "Detail",
-//           title: "View",
-//           // icon: "https://via.placeholder.com/128/ff0000",
-//         },
-//       ],
-//     };
-//     navigator.serviceWorker.ready.then((serviceWorker) => {
-//       console.log(serviceWorker);
+  hub.subscribe(getTopic(name)).on("data", (message) => {
+    onHubMessage(name, message);
+  });
 
-//       serviceWorker.showNotification(title, options);
-//     });
-//   }
-// }
+  return hub;
+});
 
-// setInterval(() => displayNotification(), 5000);
+function getTopic(name) {
+  return crypto
+    .createHash("sha256")
+    .update("HYPERCHAT_" + name)
+    .digest()
+    .toString("hex");
+}
+
+async function onHubMessage(name, data) {
+  if (Notification.permission && data.type === "connect" && data.id) {
+    await self.registration.showNotification(
+      `[${data.username || "unknown"}] has joined "${name}" room`,
+      {
+        actions: [{ action: "open_url", title: "Open Now" }],
+        data: { url: "/room/" + name },
+        vibrate: [200, 100, 200, 100, 200, 100, 200],
+        // requireInteraction: true,
+        body: `"${name}" has got a new connection with a username: ${data.username ||
+          "unknown"}`,
+      }
+    );
+  }
+}
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close(); // Android needs explicit close.
+  if (event.action === "open_url") {
+    event.waitUntil(
+      self.clients.matchAll({ type: "window" }).then((windowClients) => {
+        for (let i = 0; i < windowClients.length; i++) {
+          const client = windowClients[i];
+          // If so, just focus it.
+          const url =
+            /(^\w+:\/\/[\w:]+)/gi.exec(client.url)[1] +
+            event.notification.data.url;
+          if (client.url === url && "focus" in client) {
+            return client.focus();
+          }
+        }
+        // If not, then open the target URL in a new window/tab.
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(
+            "https://hypervideochat.now.sh" + event.notification.data.url
+          );
+        }
+      })
+    );
+  }
+});
+
+self.addEventListener("push", function(event) {
+  if (event.data) {
+    console.log("Push event!! ", event.data.text());
+  } else {
+    console.log("Push event but no data");
+  }
+});
+
+self.addEventListener("activate", async () => {
+  // This will be called only once when the service worker is activated.
+  console.log("service worker activate");
+});

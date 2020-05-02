@@ -401,6 +401,7 @@ export const RoomService = createService(
         storage.broadcast({
           type: "connect",
           id: storage.id,
+          username: state.username,
         });
 
         state.isLoading = false;
