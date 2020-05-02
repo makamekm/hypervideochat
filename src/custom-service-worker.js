@@ -3,6 +3,10 @@ import signalhub from "signalhub";
 import crypto from "crypto";
 import localforage from "localforage";
 
+localforage.config({
+  driver: localforage.INDEXEDDB,
+});
+
 let channels = [];
 let hubs = [];
 
@@ -107,9 +111,10 @@ async function onHubMessage(name, data) {
         actions: [{ action: "open_url", title: "Open Now" }],
         data: { name },
         vibrate: [200, 100, 200, 100, 200, 100, 200],
-        // requireInteraction: true,
+        requireInteraction: true,
         body: `"${name}" has got a new connection with a username: ${data.username ||
           "unknown"}`,
+        icon: "./logo192.png",
       }
     );
   }

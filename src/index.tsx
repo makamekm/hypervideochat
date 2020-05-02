@@ -17,14 +17,37 @@ serviceWorker.register();
 
 requestNotificationPermission();
 
+function checkNotificationPromise() {
+  try {
+    Notification.requestPermission().then();
+  } catch (e) {
+    return false;
+  }
+
+  return true;
+}
+
 async function requestNotificationPermission() {
-  const permission = await window.Notification.requestPermission();
-  // value of permission can be 'granted', 'default', 'denied'
-  // granted: user has accepted the request
-  // default: user has dismissed the notification permission popup by clicking on x
-  // denied: user has denied the request.
-  if (permission !== "granted") {
-    // throw new Error("Permission not granted for Notification");
-    console.error("No Notification Permisstion!");
+  if (checkNotificationPromise()) {
+    Notification.requestPermission().then((permission) => {
+      handlePermission(permission);
+    });
+  } else {
+    Notification.requestPermission((permission) => {
+      handlePermission(permission);
+    });
+  }
+}
+
+function handlePermission(permission) {
+  if (!("permission" in Notification)) {
+    (Notification as any).permission = permission;
+  }
+
+  if (
+    Notification.permission === "denied" ||
+    Notification.permission === "default"
+  ) {
+    console.error("No Notification Permission!", permission);
   }
 }

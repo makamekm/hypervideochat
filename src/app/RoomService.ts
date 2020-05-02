@@ -8,7 +8,8 @@ import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
 import { useOnChange, useSimpleSyncLocalStorage, useOnLoad } from "~/hooks";
 import { LoadingService } from "~/components/Loading/LoadingService";
-import { createHotPromise, sendWorkerMessage } from "~/utils";
+import { createHotPromise } from "~/utils";
+import { sendWorkerMessage } from "~/serviceWorker";
 
 const LOAD_DEVICES_DELAY = 100;
 const CONNECTION_TIMEOUT = 5000;

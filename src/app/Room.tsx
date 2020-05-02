@@ -365,10 +365,14 @@ export const Room: React.FC = observer(() => {
           text-overflow: ellipsis;
           max-width: 300px;
           white-space: nowrap;
+          line-height: 1;
+        }
+        .star-container {
+          --star-size: 1.5rem;
         }
         .star {
           display: inline-block;
-          min-height: 18px;
+          min-height: var(--star-size);
           min-width: 0px;
           margin-right: 0;
           overflow: hidden;
@@ -382,12 +386,14 @@ export const Room: React.FC = observer(() => {
         }
         .star-container:hover .star,
         .star-container.active .star {
-          min-width: 18px;
-          margin-right: 1rem;
+          min-width: var(--star-size);
+          margin-right: 0.6rem;
           opacity: 1;
-          max-width: 18px;
+          max-width: var(--star-size);
         }
-        .star :global(*) {
+        .star > :global(*),
+        .star > :global(* > *),
+        .star > :global(* > * > *) {
           min-height: inherit;
           min-width: inherit;
         }

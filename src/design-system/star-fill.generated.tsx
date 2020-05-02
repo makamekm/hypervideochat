@@ -67,21 +67,21 @@ export const StarFillGenerated: React.FC<{}> = observer(props => {
           position: relative;
           box-sizing: border-box;
           pointer-events: auto;
-          debug-h: SCALE;
-          width: 83.33333520328297%;
-          margin-left: 8.333363252527574%;
-          margin-right: 8.333301544189453%;
-          debug-v: SCALE;
-          height: 79.24999910242417%;
-          top: 8.333363252527574%;
-          bottom: 12.416637645048255%;
+          debug-h: LEFT_RIGHT;
+          width: 28.33333396911621px;
+          margin-left: 2.833343505859375px;
+          margin-right: 2.833322525024414px;
+          flex-grow: 1;
+          debug-v: TOP_BOTTOM;
+          margin-top: 2.833343505859375px;
+          margin-bottom: 4.221656799316406px;
         }
         .figma-5 {
           position: absolute;
           display: flex;
-          width: 100%;
           pointer-events: none;
-          justify-content: center;
+          justify-content: stretch;
+          width: 100%;
           height: 100%;
           top: 0px;
           left: 0px;
