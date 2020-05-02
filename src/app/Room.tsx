@@ -1,7 +1,7 @@
 import React from "react";
 import classNames from "classnames";
 import { observer, useLocalStore } from "mobx-react";
-import { useParams } from "react-router";
+import { useParams, useHistory } from "react-router";
 import { RoomService } from "./RoomService";
 import { VideoStream } from "./Video";
 import { useLayoutConfig } from "./LayoutService";
@@ -11,6 +11,9 @@ import { CamOffButton } from "~/design-system/cam-off-button";
 import { MicOffButton } from "~/design-system/mic-off-button";
 import { ScreenButton } from "~/design-system/screen-button";
 import { SettingButton } from "~/design-system/setting-button";
+import { Star } from "~/design-system/star";
+import { StarFill } from "~/design-system/star-fill";
+import { CallOffButton } from "~/design-system/call-off-button";
 
 export const Room: React.FC = observer(() => {
   const service = React.useContext(RoomService);
@@ -18,6 +21,7 @@ export const Room: React.FC = observer(() => {
     settings: false,
   }));
   const { room } = useParams();
+  const history = useHistory();
   useLayoutConfig({
     footer: false,
     scrollable: false,
@@ -39,7 +43,27 @@ export const Room: React.FC = observer(() => {
         <div className="column split-layout">
           <div className="row started split-panels">
             <div className="column started pt-2 pb-2 pr-3 pl-3">
-              <div className="header size-small title mb-2">{service.room}</div>
+              <div
+                className={classNames("row star-container mb-2", {
+                  active: service.favouriteChannels.includes(service.room),
+                })}
+                onClick={() => {
+                  if (service.favouriteChannels.includes(service.room)) {
+                    service.removeFavouriteChannel(service.room);
+                  } else {
+                    service.addFavouriteChannel(service.room);
+                  }
+                }}
+              >
+                <span className="star mr-2">
+                  {service.favouriteChannels.includes(service.room) ? (
+                    <StarFill />
+                  ) : (
+                    <Star />
+                  )}
+                </span>
+                <span className="header size-small title">{service.room}</span>
+              </div>
               <div className="sub-video my-video mb-2 no-mobile">
                 <VideoStream stream={service.localStream} muted />
               </div>
@@ -116,6 +140,13 @@ export const Room: React.FC = observer(() => {
               <SettingButton
                 onClick={() => {
                   state.settings = true;
+                }}
+              />
+            </div>
+            <div className="pt-2 pb-2 pr-2 pl-2">
+              <CallOffButton
+                onClick={() => {
+                  history.push("/");
                 }}
               />
             </div>
@@ -334,6 +365,31 @@ export const Room: React.FC = observer(() => {
           text-overflow: ellipsis;
           max-width: 300px;
           white-space: nowrap;
+        }
+        .star {
+          display: inline-block;
+          min-height: 18px;
+          min-width: 0px;
+          margin-right: 0;
+          overflow: hidden;
+          opacity: 0;
+          max-width: 0;
+          transition: opacity 0.3s, max-width 0.3s, min-width 0.3s, width 0.3s,
+            margin-right 0.3s;
+        }
+        .star-container {
+          cursor: pointer;
+        }
+        .star-container:hover .star,
+        .star-container.active .star {
+          min-width: 18px;
+          margin-right: 1rem;
+          opacity: 1;
+          max-width: 18px;
+        }
+        .star :global(*) {
+          min-height: inherit;
+          min-width: inherit;
         }
         @media screen and (max-width: 600px) {
           .no-mobile {

@@ -68,7 +68,7 @@ async function removeChannel(name) {
   const index = channels.indexOf(name);
   if (index >= 0) {
     channels.splice(index, 1);
-    hubs[index].destroy();
+    hubs[index].close();
     channels.splice(index, 1);
     await localforage.setItem("channels", JSON.stringify(channels));
   }

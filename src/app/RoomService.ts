@@ -53,14 +53,14 @@ export const RoomService = createService(
       camState: true,
       username: "",
       favouriteChannels: [] as string[],
-      addFavouriteChannel(name) {
-        navigator.serviceWorker.controller.postMessage({
+      async addFavouriteChannel(name) {
+        await sendWorkerMessage({
           type: "addChannel",
           name,
         });
       },
-      removeFavouriteChannel(name) {
-        navigator.serviceWorker.controller.postMessage({
+      async removeFavouriteChannel(name) {
+        await sendWorkerMessage({
           type: "removeChannel",
           name,
         });
@@ -443,7 +443,7 @@ export const RoomService = createService(
         }
         state.connections.forEach((connection) => connection.peer.destroy());
         state.connections.splice(0, state.connections.length);
-        storage.hub.stop();
+        storage.hub.close();
       },
       onRoomChange(room: number) {
         if (room) {
