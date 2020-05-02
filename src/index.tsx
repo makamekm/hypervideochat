@@ -22,7 +22,7 @@ const requestNotificationPermission = async () => {
   // default: user has dismissed the notification permission popup by clicking on x
   // denied: user has denied the request.
   if (permission !== "granted") {
-    throw new Error("Permission not granted for Notification");
+    // throw new Error("Permission not granted for Notification");
   }
 };
 

@@ -2,8 +2,6 @@
 import signalhub from "signalhub";
 import crypto from "crypto";
 
-console.log("hello from sw.js", self, Notification.permission);
-
 const channels = ["test"];
 const hubs = channels.map((name) => {
   const hub = signalhub(getTopic(name), [
@@ -66,17 +64,4 @@ self.addEventListener("notificationclick", (event) => {
       })
     );
   }
-});
-
-self.addEventListener("push", function(event) {
-  if (event.data) {
-    console.log("Push event!! ", event.data.text());
-  } else {
-    console.log("Push event but no data");
-  }
-});
-
-self.addEventListener("activate", async () => {
-  // This will be called only once when the service worker is activated.
-  console.log("service worker activate");
 });
