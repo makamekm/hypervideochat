@@ -91,13 +91,16 @@ function getTopic(name) {
 }
 
 function getRoomNameFromUrl(url) {
-  return /^\w+:\/\/[\w.:]+\/room\/(.+)$/gi.exec(url)[1];
+  const arr = /(^\w+:\/\/[\w.:]+\/)?room\/(.+)$/gi.exec(url);
+  return arr && arr[2];
 }
 
 async function onHubMessage(name, data) {
   if (Notification.permission && data.type === "connect" && data.id) {
     const clients = await self.clients.matchAll({ type: "window" });
     const existedRoom = clients.find((client) => {
+      console.log(client.url, name, getRoomNameFromUrl(client.url) === name);
+
       return getRoomNameFromUrl(client.url) === name;
     });
 
