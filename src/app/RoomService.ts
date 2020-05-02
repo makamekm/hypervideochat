@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import hark from "hark";
 import ndjson from "ndjson";
 import signalhub from "signalhub";
@@ -6,24 +6,12 @@ import SimplePeer from "simple-peer";
 import crypto from "crypto";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
-import { useOnChange, useSimpleSyncLocalStorage } from "~/hooks";
+import { useOnChange, useSimpleSyncLocalStorage, useOnLoad } from "~/hooks";
 import { LoadingService } from "~/components/Loading/LoadingService";
+import { createHotPromise, sendWorkerMessage } from "~/utils";
 
 const LOAD_DEVICES_DELAY = 100;
 const CONNECTION_TIMEOUT = 5000;
-
-class HotPromise<T = void> extends Promise<T> {
-  resolve: () => void;
-}
-
-const createHotPromise = () => {
-  let resolve;
-  const promise = new HotPromise((r) => {
-    resolve = r;
-  });
-  promise.resolve = resolve;
-  return promise;
-};
 
 export interface IConnection {
   id: string;
@@ -64,6 +52,34 @@ export const RoomService = createService(
       screenState: false,
       camState: true,
       username: "",
+      favouriteChannels: [] as string[],
+      addFavouriteChannel(name) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "addChannel",
+          name,
+        });
+      },
+      removeFavouriteChannel(name) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "removeChannel",
+          name,
+        });
+      },
+      async updateFavouriteChannels() {
+        (state.favouriteChannels as any).replace(
+          await sendWorkerMessage({
+            type: "getChannels",
+          })
+        );
+      },
+      onServiveWorkerMessage: (
+        worker: ServiceWorkerContainer,
+        event: MessageEvent
+      ) => {
+        if (event.data.type === "channels") {
+          (state.favouriteChannels as any).replace(event.data.channels);
+        }
+      },
       get mainStream() {
         const speaker = state.connections.find(
           (connection) => connection.id === state.speakingConnectionId
@@ -475,5 +491,15 @@ export const RoomService = createService(
     useOnChange(state, "selectedMic", state.updateScreenState);
     useOnChange(state, "username", state.updateUsername);
     useSimpleSyncLocalStorage(state, "username");
+    useEffect(() => {
+      const fn = (ev: MessageEvent) => {
+        state.onServiveWorkerMessage(navigator.serviceWorker, ev);
+      };
+      navigator.serviceWorker.addEventListener("message", fn);
+      return () => {
+        navigator.serviceWorker.removeEventListener("message", fn);
+      };
+    }, [state]);
+    useOnLoad(state.updateFavouriteChannels);
   }
 );

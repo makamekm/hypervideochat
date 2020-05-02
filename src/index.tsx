@@ -15,7 +15,9 @@ ReactDOM.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register();
 
-const requestNotificationPermission = async () => {
+requestNotificationPermission();
+
+async function requestNotificationPermission() {
   const permission = await window.Notification.requestPermission();
   // value of permission can be 'granted', 'default', 'denied'
   // granted: user has accepted the request
@@ -23,21 +25,6 @@ const requestNotificationPermission = async () => {
   // denied: user has denied the request.
   if (permission !== "granted") {
     // throw new Error("Permission not granted for Notification");
+    console.error("No Notification Permisstion!");
   }
-};
-
-requestNotificationPermission();
-
-// function initializeUI() {
-//   // Set the initial subscription value
-//   registration.getSubscription()
-//   .then(function(subscription) {
-//     const isSubscribed = !(subscription === null);
-
-//     if (isSubscribed) {
-//       console.log('User IS subscribed.');
-//     } else {
-//       console.log('User is NOT subscribed.');
-//     }
-//   });
-// }
+}

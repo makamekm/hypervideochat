@@ -13,16 +13,33 @@ async function init() {
   hubs = channels.map(connectHub);
 }
 
-self.addEventListener("message", (evt) => {
-  console.log("postMessage received", evt.data);
-  if (evt.data.type === "addChannel") {
-    addChannel(evt.data.name);
+addEventListener("message", async (event) => {
+  if (event.data && event.data.type === "addChannel") {
+    addChannel(event.data.name);
+    event.ports[0].postMessage(true);
+    self.clients.matchAll().then((clients) => {
+      clients.forEach((client) =>
+        client.postMessage({
+          type: "channels",
+          channels: getChannels(),
+        })
+      );
+    });
   }
-  if (evt.data.type === "removeChannel") {
-    removeChannel(evt.data.name);
+  if (event.data && event.data.type === "removeChannel") {
+    removeChannel(event.data.name);
+    event.ports[0].postMessage(true);
+    self.clients.matchAll().then((clients) => {
+      clients.forEach((client) =>
+        client.postMessage({
+          type: "channels",
+          channels: getChannels(),
+        })
+      );
+    });
   }
-  if (evt.data.type === "getChannels") {
-    getChannels();
+  if (event.data && event.data.type === "getChannels") {
+    event.ports[0].postMessage(getChannels());
   }
 });
 
@@ -57,7 +74,7 @@ async function removeChannel(name) {
   }
 }
 
-async function getChannels() {
+function getChannels() {
   return channels;
 }
 
