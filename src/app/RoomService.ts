@@ -389,7 +389,7 @@ export const RoomService = createService(
       },
       async run() {
         state.isLoading = true;
-        await storage.loadDevicesPromise;
+        await state.init();
         try {
           state.localStream = await state.getStream();
         } catch (e) {
@@ -453,30 +453,30 @@ export const RoomService = createService(
           state.stop();
         }
       },
-    }));
-
-    React.useEffect(() => {
-      setTimeout(async () => {
-        await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: true,
-        });
-        navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
-          for (let deviceInfo of deviceInfos) {
-            if (deviceInfo.kind === "audioinput") {
-              state.mics.push(deviceInfo);
-            } else if (deviceInfo.kind === "audiooutput") {
-              state.speakers.push(deviceInfo);
-            } else if (deviceInfo.kind === "videoinput") {
-              state.cameras.push(deviceInfo);
+      init() {
+        storage.loadDevicesPromise = createHotPromise();
+        setTimeout(async () => {
+          await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: true,
+          });
+          navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
+            for (let deviceInfo of deviceInfos) {
+              if (deviceInfo.kind === "audioinput") {
+                state.mics.push(deviceInfo);
+              } else if (deviceInfo.kind === "audiooutput") {
+                state.speakers.push(deviceInfo);
+              } else if (deviceInfo.kind === "videoinput") {
+                state.cameras.push(deviceInfo);
+              }
             }
-          }
-          state.loadingDevices = false;
-          storage.loadDevicesPromise.resolve();
-        });
-      }, LOAD_DEVICES_DELAY);
-    }, [storage, state]);
-
+            state.loadingDevices = false;
+            storage.loadDevicesPromise.resolve();
+          });
+        }, LOAD_DEVICES_DELAY);
+        return storage.loadDevicesPromise;
+      },
+    }));
     return state;
   },
   (state) => {
