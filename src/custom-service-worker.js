@@ -1,9 +1,32 @@
 /* eslint-disable no-restricted-globals */
 import signalhub from "signalhub";
 import crypto from "crypto";
+import localforage from "localforage";
 
-const channels = ["test"];
-const hubs = channels.map((name) => {
+let channels = [];
+let hubs = [];
+
+init();
+
+async function init() {
+  channels = JSON.parse((await localforage.getItem("channels")) || "[]");
+  hubs = channels.map(connectHub);
+}
+
+self.addEventListener("message", (evt) => {
+  console.log("postMessage received", evt.data);
+  if (evt.data.type === "addChannel") {
+    addChannel(evt.data.name);
+  }
+  if (evt.data.type === "removeChannel") {
+    removeChannel(evt.data.name);
+  }
+  if (evt.data.type === "getChannels") {
+    getChannels();
+  }
+});
+
+function connectHub(name) {
   const hub = signalhub(getTopic(name), [
     "https://signalhub-hzbibrznqa.now.sh",
     // "https://signalhub-jccqtwhdwc.now.sh",
@@ -14,7 +37,29 @@ const hubs = channels.map((name) => {
   });
 
   return hub;
-});
+}
+
+async function addChannel(name) {
+  if (!channels.includes(name)) {
+    channels.push(name);
+    await localforage.setItem("channels", JSON.stringify(channels));
+    hubs.push(connectHub(name));
+  }
+}
+
+async function removeChannel(name) {
+  const index = channels.indexOf(name);
+  if (index >= 0) {
+    channels.splice(index, 1);
+    hubs[index].destroy();
+    channels.splice(index, 1);
+    await localforage.setItem("channels", JSON.stringify(channels));
+  }
+}
+
+async function getChannels() {
+  return channels;
+}
 
 function getTopic(name) {
   return crypto

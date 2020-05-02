@@ -18,6 +18,7 @@
     "@types/workbox-sw": "^4.3.0",
     "classnames": "^2.2.6",
     "hark": "^1.2.3",
+    "localforage": "^1.7.3",
     "mobx": "^5.15.4",
     "mobx-localstorage": "^1.2.0",
     "mobx-react": "^6.2.2",
