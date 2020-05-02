@@ -91,7 +91,7 @@ function getTopic(name) {
 }
 
 function getRoomNameFromUrl(url) {
-  return /^\w+:\/\/[\w:]+\/room\/(.+)$/gi.exec(url)[1];
+  return /^\w+:\/\/[\w.:]+\/room\/(.+)$/gi.exec(url)[1];
 }
 
 async function onHubMessage(name, data) {
