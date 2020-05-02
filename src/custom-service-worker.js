@@ -86,13 +86,26 @@ function getTopic(name) {
     .toString("hex");
 }
 
+function getRoomNameFromUrl(url) {
+  return /^\w+:\/\/[\w:]+\/room\/(.+)$/gi.exec(url)[1];
+}
+
 async function onHubMessage(name, data) {
   if (Notification.permission && data.type === "connect" && data.id) {
+    const clients = await self.clients.matchAll({ type: "window" });
+    const existedRoom = clients.find((client) => {
+      return getRoomNameFromUrl(client.url) === name;
+    });
+
+    if (existedRoom) {
+      return;
+    }
+
     await self.registration.showNotification(
-      `[${data.username || "unknown"}] has joined "${name}" room`,
+      `HVC: [${data.username || "unknown"}] has joined "${name}" room`,
       {
         actions: [{ action: "open_url", title: "Open Now" }],
-        data: { url: "/room/" + name },
+        data: { name },
         vibrate: [200, 100, 200, 100, 200, 100, 200],
         // requireInteraction: true,
         body: `"${name}" has got a new connection with a username: ${data.username ||
@@ -110,17 +123,15 @@ self.addEventListener("notificationclick", (event) => {
         for (let i = 0; i < windowClients.length; i++) {
           const client = windowClients[i];
           // If so, just focus it.
-          const url =
-            /(^\w+:\/\/[\w:]+)/gi.exec(client.url)[1] +
-            event.notification.data.url;
-          if (client.url === url && "focus" in client) {
+          const name = getRoomNameFromUrl(client.url);
+          if (name === event.notification.data.name && "focus" in client) {
             return client.focus();
           }
         }
         // If not, then open the target URL in a new window/tab.
         if (self.clients.openWindow) {
           return self.clients.openWindow(
-            "https://hypervideochat.now.sh" + event.notification.data.url
+            "https://hypervideochat.now.sh/room/" + event.notification.data.name
           );
         }
       })
