@@ -99,8 +99,6 @@ async function onHubMessage(name, data) {
   if (Notification.permission && data.type === "connect" && data.id) {
     const clients = await self.clients.matchAll({ type: "window" });
     const existedRoom = clients.find((client) => {
-      console.log(client.url, name, getRoomNameFromUrl(client.url) === name);
-
       return getRoomNameFromUrl(client.url) === name;
     });
 
