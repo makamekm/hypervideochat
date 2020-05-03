@@ -98,7 +98,7 @@ export const SelectRoomInputGenerated: React.FC<{
           margin-top: 0px;
           margin-bottom: 0px;
           color: rgba(0, 0, 0, 1);
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 400;
           font-family: Roboto;
           text-align: left;
@@ -151,7 +151,7 @@ export const SelectRoomInputGenerated: React.FC<{
         }
 
         .input-wrapper {
-          min-height: 50px;
+          min-height: 60px;
           transition: background 0.2s, box-shadow 0.2s;
           will-change: background, box-shadow;
           background: #dddddd;

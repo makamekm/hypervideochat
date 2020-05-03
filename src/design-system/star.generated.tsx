@@ -68,12 +68,12 @@ export const StarGenerated: React.FC<{}> = observer(props => {
           pointer-events: auto;
           debug-h: LEFT_RIGHT;
           width: 28.33333396911621px;
-          margin-left: 2.833343505859375px;
-          margin-right: 2.833322525024414px;
+          margin-left: 2.833332061767578px;
+          margin-right: 2.833333969116211px;
           flex-grow: 1;
           debug-v: TOP_BOTTOM;
-          margin-top: 2.833343505859375px;
-          margin-bottom: 4.221656799316406px;
+          margin-top: 2.83331298828125px;
+          margin-bottom: 4.221687316894531px;
         }
         .figma-5 {
           position: absolute;
