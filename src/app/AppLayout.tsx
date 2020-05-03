@@ -22,7 +22,6 @@ export const AppLayout: React.FC = observer(({ children }) => {
           overflow-y: ${service.scrollable ? "visible" : "hidden"};
         }
         .column {
-          height: 100vh;
           min-height: 100vh;
         }
         .main {

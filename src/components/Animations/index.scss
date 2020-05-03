@@ -12,24 +12,3 @@
     animation: rotated infinite 20s linear;
   }
 }
-
-.switch-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: stretch;
-  align-items: stretch;
-}
-
-.switch-wrapper > div {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: stretch;
-  align-items: stretch;
-}
-
-.switch-wrapper > div:not(:first-child) {
-  position: absolute;
-}

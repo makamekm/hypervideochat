@@ -33,7 +33,7 @@ export const SelectRoom: React.FC = observer(() => {
     [onOpenRoom]
   );
   return (
-    <div className="container column centered text-center">
+    <div className="container column centered text-center pt-4">
       <div className="logo">
         <Logo />
       </div>
