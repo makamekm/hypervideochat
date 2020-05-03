@@ -70,7 +70,7 @@ export const SelectRoom: React.FC = observer(() => {
       </div>
       <style jsx>{`
         .container {
-          height: 100%;
+          min-height: 100%;
         }
         .logo {
           width: 80px;

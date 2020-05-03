@@ -26,6 +26,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
         }
         .main {
           flex: 1;
+          display: flex;
         }
       `}</style>
     </div>

@@ -6,7 +6,12 @@ import SimplePeer from "simple-peer";
 import crypto from "crypto";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
-import { useOnChange, useSimpleSyncLocalStorage, useOnLoad } from "~/hooks";
+import {
+  useOnChange,
+  useSimpleSyncLocalStorage,
+  useOnLoad,
+  useDelay,
+} from "~/hooks";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { createHotPromise } from "~/utils";
 import { sendWorkerMessage, getWorker } from "~/serviceWorker";
@@ -47,6 +52,7 @@ export const RoomService = createService(
       localStream: null as MediaStream,
       room: null as string,
       isLoading: false,
+      isLoadingDelay: false,
       loadingDevices: true,
       micState: false,
       currentScreenState: false,
@@ -484,9 +490,10 @@ export const RoomService = createService(
   },
   (state) => {
     const loadingService = React.useContext(LoadingService);
-    useOnChange(state, "isLoading", (value) => {
+    useOnChange(state, "isLoadingDelay", (value) => {
       loadingService.setLoading(value);
     });
+    useDelay(state, "isLoading", "isLoadingDelay");
     useOnChange(state, "localStream", state.updateLocalStream);
     useOnChange(state, "screenState", state.updateScreenState);
     useOnChange(state, "micState", state.updateMicState);
