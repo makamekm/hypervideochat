@@ -461,6 +461,9 @@ export const RoomService = createService(
             video: true,
           });
           navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
+            state.mics.splice(0, state.mics.length);
+            state.speakers.splice(0, state.speakers.length);
+            state.cameras.splice(0, state.cameras.length);
             for (let deviceInfo of deviceInfos) {
               if (deviceInfo.kind === "audioinput") {
                 state.mics.push(deviceInfo);
