@@ -104,14 +104,11 @@ function getRoomNameFromUrl(url) {
 
 async function onHubMessage(name, data) {
   if (Notification.permission && data.type === "connect" && data.id) {
-    console.log(name, data);
     await new Promise((r) => setTimeout(r, 1000));
     const clients = await self.clients.matchAll();
     const existedRoom = clients.find((client) => {
-      console.log(client.url, getRoomNameFromUrl(client.url), name);
       return getRoomNameFromUrl(client.url) === name;
     });
-    console.log(existedRoom);
 
     if (existedRoom) {
       return;
