@@ -65,7 +65,8 @@ export async function sendWorkerMessage(message) {
   });
 }
 
-export function register(config?: Config) {
+export async function register(config?: Config) {
+  await forceSWupdate();
   if ("serviceWorker" in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
@@ -96,6 +97,15 @@ export function register(config?: Config) {
         registerValidSW(swUrl, config);
       }
     });
+  }
+}
+
+async function forceSWupdate() {
+  if ("serviceWorker" in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (let registration of registrations) {
+      await registration.update();
+    }
   }
 }
 

@@ -9,7 +9,7 @@ import { useLocalStore } from "mobx-react";
 import { useOnChange, useSimpleSyncLocalStorage, useOnLoad } from "~/hooks";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { createHotPromise } from "~/utils";
-import { sendWorkerMessage } from "~/serviceWorker";
+import { sendWorkerMessage, getWorker } from "~/serviceWorker";
 
 const LOAD_DEVICES_DELAY = 100;
 const CONNECTION_TIMEOUT = 5000;
@@ -496,9 +496,17 @@ export const RoomService = createService(
       const fn = (ev: MessageEvent) => {
         state.onServiveWorkerMessage(navigator.serviceWorker, ev);
       };
-      navigator.serviceWorker.addEventListener("message", fn);
-      return () => {
-        navigator.serviceWorker.removeEventListener("message", fn);
+      setTimeout(async () => {
+        const worker = await getWorker();
+        if (worker) {
+          navigator.serviceWorker.addEventListener("message", fn);
+        }
+      });
+      return async () => {
+        const worker = await getWorker();
+        if (worker) {
+          navigator.serviceWorker.removeEventListener("message", fn);
+        }
       };
     }, [state]);
     useOnLoad(state.updateFavouriteChannels);
