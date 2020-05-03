@@ -10,41 +10,47 @@ localforage.config({
 let channels = [];
 let hubs = [];
 
-init();
+// init();
 
 async function init() {
   channels = JSON.parse((await localforage.getItem("channels")) || "[]");
+  hubs.forEach((hub) => hub.close());
   hubs = channels.map(connectHub);
 }
 
-addEventListener("message", async (event) => {
-  if (event.data && event.data.type === "addChannel") {
-    addChannel(event.data.name);
-    event.ports[0].postMessage(true);
-    self.clients.matchAll().then((clients) => {
-      clients.forEach((client) =>
-        client.postMessage({
-          type: "channels",
-          channels: getChannels(),
-        })
-      );
-    });
-  }
-  if (event.data && event.data.type === "removeChannel") {
-    removeChannel(event.data.name);
-    event.ports[0].postMessage(true);
-    self.clients.matchAll().then((clients) => {
-      clients.forEach((client) =>
-        client.postMessage({
-          type: "channels",
-          channels: getChannels(),
-        })
-      );
-    });
-  }
-  if (event.data && event.data.type === "getChannels") {
-    event.ports[0].postMessage(getChannels());
-  }
+async function updateClientChannels() {
+  const clients = await self.clients.matchAll();
+  clients.forEach((client) =>
+    client.postMessage({
+      type: "channels",
+      channels: getChannels(),
+    })
+  );
+}
+
+addEventListener("message", (event) => {
+  event.waitUntil(
+    new Promise(async (r) => {
+      try {
+        if (event.data && event.data.type === "addChannel") {
+          await addChannel(event.data.name);
+          event.ports[0].postMessage(true);
+          await updateClientChannels();
+        }
+        if (event.data && event.data.type === "removeChannel") {
+          await removeChannel(event.data.name);
+          event.ports[0].postMessage(true);
+          await updateClientChannels();
+        }
+        if (event.data && event.data.type === "getChannels") {
+          event.ports[0].postMessage(getChannels());
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      r();
+    })
+  );
 });
 
 function connectHub(name) {
@@ -148,4 +154,13 @@ self.addEventListener("notificationclick", (event) => {
       })
     );
   }
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    new Promise(async (r) => {
+      await init();
+      r();
+    })
+  );
 });
