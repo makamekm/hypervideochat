@@ -102,7 +102,6 @@ async function onHubMessage(name, data) {
     const existedRoom = clients.find((client) => {
       return getRoomNameFromUrl(client.url) === name;
     });
-    console.log(existedRoom && existedRoom.url);
 
     if (existedRoom) {
       return;
