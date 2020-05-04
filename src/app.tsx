@@ -12,12 +12,18 @@ import { LoadingScreen } from "./components/Loading/LoadingScreen";
 import { LoadingService } from "./components/Loading/LoadingService";
 import { RoomService } from "./app/RoomService";
 import { LayoutService } from "./app/LayoutService";
+import { SwarmService } from "./app/SwarmService";
 
 const basePath = process.env.BASE_PATH || "/";
 
 export const App = () => {
   const [ServiceProvider] = React.useState<React.FC>(() =>
-    ServiceProviderFactory(LoadingService, LayoutService, RoomService)
+    ServiceProviderFactory(
+      LoadingService,
+      LayoutService,
+      RoomService,
+      SwarmService
+    )
   );
 
   return (

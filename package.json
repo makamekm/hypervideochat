@@ -4,10 +4,12 @@
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
+    "@geut/discovery-swarm-webrtc": "^2.2.7",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "@types/jest": "^24.9.1",
+    "@types/ndjson": "^1.5.0",
     "@types/node": "^12.12.37",
     "@types/node-sass": "^4.11.0",
     "@types/react": "^16.9.34",

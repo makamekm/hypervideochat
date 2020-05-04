@@ -10,3 +10,7 @@ export const createHotPromise = () => {
   promise.resolve = resolve;
   return promise;
 };
+
+export const debug = (name: string, value) => {
+  (window as any)[name] = value;
+};
