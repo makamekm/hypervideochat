@@ -1,7 +1,7 @@
 import React from "react";
 import { autorun, reaction, isObservableArray, isObservable, toJS } from "mobx";
 import localStorage from "mobx-localstorage";
-import { debounce, isEqual } from "underscore";
+import { debounce, isEqual } from "lodash";
 import { deepObserve } from "mobx-utils";
 import { useLocation } from "react-router";
 
@@ -28,7 +28,7 @@ export const useDelay: <T>(
   name: keyof T,
   newName: keyof T,
   delay?: number
-) => void = (state, name, newName, delay = 500) => {
+) => void = (state, name, newName, delay = 200) => {
   React.useEffect(() => {
     const setValue = debounce((value) => (state[newName] = value), delay);
     return autorun(() => {
@@ -44,14 +44,12 @@ export const useOnChange: <T, K extends keyof T>(
   delay?: number
 ) => void = (state, name, fn, delay = 100) => {
   React.useEffect(() => {
-    (delay
-      ? debounce((value) => fn(value), delay, false)
-      : (value) => fn(value))(state[name]);
+    (delay ? debounce((value) => fn(value), delay) : (value) => fn(value))(
+      state[name]
+    );
     return reaction(
       () => [state[name]],
-      delay
-        ? debounce(([value]) => fn(value), delay, false)
-        : ([value]) => fn(value)
+      delay ? debounce(([value]) => fn(value), delay) : ([value]) => fn(value)
     );
   }, [state, name, fn, delay]);
 };
@@ -106,11 +104,15 @@ export const useSimpleSyncLocalStorage = <T, K extends keyof T>(
   state: T,
   name: K,
   storageName?: string,
-  delay = 0
+  delay = 0,
+  disable?: boolean
 ) => {
   const key = storageName || (name as string);
 
   React.useEffect(() => {
+    if (disable) {
+      return;
+    }
     return reaction(
       () => [state[name]],
       ([value]) => {
@@ -120,25 +122,24 @@ export const useSimpleSyncLocalStorage = <T, K extends keyof T>(
         }
       }
     );
-  }, [state, name, key, delay]);
+  }, [state, name, key, delay, disable]);
 
   React.useEffect(() => {
+    if (disable) {
+      return;
+    }
     const localValue = localStorage.getItem(key);
     setObservable(state, name, toJS(localValue));
     return reaction(
       () => [localStorage.getItem(key)],
-      debounce(
-        ([localValue]) => {
-          const value = state[name];
-          if (!isObservableEquals(localValue, value)) {
-            setObservable(state, name, localValue);
-          }
-        },
-        delay,
-        false
-      )
+      debounce(([localValue]) => {
+        const value = state[name];
+        if (!isObservableEquals(localValue, value)) {
+          setObservable(state, name, localValue);
+        }
+      }, delay)
     );
-  }, [state, name, key, delay]);
+  }, [state, name, key, delay, disable]);
 };
 
 export const useSyncLocalStorage = <T, K extends keyof T>(
@@ -164,16 +165,55 @@ export const useSyncLocalStorage = <T, K extends keyof T>(
     setObservable(state, name, toJS(localValue));
     return reaction(
       () => [localStorage.getItem(key)],
-      debounce(
-        ([localValue]) => {
-          const value = state[name];
-          if (!isObservableEquals(localValue, value)) {
-            setObservable(state, name, localValue);
-          }
-        },
-        delay,
-        false
-      )
+      debounce(([localValue]) => {
+        const value = state[name];
+        if (!isObservableEquals(localValue, value)) {
+          setObservable(state, name, localValue);
+        }
+      }, delay)
     );
   }, [state, name, key, delay]);
 };
+
+export function useClickOutside(ref, fn) {
+  React.useEffect(() => {
+    function handleClickOutside(event) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        fn();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref, fn]);
+}
+
+export function useKeyPress(targetKey, down?, up?) {
+  const downHandler = React.useCallback(
+    (e) => {
+      if (e.key === targetKey) {
+        down && down(e);
+      }
+    },
+    [targetKey, down]
+  );
+
+  const upHandler = React.useCallback(
+    (e) => {
+      if (e.key === targetKey) {
+        up && up(e);
+      }
+    },
+    [targetKey, up]
+  );
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, [downHandler, upHandler]);
+}

@@ -1,3 +1,9 @@
+import "./styles/normalize.scss";
+import "./tailwind.generated.css";
+import "./styles/main.scss";
+
+import "mobx-react/batchingForReactDom";
+
 import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./app";

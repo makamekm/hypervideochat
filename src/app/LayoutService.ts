@@ -1,7 +1,7 @@
 import React from "react";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
-import { isEqual } from "underscore";
+import { isEqual } from "lodash";
 
 const defaultState = {
   footer: true,
@@ -11,10 +11,12 @@ const defaultState = {
 export interface LayoutConfig {
   footer?: boolean;
   scrollable?: boolean;
+  nonScrollableStack?: number;
 }
 
 export const LayoutService = createService(() => {
   const state = useLocalStore(() => ({
+    nonScrollableStack: 0,
     ...defaultState,
     change: (config: LayoutConfig) => {
       const newObj = {

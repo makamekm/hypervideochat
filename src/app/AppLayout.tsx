@@ -1,34 +1,50 @@
 import React from "react";
+import { ToastContainer } from "react-toastify";
 import { LayoutService } from "./LayoutService";
 import { observer } from "mobx-react";
 
 export const AppLayout: React.FC = observer(({ children }) => {
   const service = React.useContext(LayoutService);
+  const scrollable = service.scrollable && service.nonScrollableStack === 0;
   return (
-    <div className="column filled">
-      <div className="main">{children}</div>
-      {service.footer && (
-        <div className="footer text-center text-small pb-2 pt-3 pl-2 pr-2">
-          Serverless Apps |{" "}
-          <a className="link" href="https://github.com/makamekm">
-            github.com/makamekm
-          </a>{" "}
-          | in 2020
+    <>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <div className="min-h-screen">
+        <div className="lg:flex">
+          {/* {service.sidebar && <SideMenu />} */}
+          <div className="relative flex-1 flex flex-col min-h-screen">
+            <div className="content container mx-auto flex-1">
+              {/* {service.topbar && <TopMenu />} */}
+              {children}
+            </div>
+            {service.footer && (
+              <div className="text-gray-600 dark-mode:text-gray-300 text-center text-xs pb-2 pt-5 mx-auto no-print">
+                Maxim Karpov Apps |{" "}
+                <a className="link" href="https://github.com/makamekm">
+                  github.com/makamekm
+                </a>{" "}
+                | in 2020{" "}
+              </div>
+            )}
+          </div>
         </div>
-      )}
-      <style jsx>{`
-        :global(body) {
-          max-height: ${service.scrollable ? "unset" : "100vh"};
-          overflow-y: ${service.scrollable ? "visible" : "hidden"};
-        }
-        .column {
-          min-height: 100vh;
-        }
-        .main {
-          flex: 1;
-          display: flex;
-        }
-      `}</style>
-    </div>
+        <style jsx>{`
+          :global(body) {
+            max-height: ${scrollable ? "unset" : "100vh"};
+            overflow-y: ${scrollable ? "visible" : "hidden"};
+          }
+        `}</style>
+      </div>
+    </>
   );
 });
