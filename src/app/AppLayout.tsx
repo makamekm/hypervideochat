@@ -2,8 +2,11 @@ import React from "react";
 import { ToastContainer } from "react-toastify";
 import { LayoutService } from "./LayoutService";
 import { observer } from "mobx-react";
+import { XFocusable } from "~/components/XFocusable/XFocusable";
+import { useHistory } from "react-router";
 
 export const AppLayout: React.FC = observer(({ children }) => {
+  const history = useHistory();
   const service = React.useContext(LayoutService);
   const scrollable = service.scrollable && service.nonScrollableStack === 0;
   return (
@@ -24,6 +27,33 @@ export const AppLayout: React.FC = observer(({ children }) => {
           {/* {service.sidebar && <SideMenu />} */}
           <div className="relative flex-1 flex flex-col min-h-screen">
             <div className="flex-1 flex flex-col">
+              <div className="flex items-center justify-between px-10 py-6">
+                <div>
+                  <XFocusable
+                    className="text-gray-400 px-8 -mx-4"
+                    onClickEnter={() => {
+                      history.push("/");
+                    }}
+                  >
+                    <span className="font-light text-6xl">ANIMEDIA.TV</span>
+                  </XFocusable>
+                  <span className="text-xl font-light mb-8 text-gray-700 ml-10">
+                    # Russian Anime Community
+                  </span>
+                </div>
+                <div className="px-4">
+                  <XFocusable
+                    className="text-gray-400"
+                    onClickEnter={() => {
+                      console.log("ENTER");
+                    }}
+                  >
+                    <div className="font-bold text-3xl px-4 py-2">
+                      <i className="fas fa-search"></i>
+                    </div>
+                  </XFocusable>
+                </div>
+              </div>
               {/* {service.topbar && <TopMenu />} */}
               {children}
             </div>

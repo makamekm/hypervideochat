@@ -8,8 +8,13 @@ import {
 export const TVDemo = () => {
   useLayoutConfig({});
   return (
-    <div className="flex flex-1 flex-col items-center justify-center py-10">
-      <div className="font-bold text-4xl mb-8 -mt-8">TV SHOWS</div>
+    <div className="flex flex-1 flex-col items-center justify-center py-4">
+      <div className="font-light text-4xl mb-8 text-gray-600 w-full px-10">
+        Top TV shows
+        <span className="text-xl mb-8 text-gray-700 ml-4">
+          # the most popular shows fot the recent time
+        </span>
+      </div>
       <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
         <XFocusable
           onClickEnter={() => {

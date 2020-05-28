@@ -11,22 +11,20 @@ const ItemContent: React.FC<{
   const ref = React.useRef<HTMLElement>(null);
   const focusable = React.useContext(FocusableContext);
   const parentContext = React.useContext(XFocusableContext);
+  const parentContextElement = parentContext && parentContext.element;
   React.useEffect(() => {
-    if (focusable.focused && ref.current && parentContext.element) {
-      const parentRect = parentContext.element.getBoundingClientRect();
+    if (focusable.focused && ref.current && parentContextElement) {
+      const parentRect = parentContextElement.getBoundingClientRect();
       const rect = ref.current.getBoundingClientRect();
       if (parentRect.right - rect.right < 0) {
-        parentContext.element.scrollLeft =
-          parentContext.element.scrollLeft +
-          rect.right -
-          parentRect.right +
-          100;
+        parentContextElement.scrollLeft =
+          parentContextElement.scrollLeft + rect.right - parentRect.right + 100;
       } else if (parentRect.left - rect.left > 0) {
-        parentContext.element.scrollLeft =
-          parentContext.element.scrollLeft + rect.left - parentRect.left - 100;
+        parentContextElement.scrollLeft =
+          parentContextElement.scrollLeft + rect.left - parentRect.left - 100;
       }
     }
-  }, [focusable.focused, parentContext.element]);
+  }, [focusable.focused, parentContextElement]);
   return (
     <span className="flex-1" ref={ref} onClick={onClick}>
       {children}
@@ -39,6 +37,7 @@ export const XFocusable: React.FC<{
   onClickEnter?: () => void;
 }> = observer(({ onClickEnter, children, className }) => {
   const parentContext = React.useContext(XFocusableContext);
+  const parentContextElement = parentContext && parentContext.element;
   return (
     <Focusable
       className={classNames(
@@ -50,10 +49,10 @@ export const XFocusable: React.FC<{
       }}
       onFocus={() => {}}
       onUnfocus={() => {
-        if (parentContext.element) {
-          const left = parentContext.element.scrollLeft;
+        if (parentContextElement) {
+          const left = parentContextElement.scrollLeft;
           requestAnimationFrame(() => {
-            parentContext.element.scrollLeft = left;
+            parentContextElement.scrollLeft = left;
           });
         }
       }}
