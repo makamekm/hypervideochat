@@ -4,12 +4,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f9fafc;
-  color: #868e96;
-  @media screen and (prefers-color-scheme: dark) {
-    background-color: rgb(15, 19, 26);
-    color: rgb(237, 242, 247);
-  }
+  background-color: rgb(15, 19, 26);
+  color: rgb(237, 242, 247);
   overflow-x: hidden;
   max-width: 100vw;
 }

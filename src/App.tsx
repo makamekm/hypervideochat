@@ -1,4 +1,5 @@
 import React from "react";
+import SpatialNavigation from "react-js-spatial-navigation";
 import {
   ServiceProviderFactory,
   ServiceProviderHook,
@@ -22,11 +23,13 @@ export const App = () => {
     <ServiceProvider>
       <Router basename={basePath}>
         <ServiceProviderHook>
-          <LoadingScreen>
-            <AppLayout>
-              <RoutedContent />
-            </AppLayout>
-          </LoadingScreen>
+          <SpatialNavigation>
+            <LoadingScreen>
+              <AppLayout>
+                <RoutedContent />
+              </AppLayout>
+            </LoadingScreen>
+          </SpatialNavigation>
         </ServiceProviderHook>
       </Router>
     </ServiceProvider>

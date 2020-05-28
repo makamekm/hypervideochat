@@ -23,7 +23,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
         <div className="lg:flex">
           {/* {service.sidebar && <SideMenu />} */}
           <div className="relative flex-1 flex flex-col min-h-screen">
-            <div className="content container mx-auto flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col">
               {/* {service.topbar && <TopMenu />} */}
               {children}
             </div>
