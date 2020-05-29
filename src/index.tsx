@@ -21,39 +21,39 @@ ReactDOM.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register();
 
-requestNotificationPermission();
+// requestNotificationPermission();
 
-function checkNotificationPromise() {
-  try {
-    Notification.requestPermission().then();
-  } catch (e) {
-    return false;
-  }
+// function checkNotificationPromise() {
+//   try {
+//     Notification.requestPermission().then();
+//   } catch (e) {
+//     return false;
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
-async function requestNotificationPermission() {
-  if (checkNotificationPromise()) {
-    Notification.requestPermission().then((permission) => {
-      handlePermission(permission);
-    });
-  } else {
-    Notification.requestPermission((permission) => {
-      handlePermission(permission);
-    });
-  }
-}
+// async function requestNotificationPermission() {
+//   if (checkNotificationPromise()) {
+//     Notification.requestPermission().then((permission) => {
+//       handlePermission(permission);
+//     });
+//   } else {
+//     Notification.requestPermission((permission) => {
+//       handlePermission(permission);
+//     });
+//   }
+// }
 
-function handlePermission(permission) {
-  if (!("permission" in Notification)) {
-    (Notification as any).permission = permission;
-  }
+// function handlePermission(permission) {
+//   if (!("permission" in Notification)) {
+//     (Notification as any).permission = permission;
+//   }
 
-  if (
-    Notification.permission === "denied" ||
-    Notification.permission === "default"
-  ) {
-    console.error("No Notification Permission!", permission);
-  }
-}
+//   if (
+//     Notification.permission === "denied" ||
+//     Notification.permission === "default"
+//   ) {
+//     console.error("No Notification Permission!", permission);
+//   }
+// }

@@ -27,37 +27,39 @@ export const AppLayout: React.FC = observer(({ children }) => {
           {/* {service.sidebar && <SideMenu />} */}
           <div className="relative flex-1 flex flex-col min-h-screen">
             <div className="flex-1 flex flex-col">
-              <div className="flex items-center justify-between px-10 py-6">
-                <div>
-                  <XFocusable
-                    className="text-gray-400 px-8 -mx-4"
-                    onClickEnter={() => {
-                      history.push("/");
-                    }}
-                  >
-                    <span className="font-light text-6xl">ANIMEDIA.TV</span>
-                    <span className="text-xl font-light mb-8 text-gray-700 ml-4">
-                      # Russian Anime Community
-                    </span>
-                  </XFocusable>
+              {!service.empty && (
+                <div className="flex items-center justify-between px-10 py-6">
+                  <div>
+                    <XFocusable
+                      className="text-gray-400 px-8 -mx-4"
+                      onClickEnter={() => {
+                        history.push("/");
+                      }}
+                    >
+                      <span className="font-light text-6xl">ANIMEDIA.TV</span>
+                      <span className="text-xl font-light mb-8 text-gray-700 ml-4">
+                        # Russian Anime Community
+                      </span>
+                    </XFocusable>
+                  </div>
+                  <div className="px-4">
+                    <XFocusable
+                      className="text-gray-400"
+                      onClickEnter={() => {
+                        console.log("ENTER");
+                      }}
+                    >
+                      <div className="font-bold text-3xl px-4 py-2">
+                        <i className="fas fa-search"></i>
+                      </div>
+                    </XFocusable>
+                  </div>
                 </div>
-                <div className="px-4">
-                  <XFocusable
-                    className="text-gray-400"
-                    onClickEnter={() => {
-                      console.log("ENTER");
-                    }}
-                  >
-                    <div className="font-bold text-3xl px-4 py-2">
-                      <i className="fas fa-search"></i>
-                    </div>
-                  </XFocusable>
-                </div>
-              </div>
+              )}
               {/* {service.topbar && <TopMenu />} */}
               {children}
             </div>
-            {service.footer && (
+            {!service.empty && (
               <div className="text-gray-600 dark-mode:text-gray-300 text-center text-xs pb-2 pt-5 mx-auto no-print">
                 #MaximKarpovApps |{" "}
                 <a className="link" href="https://github.com/makamekm">

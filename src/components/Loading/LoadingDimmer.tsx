@@ -15,7 +15,7 @@ const Dimmer = ({
   return (
     <div className="initial-loader-wrap">
       <div className="initial-loader">
-        <div className="initial-loader__row">- GIT STATS MANAGER -</div>
+        <div className="initial-loader__row">- ANIMEDIA.TV -</div>
         {!hideDimmer && (
           <div className="initial-loader__row">
             <svg

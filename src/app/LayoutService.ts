@@ -4,12 +4,12 @@ import { useLocalStore } from "mobx-react";
 import { isEqual } from "lodash";
 
 const defaultState = {
-  footer: true,
+  empty: false,
   scrollable: true,
 };
 
 export interface LayoutConfig {
-  footer?: boolean;
+  empty?: boolean;
   scrollable?: boolean;
   nonScrollableStack?: number;
 }
