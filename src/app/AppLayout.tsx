@@ -44,14 +44,12 @@ export const AppLayout: React.FC = observer(({ children }) => {
                   </div>
                   <div className="px-4">
                     <XFocusable
-                      className="text-gray-400"
+                      className="text-gray-400 leading-none font-bold text-3xl px-6 py-6"
                       onClickEnter={() => {
                         console.log("ENTER");
                       }}
                     >
-                      <div className="font-bold text-3xl px-4 py-2">
-                        <i className="fas fa-search"></i>
-                      </div>
+                      <i className="fas fa-search"></i>
                     </XFocusable>
                   </div>
                 </div>

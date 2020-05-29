@@ -67,7 +67,9 @@ const ItemContent: React.FC<{
 export const XFocusable: React.FC<{
   className?: string;
   onClickEnter?: () => void;
-}> = observer(({ onClickEnter, children, className }) => {
+  onUnfocus?: () => void;
+  onFocus?: () => void;
+}> = observer(({ onClickEnter, children, className, onUnfocus, onFocus }) => {
   const parentXContext = React.useContext(XFocusableContext);
   const parentYContext = React.useContext(YFocusableContext);
   const parentXContextElement = parentXContext && parentXContext.element;
@@ -76,12 +78,16 @@ export const XFocusable: React.FC<{
     <Focusable
       className={classNames(
         className,
-        "inline-flex items-stretch my-1 mx-2 py-1 px-1 text-sm font-semibold rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
+        "inline-flex items-stretch text-sm font-semibold rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
       )}
       onClickEnter={() => {
         onClickEnter && onClickEnter();
       }}
+      onFocus={() => {
+        onFocus && onFocus();
+      }}
       onUnfocus={() => {
+        onUnfocus && onUnfocus();
         if (parentXContextElement) {
           const value = parentXContext.value;
           requestAnimationFrame(() => {

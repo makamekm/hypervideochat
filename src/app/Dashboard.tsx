@@ -20,6 +20,7 @@ export const Dashboard = observer(() => {
       </div>
       <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
         <XFocusable
+          className="my-1 mx-2 p-1"
           onClickEnter={() => {
             // history.push("/tvshow/" + 16919);
             history.push("/tvshow/" + 13878);
@@ -34,7 +35,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -44,7 +45,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -54,7 +55,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -64,7 +65,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -74,7 +75,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -84,7 +85,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -94,7 +95,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -104,7 +105,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -114,7 +115,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -124,7 +125,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"
@@ -134,7 +135,7 @@ export const Dashboard = observer(() => {
             src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
           />
         </XFocusable>
-        <XFocusable>
+        <XFocusable className="my-1 mx-2 p-1">
           <img
             className="rounded-lg"
             alt="Онлайн аниме Ванпанчмен"

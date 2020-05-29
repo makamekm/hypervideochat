@@ -71,6 +71,7 @@ export const TVShow = observer(() => {
               {season.map((episode) => {
                 return (
                   <XFocusable
+                    className="my-1 mx-2 p-1"
                     key={episode.id}
                     onClickEnter={() => {
                       console.log(episode);
@@ -91,7 +92,7 @@ export const TVShow = observer(() => {
                       }}
                       className="rounded-lg"
                       alt={episode.title}
-                      src={episode.poster}
+                      src={"https:" + episode.poster}
                     />
                   </XFocusable>
                 );
