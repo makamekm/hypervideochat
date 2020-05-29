@@ -1,30 +1,62 @@
 import React from "react";
+import { useSpring } from "react-spring";
 import classNames from "classnames";
-import { XFocusableContext } from "./XFocusableContext";
+import { XFocusableContext, YFocusableContext } from "./XFocusableContext";
 import { Focusable } from "../Focusable/Focusable";
 import { FocusableContext } from "../Focusable/FocusableContext";
 import { observer, useLocalStore } from "mobx-react";
+import { useOnChange } from "~/hooks";
 
 const ItemContent: React.FC<{
   onClick?: () => void;
 }> = observer(({ onClick, children }) => {
   const ref = React.useRef<HTMLElement>(null);
   const focusable = React.useContext(FocusableContext);
-  const parentContext = React.useContext(XFocusableContext);
-  const parentContextElement = parentContext && parentContext.element;
-  React.useEffect(() => {
-    if (focusable.focused && ref.current && parentContextElement) {
-      const parentRect = parentContextElement.getBoundingClientRect();
-      const rect = ref.current.getBoundingClientRect();
-      if (parentRect.right - rect.right < 0) {
-        parentContextElement.scrollLeft =
-          parentContextElement.scrollLeft + rect.right - parentRect.right + 100;
-      } else if (parentRect.left - rect.left > 0) {
-        parentContextElement.scrollLeft =
-          parentContextElement.scrollLeft + rect.left - parentRect.left - 100;
+  const parentXContext = React.useContext(XFocusableContext);
+  const parentYContext = React.useContext(YFocusableContext);
+  const parentXContextElement = parentXContext && parentXContext.element;
+  const parentYContextElement = parentYContext && parentYContext.element;
+  const updatePos = React.useCallback(() => {
+    if (focusable.focused && ref.current) {
+      if (parentXContextElement) {
+        const parentRect = parentXContext.getBoundingClientRect();
+        const rect = ref.current.getBoundingClientRect();
+        if (parentRect.right - rect.right < 0) {
+          parentXContext.scrollTo(
+            parentXContext.value + rect.right - parentRect.right + 100
+          );
+        } else if (parentRect.left - rect.left > 0) {
+          parentXContext.scrollTo(
+            parentXContext.value + rect.left - parentRect.left - 100
+          );
+        }
+      }
+
+      if (parentYContextElement) {
+        const parentRect = parentYContext.getBoundingClientRect();
+        const rect = ref.current.getBoundingClientRect();
+        if (parentRect.bottom - rect.bottom < 0) {
+          parentYContext.scrollTo(
+            parentYContext.value + rect.bottom - parentRect.bottom + 100
+          );
+        } else if (parentRect.top - rect.top > 0) {
+          parentYContext.scrollTo(
+            parentYContext.value + rect.top - parentRect.top - 100
+          );
+        }
       }
     }
-  }, [focusable.focused, parentContextElement]);
+  }, [
+    focusable.focused,
+    parentXContext,
+    parentXContextElement,
+    parentYContext,
+    parentYContextElement,
+  ]);
+
+  React.useEffect(updatePos);
+  useOnChange(focusable, "focused", updatePos);
+
   return (
     <span className="flex-1" ref={ref} onClick={onClick}>
       {children}
@@ -36,8 +68,10 @@ export const XFocusable: React.FC<{
   className?: string;
   onClickEnter?: () => void;
 }> = observer(({ onClickEnter, children, className }) => {
-  const parentContext = React.useContext(XFocusableContext);
-  const parentContextElement = parentContext && parentContext.element;
+  const parentXContext = React.useContext(XFocusableContext);
+  const parentYContext = React.useContext(YFocusableContext);
+  const parentXContextElement = parentXContext && parentXContext.element;
+  const parentYContextElement = parentYContext && parentYContext.element;
   return (
     <Focusable
       className={classNames(
@@ -47,12 +81,17 @@ export const XFocusable: React.FC<{
       onClickEnter={() => {
         onClickEnter && onClickEnter();
       }}
-      onFocus={() => {}}
       onUnfocus={() => {
-        if (parentContextElement) {
-          const left = parentContextElement.scrollLeft;
+        if (parentXContextElement) {
+          const value = parentXContext.value;
           requestAnimationFrame(() => {
-            parentContextElement.scrollLeft = left;
+            parentXContext.set(value);
+          });
+        }
+        if (parentYContextElement) {
+          const value = parentYContext.value;
+          requestAnimationFrame(() => {
+            parentYContext.set(value);
           });
         }
       }}
@@ -66,10 +105,41 @@ export const XFocusableContainer: React.FC<{
   className?: string;
   style?: React.CSSProperties;
 }> = observer(({ className, style, children }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [, setX] = useSpring(
+    () =>
+      ({
+        x: 0,
+        onFrame: ({ x }) => {
+          if (ref.current) {
+            ref.current.scrollLeft = x;
+          }
+        },
+      } as any)
+  );
   const state = useLocalStore(() => ({
     element: null as HTMLDivElement,
+    get value() {
+      return ref.current && ref.current.scrollLeft;
+    },
+    set(value) {
+      if (ref.current) {
+        ref.current.scrollLeft = value;
+      }
+    },
+    scrollTo: (value) => {
+      if (ref.current) {
+        setX({
+          reset: true,
+          x: value,
+          from: { x: ref.current.scrollLeft },
+        } as any);
+      }
+    },
+    getBoundingClientRect: () => {
+      return ref.current && ref.current.getBoundingClientRect();
+    },
   }));
-  const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     state.element = ref.current;
   }, [state, ref]);
@@ -83,5 +153,48 @@ export const XFocusableContainer: React.FC<{
         {children}
       </XFocusableContext.Provider>
     </div>
+  );
+});
+
+export const YBodyFocusableContainer: React.FC = observer(({ children }) => {
+  const [, setX] = useSpring(
+    () =>
+      ({
+        y: 0,
+        onFrame: ({ y }) => {
+          window.scroll(0, y);
+        },
+      } as any)
+  );
+  const state = useLocalStore(() => ({
+    element: document.body,
+    get value() {
+      return window.scrollY;
+    },
+    set(value) {
+      window.scroll(0, value);
+    },
+    scrollTo: (value) => {
+      setX({
+        reset: true,
+        y: value,
+        from: { y: window.scrollY },
+      } as any);
+    },
+    getBoundingClientRect: () => {
+      return {
+        left: 0,
+        right: window.innerWidth,
+        top: 0,
+        bottom: window.innerHeight,
+        height: window.innerHeight,
+        width: window.innerWidth,
+      };
+    },
+  }));
+  return (
+    <YFocusableContext.Provider value={state}>
+      {children}
+    </YFocusableContext.Provider>
   );
 });

@@ -36,10 +36,10 @@ export const AppLayout: React.FC = observer(({ children }) => {
                     }}
                   >
                     <span className="font-light text-6xl">ANIMEDIA.TV</span>
+                    <span className="text-xl font-light mb-8 text-gray-700 ml-4">
+                      # Russian Anime Community
+                    </span>
                   </XFocusable>
-                  <span className="text-xl font-light mb-8 text-gray-700 ml-10">
-                    # Russian Anime Community
-                  </span>
                 </div>
                 <div className="px-4">
                   <XFocusable
@@ -59,7 +59,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
             </div>
             {service.footer && (
               <div className="text-gray-600 dark-mode:text-gray-300 text-center text-xs pb-2 pt-5 mx-auto no-print">
-                Maxim Karpov Apps |{" "}
+                #MaximKarpovApps |{" "}
                 <a className="link" href="https://github.com/makamekm">
                   github.com/makamekm
                 </a>{" "}

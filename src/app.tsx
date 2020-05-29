@@ -11,6 +11,7 @@ import { AppLayout } from "./app/AppLayout";
 import { LoadingScreen } from "./components/Loading/LoadingScreen";
 import { LoadingService } from "./components/Loading/LoadingService";
 import { LayoutService } from "./app/LayoutService";
+import { YBodyFocusableContainer } from "./components/XFocusable/XFocusable";
 
 const basePath = process.env.BASE_PATH || "/";
 
@@ -24,11 +25,13 @@ export const App = () => {
       <Router basename={basePath}>
         <ServiceProviderHook>
           <SpatialNavigation>
-            <LoadingScreen>
-              <AppLayout>
-                <RoutedContent />
-              </AppLayout>
-            </LoadingScreen>
+            <YBodyFocusableContainer>
+              <LoadingScreen>
+                <AppLayout>
+                  <RoutedContent />
+                </AppLayout>
+              </LoadingScreen>
+            </YBodyFocusableContainer>
           </SpatialNavigation>
         </ServiceProviderHook>
       </Router>
