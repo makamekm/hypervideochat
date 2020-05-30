@@ -101,6 +101,7 @@ export const Player = observer(() => {
     },
     setSeek: debounce(() => {
       webapis.avplay.seekTo(state.seekTime * 1000);
+      state.currentTime = state.seekTime;
     }, 500),
     onKeyDown: (e) => {
       state.setFocusTimeout();
