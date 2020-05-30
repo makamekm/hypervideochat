@@ -100,17 +100,17 @@ export const Player = observer(() => {
       }
     },
     setSeek: debounce(() => {
-      webapis.avplay.seekTo(state.seekTime);
+      webapis.avplay.seekTo(state.seekTime * 1000);
     }, 500),
     onKeyDown: (e) => {
       state.setFocusTimeout();
       switch (e.keyCode) {
         case TVKeys.LEFT:
           if (state.isVideoFocused) {
-            webapis.avplay.jumpBackward(5000);
+            webapis.avplay.jumpBackward(10000);
           }
           if (state.isProgressFocused) {
-            state.seekTime -= 5000;
+            state.seekTime -= (state.totalTime / 100) * 3;
             state.seekTime = Math.max(state.seekTime, 0);
             state.setSeek();
           }
@@ -121,10 +121,10 @@ export const Player = observer(() => {
           break;
         case TVKeys.RIGHT:
           if (state.isVideoFocused) {
-            webapis.avplay.jumpForward(5000);
+            webapis.avplay.jumpForward(10000);
           }
           if (state.isProgressFocused) {
-            state.seekTime += 5000;
+            state.seekTime += (state.totalTime / 100) * 3;
             state.seekTime = Math.min(state.seekTime, state.totalTime);
             state.setSeek();
           }
@@ -364,8 +364,9 @@ export const Player = observer(() => {
         <div
           className="w-full flex flex-col items-center justify-end p-6"
           style={{
+            transition: "opacity 0.4s",
             opacity:
-              state.isVideoFocused || state.playState === PlayState.PAUSED
+              state.isVideoFocused && state.playState === PlayState.PLAYING
                 ? 0
                 : 1,
             background: "rgba(0, 0, 0, 0.8)",
@@ -375,8 +376,12 @@ export const Player = observer(() => {
             <div className="px-4">{state.title}</div>
             <div className="px-4">
               <div className="time-info">
-                <span>{state.formatTime(state.currentTime)}</span> /{" "}
-                <span>{state.formatTime(state.totalTime)}</span>
+                <span>
+                  {state.formatTime(
+                    state.isProgressFocused ? state.seekTime : state.currentTime
+                  )}
+                </span>{" "}
+                / <span>{state.formatTime(state.totalTime)}</span>
               </div>
             </div>
           </div>
@@ -427,6 +432,7 @@ export const Player = observer(() => {
                     boxShadow: state.isProgressFocused
                       ? "0 0 0 12px rgba(255, 255, 255, 0.5)"
                       : "0 0 0 0px rgba(255, 255, 255, 0.5)",
+                    transition: "box-shadow 0.4s, height 0.4s, width 0.4s",
                   }}
                 ></div>
               </Focusable>
