@@ -43,7 +43,7 @@ export const Player = observer(() => {
       [quality: string]: string;
     },
     get qualities() {
-      return Object.keys(state.files);
+      return Object.keys(state.files).filter((s) => s !== "default");
     },
     get title() {
       return (history.location?.state as any)?.title;
