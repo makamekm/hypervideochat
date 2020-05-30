@@ -5,7 +5,11 @@ import { useSyncLocalStorage } from "~/hooks";
 export const FavoriteService = createService(
   () => {
     const state = useLocalStore(() => ({
-      favoriteShows: [] as string[],
+      favoriteShows: [] as {
+        title: string;
+        id: string;
+        poster: string;
+      }[],
     }));
     return state;
   },

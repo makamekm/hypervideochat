@@ -8,10 +8,12 @@ import {
   XFocusable,
 } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
+import { FavoriteService } from "./FavoriteService";
 
 export const Dashboard = observer(() => {
   const loadingService = React.useContext(LoadingService);
   const history = useHistory();
+  const favoriteService = React.useContext(FavoriteService);
   const state = useLocalStore(() => ({
     topWeek: [] as {
       id: string;
@@ -50,7 +52,8 @@ export const Dashboard = observer(() => {
                 .replace("https://online.animedia.tv/anime/", ""),
               title: $(el)
                 .find(".title__list__index > .title__index > a")
-                .attr("title"),
+                .attr("title")
+                .replace(/^Аниме /gi, ""),
             });
           });
         $(
@@ -70,7 +73,8 @@ export const Dashboard = observer(() => {
                 .replace("https://online.animedia.tv/anime/", ""),
               title: $(el)
                 .find(".title__list__index > .title__index > a")
-                .attr("title"),
+                .attr("title")
+                .replace(/^Аниме /gi, ""),
             });
           });
       } catch (error) {
@@ -86,7 +90,48 @@ export const Dashboard = observer(() => {
     state.load();
   }, [state]);
   return (
-    <div className="flex flex-1 flex-col items-center justify-center py-4">
+    <div className="flex flex-1 flex-col items-start justify-center py-4">
+      {favoriteService.favoriteShows?.length > 0 && (
+        <>
+          <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
+            Избранные
+            <span className="text-xl text-gray-700 ml-4">
+              # все что вы считаете интересным
+            </span>
+          </div>
+          <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
+            {favoriteService.favoriteShows.map((show) => {
+              return (
+                <XFocusable
+                  key={show.id}
+                  className="my-1 mx-2 p-1"
+                  onClickEnter={() => {
+                    history.push("/tvshow/" + show.id);
+                  }}
+                >
+                  <img
+                    style={{
+                      width: "200px",
+                    }}
+                    className="rounded-lg"
+                    alt={show.title}
+                    src={show.poster}
+                  />
+                  <div
+                    className="ellipsis py-1 px-2 text-lg font-light"
+                    style={{
+                      maxWidth: "200px",
+                    }}
+                  >
+                    {show.title}
+                  </div>
+                </XFocusable>
+              );
+            })}
+          </XFocusableContainer>
+        </>
+      )}
+
       <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
         Популярное за неделю
         <span className="text-xl text-gray-700 ml-4">

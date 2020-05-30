@@ -2,6 +2,7 @@ import React from "react";
 import cherio from "cheerio";
 import { useLocalStore, observer } from "mobx-react";
 import { useParams, useHistory } from "react-router";
+import { toJS } from "mobx";
 import { useLayoutConfig } from "./LayoutService";
 import {
   XFocusableContainer,
@@ -29,6 +30,9 @@ export const TVShow = observer(() => {
         poster: string;
       }[];
     }[],
+    get isFavourite() {
+      return !!favoriteService.favoriteShows.find((s) => s.id === id);
+    },
     getSeasons: async (uuid: string, ids: string[]) => {
       const seasons = [];
       for (let i of ids) {
@@ -97,13 +101,19 @@ export const TVShow = observer(() => {
         <XFocusable
           className="text-gray-400 leading-none mr-4 py-6 px-6"
           onClickEnter={() => {
-            if (favoriteService.favoriteShows.includes(id)) {
-              favoriteService.favoriteShows.splice(
-                favoriteService.favoriteShows.indexOf(id),
-                1
-              );
+            const isFavouriteIndex = favoriteService.favoriteShows.findIndex(
+              (s) => s.id === id
+            );
+            if (isFavouriteIndex >= 0) {
+              favoriteService.favoriteShows.splice(isFavouriteIndex, 1);
             } else {
-              favoriteService.favoriteShows.push(id);
+              favoriteService.favoriteShows.push(
+                toJS({
+                  id,
+                  poster: state.poster,
+                  title: state.title,
+                })
+              );
             }
           }}
         >
@@ -115,7 +125,7 @@ export const TVShow = observer(() => {
               {state.title}
             </div>
             <div className="font-bold text-3xl ml-6">
-              {favoriteService.favoriteShows.includes(id) ? (
+              {state.isFavourite ? (
                 <i className="fas fa-star"></i>
               ) : (
                 <i className="far fa-star"></i>
