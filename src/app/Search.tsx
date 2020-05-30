@@ -110,6 +110,331 @@ export const Search = observer(() => {
         </Focusable>
       </div>
 
+      <div className="flex flex-col items-center justify-center font-light text-4xl mb-8 text-gray-500 w-full px-10">
+        <div className="flex flex-row items-center justify-center">
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "1";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            1
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "2";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            2
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "3";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            3
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "4";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            4
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "5";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            5
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "6";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            6
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "7";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            7
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "8";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            8
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "9";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            9
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "0";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            0
+          </XFocusable>
+        </div>
+        <div className="flex flex-row items-center justify-center">
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "Q";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            Q
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "W";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            W
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "E";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            E
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "R";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            R
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "T";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            T
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "Y";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            Y
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "U";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            U
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "I";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            I
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "O";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            O
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "P";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            P
+          </XFocusable>
+        </div>
+        <div className="flex flex-row items-center justify-center">
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "A";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            A
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "S";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            S
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "D";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            D
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "F";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            F
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "G";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            G
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "H";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            H
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "J";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            J
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "K";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            K
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "L";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            L
+          </XFocusable>
+        </div>
+        <div className="flex flex-row items-center justify-center">
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "Z";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            Z
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "X";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            X
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "C";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            C
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "V";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            V
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "B";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            B
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "N";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            N
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query += "M";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            M
+          </XFocusable>
+        </div>
+        <div className="flex flex-row items-center justify-center">
+          <XFocusable
+            onClickEnter={() => {
+              state.query += " ";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            {"_"} SPACE
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query = state.query.substr(0, state.query.length - 1);
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            {"<"} BACKSPACE
+          </XFocusable>
+          <XFocusable
+            onClickEnter={() => {
+              state.query = "";
+            }}
+            className="p-4 leading-none text-4xl font-bold"
+          >
+            {"-"} CLEAR
+          </XFocusable>
+        </div>
+      </div>
+
       <div className="font-light text-4xl mb-8 text-gray-600 w-full px-10">
         Результаты поиска
         <span className="text-xl text-gray-700 ml-4">
