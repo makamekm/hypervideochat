@@ -317,13 +317,13 @@ export const Player = observer(() => {
   });
   React.useEffect(() => {
     if (!history.location.state) {
-      // return history.push("/");
-      history.location.state = {
-        title: "Серия 1",
-        file:
-          "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
-        prevUrl: "/tvshow/13878",
-      };
+      return history.push("/");
+      // history.location.state = {
+      //   title: "Серия 1",
+      //   file:
+      //     "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
+      //   prevUrl: "/tvshow/13878",
+      // };
     }
     state.mount();
     state.load();

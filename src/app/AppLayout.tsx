@@ -17,7 +17,8 @@ export const AppLayout: React.FC = observer(({ children }) => {
         case TVKeys.BACK:
           if (
             history.location.pathname !== "/dashboard" &&
-            document.activeElement.tagName.toLocaleLowerCase() !== "input"
+            document.activeElement.tagName.toLocaleLowerCase() !== "input" &&
+            !document.activeElement.classList.contains("input")
           ) {
             history.goBack();
           }
@@ -69,7 +70,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
                     <XFocusable
                       className="text-gray-400 leading-none font-bold text-3xl px-6 py-6"
                       onClickEnter={() => {
-                        console.log("ENTER");
+                        history.push("/search");
                       }}
                     >
                       <i className="fas fa-search"></i>
