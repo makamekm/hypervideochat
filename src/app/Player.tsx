@@ -1,12 +1,14 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from "react";
-import classNames from "classnames";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
+import { debounce } from "lodash";
 import { useLayoutConfig } from "./LayoutService";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { TVKeys } from "./TVKeys";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
+import { Focusable } from "~/components/Focusable/Focusable";
+import { useSimpleSyncLocalStorage } from "~/hooks";
 
 const webapis = (window as any).webapis;
 const tizen = (window as any).tizen;
@@ -25,8 +27,16 @@ export const Player = observer(() => {
   const loadingService = React.useContext(LoadingService);
   const state = useLocalStore(() => ({
     isVideoFocused: false,
+    isProgressFocused: false,
     playState: PlayState.STOPPED,
     currentTime: 0,
+    seekTime: 0,
+    get progress() {
+      return (
+        (state.isProgressFocused ? state.seekTime : state.currentTime) /
+        state.totalTime
+      );
+    },
     totalTime: 0,
     quality: "720p",
     files: {} as {
@@ -42,7 +52,7 @@ export const Player = observer(() => {
       let url =
         state.files[state.quality] ||
         state.files["default"] ||
-        state.files[state.qualities[0]];
+        state.files[state.qualities[state.qualities.length - 1]];
       if (/^\/\//gi.test(url)) {
         url = "https:" + url;
       }
@@ -89,16 +99,35 @@ export const Player = observer(() => {
         console.error(error);
       }
     },
+    setSeek: debounce(() => {
+      webapis.avplay.seekTo(state.seekTime);
+    }, 500),
     onKeyDown: (e) => {
       state.setFocusTimeout();
       switch (e.keyCode) {
         case TVKeys.LEFT:
+          if (state.isVideoFocused) {
+            webapis.avplay.jumpBackward(5000);
+          }
+          if (state.isProgressFocused) {
+            state.seekTime -= 5000;
+            state.seekTime = Math.max(state.seekTime, 0);
+            state.setSeek();
+          }
           console.log("LEFT");
           break;
         case TVKeys.UP:
           console.log("UP");
           break;
         case TVKeys.RIGHT:
+          if (state.isVideoFocused) {
+            webapis.avplay.jumpForward(5000);
+          }
+          if (state.isProgressFocused) {
+            state.seekTime += 5000;
+            state.seekTime = Math.min(state.seekTime, state.totalTime);
+            state.setSeek();
+          }
           console.log("RIGHT");
           break;
         case TVKeys.DOWN:
@@ -205,7 +234,13 @@ export const Player = observer(() => {
         }
       }
     },
-    setQuality: (q: string) => {},
+    setQuality: (q: string) => {
+      state.stop();
+      state.quality = q;
+      state.prepare();
+      state.play();
+      state.focus();
+    },
     goBack: () => {
       state.stop();
       const prevUrl = (history.location.state as any).prevUrl;
@@ -275,6 +310,7 @@ export const Player = observer(() => {
       }
     },
   }));
+  useSimpleSyncLocalStorage(state, "quality");
   useLayoutConfig({
     scrollable: false,
     empty: true,
@@ -299,7 +335,9 @@ export const Player = observer(() => {
     <>
       <XFocusable
         className="player"
-        onFocus={() => (state.isVideoFocused = true)}
+        onFocus={() => {
+          state.isVideoFocused = true;
+        }}
         onUnfocus={() => {
           state.isVideoFocused = false;
           state.setFocusTimeout();
@@ -333,13 +371,65 @@ export const Player = observer(() => {
             background: "rgba(0, 0, 0, 0.8)",
           }}
         >
-          <div className="w-full flex justify-center items-center">
+          <div className="w-full flex justify-between items-center">
             <div className="px-4">{state.title}</div>
             <div className="px-4">
               <div className="time-info">
                 <span>{state.formatTime(state.currentTime)}</span> /{" "}
                 <span>{state.formatTime(state.totalTime)}</span>
               </div>
+            </div>
+          </div>
+          <div className="w-full flex justify-between items-center mt-4">
+            <div
+              className="px-4 w-full rounded-lg relative"
+              style={{
+                background: "rgba(255, 255, 255, 0.5)",
+                borderRadius: "100px",
+                height: "20px",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  content: "",
+                  width: `${state.progress * 100}%`,
+                  height: "100%",
+                  left: 0,
+                  right: `${100 - state.progress * 100}%`,
+                  top: 0,
+                  bottom: 0,
+                  background: "red",
+                  borderRadius: "100px",
+                }}
+              ></div>
+              <Focusable
+                className="static"
+                onFocus={() => {
+                  state.seekTime = state.currentTime;
+                  state.isProgressFocused = true;
+                }}
+                onUnfocus={() => {
+                  state.isProgressFocused = false;
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    content: "",
+                    left: `${state.progress * 100}%`,
+                    top: "50%",
+                    height: state.isProgressFocused ? "40px" : "35px",
+                    width: state.isProgressFocused ? "40px" : "35px",
+                    transform: "translateY(-50%) translateX(-50%)",
+                    background: "white",
+                    borderRadius: "100px",
+                    boxShadow: state.isProgressFocused
+                      ? "0 0 0 12px rgba(255, 255, 255, 0.5)"
+                      : "0 0 0 0px rgba(255, 255, 255, 0.5)",
+                  }}
+                ></div>
+              </Focusable>
             </div>
           </div>
           <div className="w-full flex justify-center items-center mt-6">
