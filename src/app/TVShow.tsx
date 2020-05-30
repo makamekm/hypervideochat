@@ -1,4 +1,5 @@
 import React from "react";
+import cherio from "cheerio";
 import { useLocalStore, observer } from "mobx-react";
 import { useParams, useHistory } from "react-router";
 import { useLayoutConfig } from "./LayoutService";
@@ -7,40 +8,78 @@ import {
   XFocusable,
 } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
+import { FavoriteService } from "./FavoriteService";
 
 export const TVShow = observer(() => {
   const history = useHistory();
   const { id } = useParams();
   const loadingService = React.useContext(LoadingService);
+  const favoriteService = React.useContext(FavoriteService);
   const state = useLocalStore(() => ({
+    title: "",
+    poster: "",
+    description: "",
     seasons: [] as {
-      title: string;
-      file: string;
       id: string;
-      poster: string;
-    }[][],
-    getSeasons: async () => {
+      title: string;
+      eposodes: {
+        title: string;
+        file: string;
+        id: string;
+        poster: string;
+      }[];
+    }[],
+    getSeasons: async (uuid: string, ids: string[]) => {
       const seasons = [];
-      let i = 0;
-      while (true) {
-        i++;
+      for (let i of ids) {
         const res = await fetch(
-          `https://proxier.now.sh/api?url=https://online.animedia.tv/embeds/playlist-j.txt/${id}/${i}`
+          `https://proxier.now.sh/api?url=https://online.animedia.tv/embeds/playlist-j.txt/${uuid}/${Number(
+            i
+          ) + 1}`
         );
         const arr = await res.json();
-        if (arr.length === 0) {
-          break;
-        } else {
-          seasons.push(arr);
-        }
+        seasons.push(arr);
       }
       return seasons;
     },
     load: async () => {
       loadingService.setLoading(true, "tvshow");
       try {
-        const seasons = await state.getSeasons();
-        console.log(seasons);
+        const res = await fetch(
+          "https://proxier.now.sh/api?url=https://online.animedia.tv/anime/" +
+            id
+        );
+        const text = await res.text();
+        const $ = cherio.load(text);
+        const mainElement = $(".media__tabs > ul[data-entry_id]");
+        const uuid = mainElement.attr("data-entry_id");
+        state.title = $(".media__post__original-title").text();
+        state.description = $(".media__post__body").text();
+        state.poster = $(".widget__post-info__poster img").attr("data-src");
+        const seasonNames: string[] = [];
+        const seasonIds: string[] = [];
+        mainElement.children("li").each((i, el) => {
+          seasonNames.push(
+            $(el)
+              .children("a")
+              .text()
+          );
+          seasonIds.push(
+            $(el)
+              .children("a")
+              .attr("href")
+              .replace("#tab", "")
+          );
+        });
+        const seasonEpisodes = await state.getSeasons(uuid, seasonIds);
+        const seasons = [];
+        for (let i in seasonIds) {
+          seasons.push({
+            id: seasonIds[i],
+            title: seasonNames[i],
+            eposodes: seasonEpisodes[i],
+          });
+        }
         (state.seasons as any).replace(seasons);
       } catch (error) {
         console.error(error);
@@ -54,13 +93,55 @@ export const TVShow = observer(() => {
   }, [state]);
   return (
     <div className="flex flex-1 flex-col items-center justify-center">
-      {state.seasons.map((season, index) => {
+      <div className="flex items-end justify-between font-light text-5xl mt-4 mb-4 text-gray-300 w-full px-10 max-h-screen leading-none">
+        <XFocusable
+          className="text-gray-400 leading-none mr-4 py-6 px-6"
+          onClickEnter={() => {
+            if (favoriteService.favoriteShows.includes(id)) {
+              favoriteService.favoriteShows.splice(
+                favoriteService.favoriteShows.indexOf(id),
+                1
+              );
+            } else {
+              favoriteService.favoriteShows.push(id);
+            }
+          }}
+        >
+          <div className="flex flex-row items-center">
+            <div
+              className="ellipsis font-normal text-5xl"
+              style={{ maxWidth: "50vw" }}
+            >
+              {state.title}
+            </div>
+            <div className="font-bold text-3xl ml-6">
+              {favoriteService.favoriteShows.includes(id) ? (
+                <i className="fas fa-star"></i>
+              ) : (
+                <i className="far fa-star"></i>
+              )}
+            </div>
+          </div>
+        </XFocusable>
+        <img
+          style={{
+            height: "100px",
+          }}
+          className="rounded-lg"
+          alt={state.title}
+          src={state.poster}
+        />
+      </div>
+      <div className="font-light text-2xl mt-4 text-gray-500 w-full px-10">
+        {state.description}
+      </div>
+      {state.seasons.map((season) => {
         return (
-          <React.Fragment key={index}>
+          <React.Fragment key={season.id}>
             <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
-              Season #{index + 1}
+              {season.title}
               <span className="text-xl text-gray-700 ml-4">
-                # {season.length} of eposodes
+                # {season.eposodes.length} of eposodes
               </span>
             </div>
 
@@ -68,7 +149,7 @@ export const TVShow = observer(() => {
               className="px-10"
               style={{ maxWidth: "100vw" }}
             >
-              {season.map((episode) => {
+              {season.eposodes.map((episode) => {
                 return (
                   <XFocusable
                     className="my-1 mx-2 p-1"

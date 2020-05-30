@@ -1,150 +1,164 @@
 import React from "react";
+import cherio from "cheerio";
 import { useHistory } from "react-router";
-import { observer } from "mobx-react";
+import { observer, useLocalStore } from "mobx-react";
 import { useLayoutConfig } from "./LayoutService";
 import {
   XFocusableContainer,
   XFocusable,
 } from "~/components/XFocusable/XFocusable";
+import { LoadingService } from "~/components/Loading/LoadingService";
 
 export const Dashboard = observer(() => {
+  const loadingService = React.useContext(LoadingService);
   const history = useHistory();
+  const state = useLocalStore(() => ({
+    topWeek: [] as {
+      id: string;
+      poster: string;
+      title: string;
+    }[],
+    newShows: [] as {
+      id: string;
+      poster: string;
+      title: string;
+    }[],
+    async load() {
+      loadingService.setLoading(true, "dashboard");
+      const res = await fetch(
+        "https://proxier.now.sh/api?url=https://online.animedia.tv/"
+      );
+      const topWeek = [];
+      const newShows = [];
+      const text = await res.text();
+      const $ = cherio.load(text);
+      try {
+        $(
+          ".index__releases__header > .finished-releases__header__title:contains('Популярное за неделю')"
+        )
+          .parent()
+          .next(".index-scroller")
+          .find(".scroller__item2")
+          .each((index, el) => {
+            topWeek.push({
+              poster: $(el)
+                .find(".ads-list__item__thumb img")
+                .attr("data-src"),
+              id: $(el)
+                .find(".title__list__index > .title__index > a")
+                .attr("href")
+                .replace("https://online.animedia.tv/anime/", ""),
+              title: $(el)
+                .find(".title__list__index > .title__index > a")
+                .attr("title"),
+            });
+          });
+        $(
+          ".index__releases__header > .finished-releases__header__title:contains('Новинки аниме')"
+        )
+          .parent()
+          .next(".index-scroller")
+          .find(".scroller__item2")
+          .each((index, el) => {
+            newShows.push({
+              poster: $(el)
+                .find(".ads-list__item__thumb img")
+                .attr("data-src"),
+              id: $(el)
+                .find(".title__list__index > .title__index > a")
+                .attr("href")
+                .replace("https://online.animedia.tv/anime/", ""),
+              title: $(el)
+                .find(".title__list__index > .title__index > a")
+                .attr("title"),
+            });
+          });
+      } catch (error) {
+        console.error(error);
+      }
+      (state.topWeek as any).replace(topWeek);
+      (state.newShows as any).replace(newShows);
+      loadingService.setLoading(false, "dashboard");
+    },
+  }));
   useLayoutConfig({});
+  React.useEffect(() => {
+    state.load();
+  }, [state]);
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-4">
-      <div className="font-light text-4xl mb-8 text-gray-600 w-full px-10">
-        Top TV shows
+      <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
+        Популярное за неделю
         <span className="text-xl text-gray-700 ml-4">
-          # the most popular shows fot the recent time
+          # самые популярные аниме за последнее время
         </span>
       </div>
       <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
-        <XFocusable
-          className="my-1 mx-2 p-1"
-          onClickEnter={() => {
-            // history.push("/tvshow/" + 16919);
-            history.push("/tvshow/" + 13878);
-          }}
-        >
-          <img
-            style={{
-              width: "200px",
-            }}
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/1316.jpg?w=280&amp;h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/BNAPOSTER.jpg?w=280&h=385"
-          />
-        </XFocusable>
-        <XFocusable className="my-1 mx-2 p-1">
-          <img
-            className="rounded-lg"
-            alt="Онлайн аниме Ванпанчмен"
-            style={{
-              width: "200px",
-            }}
-            src="https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385"
-          />
-        </XFocusable>
+        {state.topWeek.map((show) => {
+          return (
+            <XFocusable
+              key={show.id}
+              className="my-1 mx-2 p-1"
+              onClickEnter={() => {
+                history.push("/tvshow/" + show.id);
+              }}
+            >
+              <img
+                style={{
+                  width: "200px",
+                }}
+                className="rounded-lg"
+                alt={show.title}
+                src={show.poster}
+              />
+              <div
+                className="ellipsis py-1 px-2 text-lg font-light"
+                style={{
+                  maxWidth: "200px",
+                }}
+              >
+                {show.title}
+              </div>
+            </XFocusable>
+          );
+        })}
+      </XFocusableContainer>
+
+      <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
+        Новинки
+        <span className="text-xl text-gray-700 ml-4">
+          # свежие аниме на сайте
+        </span>
+      </div>
+      <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
+        {state.newShows.map((show) => {
+          return (
+            <XFocusable
+              key={show.id}
+              className="my-1 mx-2 p-1"
+              onClickEnter={() => {
+                history.push("/tvshow/" + show.id);
+              }}
+            >
+              <img
+                style={{
+                  width: "200px",
+                }}
+                className="rounded-lg"
+                alt={show.title}
+                src={show.poster}
+              />
+              <div
+                className="ellipsis py-1 px-2 text-lg font-light"
+                style={{
+                  maxWidth: "200px",
+                }}
+              >
+                {show.title}
+              </div>
+            </XFocusable>
+          );
+        })}
       </XFocusableContainer>
     </div>
   );

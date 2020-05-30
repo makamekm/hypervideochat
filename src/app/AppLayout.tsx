@@ -4,11 +4,37 @@ import { LayoutService } from "./LayoutService";
 import { observer } from "mobx-react";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { useHistory } from "react-router";
+import { TVKeys } from "./TVKeys";
 
 export const AppLayout: React.FC = observer(({ children }) => {
   const history = useHistory();
   const service = React.useContext(LayoutService);
   const scrollable = service.scrollable && service.nonScrollableStack === 0;
+  const onKeyDown = React.useCallback(
+    (e) => {
+      switch (e.keyCode) {
+        case TVKeys.RETURN:
+        case TVKeys.BACK:
+          if (
+            history.location.pathname !== "/dashboard" &&
+            document.activeElement.tagName.toLocaleLowerCase() !== "input"
+          ) {
+            history.goBack();
+          }
+          break;
+        default:
+          console.log("Key code : " + e.keyCode);
+          break;
+      }
+    },
+    [history]
+  );
+  React.useEffect(() => {
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  });
   return (
     <>
       <ToastContainer
@@ -37,9 +63,6 @@ export const AppLayout: React.FC = observer(({ children }) => {
                       }}
                     >
                       <span className="font-light text-6xl">ANIMEDIA.TV</span>
-                      <span className="text-xl font-light mb-8 text-gray-700 ml-4">
-                        # Russian Anime Community
-                      </span>
                     </XFocusable>
                   </div>
                   <div className="px-4">

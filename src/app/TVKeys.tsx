@@ -18,6 +18,7 @@ export const TVKeys = {
   TOOLS: 10135,
   ENTER: 13,
   RETURN: 10009,
+  BACK: 8,
   INFO: 457,
   EXIT: 10182,
   UP: 38,

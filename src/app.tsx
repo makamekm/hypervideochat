@@ -12,12 +12,13 @@ import { LoadingScreen } from "./components/Loading/LoadingScreen";
 import { LoadingService } from "./components/Loading/LoadingService";
 import { LayoutService } from "./app/LayoutService";
 import { YBodyFocusableContainer } from "./components/XFocusable/XFocusable";
+import { FavoriteService } from "./app/FavoriteService";
 
 const basePath = process.env.BASE_PATH || "/";
 
 export const App = () => {
   const [ServiceProvider] = React.useState<React.FC>(() =>
-    ServiceProviderFactory(LoadingService, LayoutService)
+    ServiceProviderFactory(LoadingService, LayoutService, FavoriteService)
   );
 
   return (
