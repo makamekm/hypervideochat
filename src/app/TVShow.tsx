@@ -134,7 +134,7 @@ export const TVShow = observer(() => {
     state.load();
   }, [state]);
   return (
-    <div className="flex flex-1 flex-col items-center justify-center">
+    <div className="flex flex-1 flex-col items-start justify-center">
       <div className="flex items-end justify-between font-light text-5xl mt-4 mb-4 text-gray-300 w-full px-10 max-h-screen leading-none">
         <XFocusable
           className="text-gray-400 leading-none mr-4 py-6 px-6"

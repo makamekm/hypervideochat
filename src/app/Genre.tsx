@@ -75,58 +75,60 @@ export const Genre = observer(() => {
   }, [state, pageNum]);
   return (
     <div className="flex flex-1 flex-col items-start justify-start">
-      <XFocusable
-        className="flex items-end justify-between text-gray-400 mx-10 p-4 max-h-screen leading-none font-normal text-5xl"
-        onClickEnter={() => {
-          state.showDescription = !state.showDescription;
-        }}
-      >
-        <div className="ellipsis" style={{ maxWidth: "50vw" }}>
-          {state.title}
-        </div>
-      </XFocusable>
+      <div className="flex-1 flex-col items-start justify-center">
+        <XFocusable
+          className="flex items-end justify-between text-gray-400 mx-10 p-4 max-h-screen leading-none font-normal text-5xl"
+          onClickEnter={() => {
+            state.showDescription = !state.showDescription;
+          }}
+        >
+          <div className="ellipsis" style={{ maxWidth: "50vw" }}>
+            {state.title}
+          </div>
+        </XFocusable>
 
-      {state.description && (
-        <div className="font-light text-2xl text-gray-500 w-full px-10 mt-8">
-          {truncate(state.description, state.showDescription ? 100000 : 500)}
-        </div>
-      )}
+        {state.description && (
+          <div className="font-light text-2xl text-gray-500 w-full px-10 mt-8">
+            {truncate(state.description, state.showDescription ? 100000 : 500)}
+          </div>
+        )}
 
-      <XFocusableContainer
-        className="px-10 mt-10"
-        style={{ maxWidth: "100vw" }}
-      >
-        {state.related.map((show) => {
-          return (
-            <XFocusable
-              key={show.id}
-              className="my-1 mx-2 p-1"
-              onClickEnter={() => {
-                history.push("/tvshow/" + show.id);
-              }}
-              shouldTrapLeft
-              shouldTrapRight
-            >
-              <img
-                style={{
-                  width: "200px",
+        <XFocusableContainer
+          className="px-10 mt-10"
+          style={{ maxWidth: "100vw" }}
+        >
+          {state.related.map((show) => {
+            return (
+              <XFocusable
+                key={show.id}
+                className="my-1 mx-2 p-1"
+                onClickEnter={() => {
+                  history.push("/tvshow/" + show.id);
                 }}
-                className="rounded-lg"
-                alt={show.title}
-                src={show.poster}
-              />
-              <div
-                className="ellipsis py-1 px-2 text-lg font-light"
-                style={{
-                  maxWidth: "200px",
-                }}
+                shouldTrapLeft
+                shouldTrapRight
               >
-                {show.title}
-              </div>
-            </XFocusable>
-          );
-        })}
-      </XFocusableContainer>
+                <img
+                  style={{
+                    width: "200px",
+                  }}
+                  className="rounded-lg"
+                  alt={show.title}
+                  src={show.poster}
+                />
+                <div
+                  className="ellipsis py-1 px-2 text-lg font-light"
+                  style={{
+                    maxWidth: "200px",
+                  }}
+                >
+                  {show.title}
+                </div>
+              </XFocusable>
+            );
+          })}
+        </XFocusableContainer>
+      </div>
 
       <div className="w-full flex items-center justify-center mt-8">
         <div className="font-normal text-4xl mx-2 p-4 leading-none">

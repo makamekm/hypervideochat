@@ -64,13 +64,16 @@
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
     "figma": "node ./figma.js",
-    "build:tizon-cp": "run-p build:tizon-cp:0 build:tizon-cp:1 build:tizon-cp:2 build:tizon-cp:3 build:tizon-cp:4 build:tizon-cp:5",
+    "build:tizon-cp": "run-p build:tizon-cp:0 build:tizon-cp:1 build:tizon-cp:2 build:tizon-cp:3 build:tizon-cp:4 build:tizon-cp:5 build:tizon-cp:6 build:tizon-cp:7 build:tizon-cp:8",
     "build:tizon-cp:0": "ncp ./build/custom-service-worker.js ~/workspace/AnimediaTV/custom-service-worker.js",
     "build:tizon-cp:1": "ncp ./build/favicon.ico ~/workspace/AnimediaTV/favicon.ico",
     "build:tizon-cp:2": "ncp ./build/icon.png ~/workspace/AnimediaTV/icon.png",
-    "build:tizon-cp:3": "ncp ./build/service-worker.js ~/workspace/AnimediaTV/service-worker.js",
-    "build:tizon-cp:4": "ncp ./build/index.html ~/workspace/AnimediaTV/index.html",
-    "build:tizon-cp:5": "ncp ./build/static ~/workspace/AnimediaTV/static"
+    "build:tizon-cp:3": "ncp ./build/logo_appname_bg.png ~/workspace/AnimediaTV/logo_appname_bg.png",
+    "build:tizon-cp:4": "ncp ./build/logo_appname_fg.png ~/workspace/AnimediaTV/logo_appname_fg.png",
+    "build:tizon-cp:5": "ncp ./build/logo.svg ~/workspace/AnimediaTV/logo.svg",
+    "build:tizon-cp:6": "ncp ./build/service-worker.js ~/workspace/AnimediaTV/service-worker.js",
+    "build:tizon-cp:7": "ncp ./build/index.html ~/workspace/AnimediaTV/index.html",
+    "build:tizon-cp:8": "ncp ./build/static ~/workspace/AnimediaTV/static"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -26,7 +26,7 @@ const ItemContent: React.FC<{
           parentXContext.scrollTo(
             parentXContext.value + rect.right - parentRect.right + 100
           );
-        } else if (parentRect.left - rect.left > 100) {
+        } else if (parentRect.left - rect.left > -100) {
           parentXContext.scrollTo(
             parentXContext.value + rect.left - parentRect.left - 100
           );
@@ -40,7 +40,7 @@ const ItemContent: React.FC<{
           parentYContext.scrollTo(
             parentYContext.value + rect.bottom - parentRect.bottom + 100
           );
-        } else if (parentRect.top - rect.top > 100) {
+        } else if (parentRect.top - rect.top > -100) {
           parentYContext.scrollTo(
             parentYContext.value + rect.top - parentRect.top - 100
           );

@@ -5,6 +5,7 @@ import { observer } from "mobx-react";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { useHistory } from "react-router";
 import { TVKeys } from "./TVKeys";
+import { Logo } from "./Logo";
 
 export const AppLayout: React.FC = observer(({ children }) => {
   const history = useHistory();
@@ -63,7 +64,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
                         history.push("/");
                       }}
                     >
-                      <span className="font-light text-6xl">ANIMEDIA.TV</span>
+                      <Logo />
                     </XFocusable>
                   </div>
                   <div className="px-4">
@@ -81,7 +82,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
                         history.push("/top100");
                       }}
                     >
-                      Top 100
+                      Топ 100
                     </XFocusable>
                   </div>
                 </div>

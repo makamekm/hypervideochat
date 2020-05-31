@@ -53,7 +53,7 @@ export const Top100 = observer(() => {
     state.load();
   }, [state]);
   return (
-    <div className="flex flex-1 flex-col items-start justify-start">
+    <div className="flex flex-1 flex-col items-start justify-center">
       <div className="flex items-end justify-between text-gray-400 mx-10 p-4 max-h-screen leading-none font-normal text-5xl">
         Top 100
       </div>

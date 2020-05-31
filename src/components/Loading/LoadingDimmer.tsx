@@ -5,7 +5,7 @@ const Dimmer = () => {
   return (
     <div className="initial-loader-wrap">
       <div className="initial-loader">
-        <div className="initial-loader__row">- ANIMEDIA.TV -</div>
+        <div className="initial-loader__row">ANIMEDIA.TV</div>
         <div className="initial-loader__row">
           <svg
             version="1.1"
