@@ -142,7 +142,12 @@ export const Player = observer(() => {
       switch (e.keyCode) {
         case TVKeys.LEFT:
           if (state.isVideoFocused) {
-            webapis.avplay.jumpBackward(10000);
+            (document.querySelector(".progress-dot") as HTMLElement).focus();
+            setTimeout(() => {
+              state.seekTime = state.currentTime - 10;
+              state.seekTime = Math.max(state.seekTime, 0);
+              state.setSeek();
+            });
           }
           if (state.isProgressFocused) {
             state.seekTime -= (state.totalTime / 100) * 3;
@@ -156,7 +161,12 @@ export const Player = observer(() => {
           break;
         case TVKeys.RIGHT:
           if (state.isVideoFocused) {
-            webapis.avplay.jumpForward(10000);
+            (document.querySelector(".progress-dot") as HTMLElement).focus();
+            setTimeout(() => {
+              state.seekTime = state.currentTime + 10;
+              state.seekTime = Math.min(state.seekTime, state.totalTime);
+              state.setSeek();
+            });
           }
           if (state.isProgressFocused) {
             state.seekTime += (state.totalTime / 100) * 3;
@@ -318,10 +328,10 @@ export const Player = observer(() => {
     },
     mount() {
       try {
+        state.setSaveProgressInterval();
         state.setRegisterMediaKeys();
         state.setHandleKeyDown();
         state.setEventListeners();
-        state.setSaveProgressInterval();
       } catch (error) {
         console.error(error);
       }
@@ -339,9 +349,9 @@ export const Player = observer(() => {
       }
     },
     unmount() {
+      state.unsetSaveProgressInterval();
       document.removeEventListener("keydown", state.onKeyDown);
       state.unsetRegisterMediaKeys();
-      state.unsetSaveProgressInterval();
       try {
         webapis.avplay.close();
       } catch (error) {
@@ -482,7 +492,7 @@ export const Player = observer(() => {
                 }}
               ></div>
               <Focusable
-                className="static"
+                className="progress-dot static"
                 onFocus={() => {
                   state.seekTime = state.currentTime;
                   state.isProgressFocused = true;

@@ -9,7 +9,10 @@ export const ProgressService = createService(
         [id: string]: number;
       },
       get episodeProgress() {
-        return state._episodeProgress || {};
+        if (!state._episodeProgress) {
+          state._episodeProgress = {};
+        }
+        return state._episodeProgress;
       },
     }));
     return state;

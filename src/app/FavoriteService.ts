@@ -11,7 +11,10 @@ export const FavoriteService = createService(
         poster: string;
       }[],
       get favoriteShows() {
-        return state._favoriteShows || [];
+        if (!state._favoriteShows) {
+          state._favoriteShows = [];
+        }
+        return state._favoriteShows;
       },
     }));
     return state;
