@@ -48,6 +48,12 @@ export const Player = observer(() => {
     get title() {
       return (history.location?.state as any)?.title;
     },
+    get header() {
+      return (history.location?.state as any)?.header;
+    },
+    get poster() {
+      return (history.location?.state as any)?.poster;
+    },
     get file() {
       let url =
         state.files[state.quality] ||
@@ -319,13 +325,13 @@ export const Player = observer(() => {
   });
   React.useEffect(() => {
     if (!history.location.state) {
-      return history.push("/");
-      // history.location.state = {
-      //   title: "Серия 1",
-      //   file:
-      //     "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
-      //   prevUrl: "/tvshow/13878",
-      // };
+      // return history.push("/");
+      history.location.state = {
+        title: "Серия 1",
+        file:
+          "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
+        prevUrl: "/tvshow/13878",
+      };
     }
     state.mount();
     state.load();
@@ -362,9 +368,9 @@ export const Player = observer(() => {
           }}
         />
       </XFocusable>
-      <div className="flex flex-1 flex-col items-center justify-end z-10 text-2xl">
+      <div className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8">
         <div
-          className="w-full flex flex-col items-center justify-end p-6"
+          className="w-full flex flex-col items-center justify-end py-6 rounded-lg px-10"
           style={{
             transition: "opacity 0.4s",
             opacity:
@@ -374,9 +380,48 @@ export const Player = observer(() => {
             background: "rgba(0, 0, 0, 0.8)",
           }}
         >
+          <div
+            className="p-8 rounded-lg flex justify-between items-start"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+            }}
+          >
+            <div
+              className="p-6 rounded-lg"
+              style={{
+                background: "rgba(0, 0, 0, 0.8)",
+              }}
+            >
+              <img src="/logo.svg" alt="logo" />
+            </div>
+            <div
+              className="flex flex-col items-end p-6 rounded-lg text-right"
+              style={{
+                background: "rgba(0, 0, 0, 0.8)",
+              }}
+            >
+              <img
+                style={{
+                  height: "250px",
+                }}
+                className="rounded-lg"
+                alt={state.header}
+                src={state.poster}
+              />
+              <div
+                className="ellipsis font-light text-3xl mt-3"
+                style={{ maxWidth: "50vw" }}
+              >
+                {state.header} / {state.title}
+              </div>
+            </div>
+          </div>
           <div className="w-full flex justify-between items-center">
-            <div className="px-4">{state.title}</div>
-            <div className="px-4">
+            <div className="pr-4">{state.title}</div>
+            <div className="pl-4">
               <div className="time-info">
                 <span>
                   {state.formatTime(
@@ -426,8 +471,8 @@ export const Player = observer(() => {
                     content: "",
                     left: `${state.progress * 100}%`,
                     top: "50%",
-                    height: state.isProgressFocused ? "40px" : "35px",
-                    width: state.isProgressFocused ? "40px" : "35px",
+                    height: state.isProgressFocused ? "45px" : "35px",
+                    width: state.isProgressFocused ? "45px" : "35px",
                     transform: "translateY(-50%) translateX(-50%)",
                     background: "white",
                     borderRadius: "100px",

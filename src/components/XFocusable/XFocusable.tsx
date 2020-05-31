@@ -1,7 +1,6 @@
 import React from "react";
 import { useSpring } from "react-spring";
 import classNames from "classnames";
-import { FocusableSection } from "react-js-spatial-navigation";
 import { XFocusableContext, YFocusableContext } from "./XFocusableContext";
 import { Focusable } from "../Focusable/Focusable";
 import { FocusableContext } from "../Focusable/FocusableContext";

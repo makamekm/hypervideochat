@@ -219,14 +219,18 @@ export const TVShow = observer(() => {
                     key={episode.id}
                     onClickEnter={() => {
                       loadingService.setLoading(true, "playerGlobal");
-                      history.push({
-                        pathname: "/player",
-                        state: {
-                          title: episode.title,
-                          file: episode.file,
-                          prevUrl: history.location.pathname,
-                        },
-                      });
+                      setTimeout(() => {
+                        history.push({
+                          pathname: "/player",
+                          state: {
+                            header: state.title,
+                            poster: state.poster,
+                            title: episode.title,
+                            file: episode.file,
+                            prevUrl: history.location.pathname,
+                          },
+                        });
+                      }, 100);
                     }}
                   >
                     <img
