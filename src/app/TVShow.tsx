@@ -10,12 +10,14 @@ import {
 } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { FavoriteService } from "./FavoriteService";
+import { ProgressService } from "./ProgressService";
 
 export const TVShow = observer(() => {
   const history = useHistory();
   const { id } = useParams();
   const loadingService = React.useContext(LoadingService);
   const favoriteService = React.useContext(FavoriteService);
+  const progressService = React.useContext(ProgressService);
   const state = useLocalStore(() => ({
     title: "",
     poster: "",
@@ -215,7 +217,7 @@ export const TVShow = observer(() => {
                   <XFocusable
                     shouldTrapLeft
                     shouldTrapRight
-                    className="my-1 mx-2 p-1"
+                    className="my-1 mx-2 p-1 relative"
                     key={episode.id}
                     onClickEnter={() => {
                       loadingService.setLoading(true, "playerGlobal");
@@ -223,6 +225,7 @@ export const TVShow = observer(() => {
                         history.push({
                           pathname: "/player",
                           state: {
+                            id: id + "__" + episode.id,
                             header: state.title,
                             poster: state.poster,
                             title: episode.title,
@@ -242,6 +245,26 @@ export const TVShow = observer(() => {
                       alt={episode.title}
                       src={"https:" + episode.poster}
                     />
+                    <div
+                      className="rounded-lg"
+                      style={{
+                        content: "",
+                        position: "absolute",
+                        bottom: 10,
+                        left: 10,
+                        right: `${(1 -
+                          (progressService.episodeProgress[
+                            id + "__" + episode.id
+                          ] || 0)) *
+                          100}%`,
+                        height: "6px",
+                        backgroundColor: "red",
+                        opacity: 0.8,
+                        width: `${(progressService.episodeProgress[
+                          id + "__" + episode.id
+                        ] || 0) * 100}%`,
+                      }}
+                    ></div>
                   </XFocusable>
                 );
               })}

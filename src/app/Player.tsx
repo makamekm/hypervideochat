@@ -9,6 +9,7 @@ import { TVKeys } from "./TVKeys";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { Focusable } from "~/components/Focusable/Focusable";
 import { useSimpleSyncLocalStorage } from "~/hooks";
+import { ProgressService } from "./ProgressService";
 
 const webapis = (window as any).webapis;
 const tizen = (window as any).tizen;
@@ -25,6 +26,7 @@ export const Player = observer(() => {
   const ref = React.useRef<HTMLVideoElement>(null);
   const history = useHistory();
   const loadingService = React.useContext(LoadingService);
+  const progressService = React.useContext(ProgressService);
   const state = useLocalStore(() => ({
     isVideoFocused: false,
     isProgressFocused: false,
@@ -53,6 +55,32 @@ export const Player = observer(() => {
     },
     get poster() {
       return (history.location?.state as any)?.poster;
+    },
+    get id() {
+      return (history.location?.state as any)?.id;
+    },
+    get savedProgress() {
+      return progressService.episodeProgress[state.id];
+    },
+    saveProgressInterval: 0,
+    saveProgress: () => {
+      progressService.episodeProgress[state.id] =
+        state.currentTime / state.totalTime;
+    },
+    setSaveProgressInterval() {
+      state.saveProgressInterval = window.setInterval(state.saveProgress, 5000);
+    },
+    unsetSaveProgressInterval() {
+      window.clearInterval(state.saveProgressInterval);
+    },
+    restoreProgress() {
+      if (state.savedProgress && state.savedProgress < 0.99) {
+        state.seekTime = state.totalTime * state.savedProgress;
+        state.seekTime = Math.max(state.seekTime, 0);
+        state.seekTime = Math.min(state.seekTime, state.totalTime);
+        state.currentTime = state.seekTime;
+        webapis.avplay.seekTo(state.seekTime * 1000);
+      }
     },
     get file() {
       let url =
@@ -281,6 +309,7 @@ export const Player = observer(() => {
         state.prepare();
         state.play();
         state.focus();
+        state.restoreProgress();
       } catch (error) {
         console.error(error);
       }
@@ -292,6 +321,7 @@ export const Player = observer(() => {
         state.setRegisterMediaKeys();
         state.setHandleKeyDown();
         state.setEventListeners();
+        state.setSaveProgressInterval();
       } catch (error) {
         console.error(error);
       }
@@ -311,6 +341,7 @@ export const Player = observer(() => {
     unmount() {
       document.removeEventListener("keydown", state.onKeyDown);
       state.unsetRegisterMediaKeys();
+      state.unsetSaveProgressInterval();
       try {
         webapis.avplay.close();
       } catch (error) {
@@ -325,13 +356,13 @@ export const Player = observer(() => {
   });
   React.useEffect(() => {
     if (!history.location.state) {
-      // return history.push("/");
-      history.location.state = {
-        title: "Серия 1",
-        file:
-          "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
-        prevUrl: "/tvshow/13878",
-      };
+      return history.push("/");
+      // history.location.state = {
+      //   title: "Серия 1",
+      //   file:
+      //     "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
+      //   prevUrl: "/tvshow/13878",
+      // };
     }
     state.mount();
     state.load();

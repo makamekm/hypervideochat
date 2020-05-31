@@ -2,21 +2,19 @@ import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
 import { useSyncLocalStorage } from "~/hooks";
 
-export const FavoriteService = createService(
+export const ProgressService = createService(
   () => {
     const state = useLocalStore(() => ({
-      _favoriteShows: [] as {
-        title: string;
-        id: string;
-        poster: string;
-      }[],
-      get favoriteShows() {
-        return state._favoriteShows || [];
+      _episodeProgress: {} as {
+        [id: string]: number;
+      },
+      get episodeProgress() {
+        return state._episodeProgress || {};
       },
     }));
     return state;
   },
   (state) => {
-    useSyncLocalStorage(state, "_favoriteShows");
+    useSyncLocalStorage(state, "_episodeProgress");
   }
 );
