@@ -397,23 +397,18 @@ export const Player = observer(() => {
             >
               <img src="/logo.svg" alt="logo" />
             </div>
-            <div
-              className="flex flex-col items-end p-6 rounded-lg text-right"
-              style={{
-                background: "rgba(0, 0, 0, 0.8)",
-              }}
-            >
+            <div className="flex flex-col items-end rounded-lg text-right">
               <img
                 style={{
                   height: "250px",
                 }}
-                className="rounded-lg"
+                className="rounded-lg shadow-md border border-gray-700"
                 alt={state.header}
                 src={state.poster}
               />
               <div
-                className="ellipsis font-light text-3xl mt-3"
-                style={{ maxWidth: "50vw" }}
+                className="ellipsis font-light text-3xl mt-3 p-6 rounded-lg leading-none"
+                style={{ maxWidth: "50vw", background: "rgba(0, 0, 0, 0.8)" }}
               >
                 {state.header} / {state.title}
               </div>
