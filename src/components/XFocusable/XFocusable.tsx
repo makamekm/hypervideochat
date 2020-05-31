@@ -78,7 +78,7 @@ export const XFocusable: React.FC<{
     <Focusable
       className={classNames(
         className,
-        "inline-flex items-stretch text-sm font-semibold rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
+        "inline-flex items-stretch text-sm rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
       )}
       onClickEnter={() => {
         onClickEnter && onClickEnter();

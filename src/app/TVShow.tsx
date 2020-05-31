@@ -20,6 +20,15 @@ export const TVShow = observer(() => {
     title: "",
     poster: "",
     description: "",
+    genres: [] as {
+      id: string;
+      title: string;
+    }[],
+    related: [] as {
+      id: string;
+      title: string;
+      poster: string;
+    }[],
     seasons: [] as {
       id: string;
       title: string;
@@ -75,6 +84,35 @@ export const TVShow = observer(() => {
               .replace("#tab", "")
           );
         });
+        const genres = [];
+        $(".content-container .media .media__post__info .genre-tags a").each(
+          (i, el) => {
+            genres.push({
+              title: $(el).text(),
+              id: $(el)
+                .attr("href")
+                .replace("https://online.animedia.tv/category/", ""),
+            });
+          }
+        );
+        (state.genres as any).replace(genres);
+        const related = [];
+        $(".media__related__list .media__related__list__item a").each(
+          (i, el) => {
+            related.push({
+              title: $(el)
+                .attr("title")
+                .replace("Смотреть онлайн ", ""),
+              poster: $(el)
+                .find("img")
+                .attr("data-src"),
+              id: $(el)
+                .attr("href")
+                .replace("https://online.animedia.tv/anime/", ""),
+            });
+          }
+        );
+        (state.related as any).replace(related);
         const seasonEpisodes = await state.getSeasons(uuid, seasonIds);
         const seasons = [];
         for (let i in seasonIds) {
@@ -142,6 +180,19 @@ export const TVShow = observer(() => {
           src={state.poster}
         />
       </div>
+      <div className="flex flex-wrap items-center justify-start font-light text-2xl text-gray-500 w-full px-10">
+        {state.genres.map((g) => (
+          <XFocusable
+            className="p-4 leading-none m-2"
+            key={g.id}
+            onClickEnter={() => {
+              history.push("/genre/" + g.id);
+            }}
+          >
+            <div className="font-light text-2xl">{g.title}</div>
+          </XFocusable>
+        ))}
+      </div>
       <div className="font-light text-2xl mt-4 text-gray-500 w-full px-10">
         {state.description}
       </div>
@@ -165,7 +216,7 @@ export const TVShow = observer(() => {
                     className="my-1 mx-2 p-1"
                     key={episode.id}
                     onClickEnter={() => {
-                      console.log(episode);
+                      loadingService.setLoading(true, "playerGlobal");
                       history.push({
                         pathname: "/player",
                         state: {
@@ -192,6 +243,47 @@ export const TVShow = observer(() => {
           </React.Fragment>
         );
       })}
+
+      {state.related?.length > 0 && (
+        <>
+          <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
+            Избранные
+            <span className="text-xl text-gray-700 ml-4">
+              # все что вы считаете интересным
+            </span>
+          </div>
+          <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
+            {state.related.map((show) => {
+              return (
+                <XFocusable
+                  key={show.id}
+                  className="my-1 mx-2 p-1"
+                  onClickEnter={() => {
+                    history.push("/tvshow/" + show.id);
+                  }}
+                >
+                  <img
+                    style={{
+                      width: "200px",
+                    }}
+                    className="rounded-lg"
+                    alt={show.title}
+                    src={show.poster}
+                  />
+                  <div
+                    className="ellipsis py-1 px-2 text-lg font-light"
+                    style={{
+                      maxWidth: "200px",
+                    }}
+                  >
+                    {show.title}
+                  </div>
+                </XFocusable>
+              );
+            })}
+          </XFocusableContainer>
+        </>
+      )}
     </div>
   );
 });

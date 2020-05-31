@@ -75,6 +75,14 @@ export const AppLayout: React.FC = observer(({ children }) => {
                     >
                       <i className="fas fa-search"></i>
                     </XFocusable>
+                    <XFocusable
+                      className="text-gray-400 leading-none font-bold text-3xl px-6 py-6 ml-4"
+                      onClickEnter={() => {
+                        history.push("/top100");
+                      }}
+                    >
+                      Top 100
+                    </XFocusable>
                   </div>
                 </div>
               )}

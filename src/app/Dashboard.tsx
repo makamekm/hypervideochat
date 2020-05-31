@@ -170,9 +170,9 @@ export const Dashboard = observer(() => {
       </XFocusableContainer>
 
       <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
-        Новинки
+        Cхожие тайтлы
         <span className="text-xl text-gray-700 ml-4">
-          # свежие аниме на сайте
+          # с этим аниме смотрят так же
         </span>
       </div>
       <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>

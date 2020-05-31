@@ -279,6 +279,7 @@ export const Player = observer(() => {
         console.error(error);
       }
       loadingService.setLoading(false, "player");
+      loadingService.setLoading(false, "playerGlobal");
     },
     mount() {
       try {
