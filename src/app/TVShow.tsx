@@ -252,17 +252,12 @@ export const TVShow = observer(() => {
                         position: "absolute",
                         bottom: 10,
                         left: 10,
-                        right: `${(1 -
-                          (progressService.episodeProgress[
-                            id + "__" + episode.id
-                          ] || 0)) *
-                          100}%`,
                         height: "6px",
                         backgroundColor: "red",
                         opacity: 0.8,
-                        width: `${(progressService.episodeProgress[
+                        width: `calc(${(progressService.episodeProgress[
                           id + "__" + episode.id
-                        ] || 0) * 100}%`,
+                        ] || 0) * 100}% - 20px)`,
                       }}
                     ></div>
                   </XFocusable>
