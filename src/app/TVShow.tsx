@@ -213,6 +213,8 @@ export const TVShow = observer(() => {
               {season.eposodes.map((episode) => {
                 return (
                   <XFocusable
+                    shouldTrapLeft
+                    shouldTrapRight
                     className="my-1 mx-2 p-1"
                     key={episode.id}
                     onClickEnter={() => {
@@ -247,9 +249,9 @@ export const TVShow = observer(() => {
       {state.related?.length > 0 && (
         <>
           <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
-            Избранные
+            Схожие
             <span className="text-xl text-gray-700 ml-4">
-              # все что вы считаете интересным
+              # с этим шоу так же смотрят
             </span>
           </div>
           <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
@@ -261,6 +263,8 @@ export const TVShow = observer(() => {
                   onClickEnter={() => {
                     history.push("/tvshow/" + show.id);
                   }}
+                  shouldTrapLeft
+                  shouldTrapRight
                 >
                   <img
                     style={{

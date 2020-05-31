@@ -1,6 +1,7 @@
 import React from "react";
 import { useSpring } from "react-spring";
 import classNames from "classnames";
+import { FocusableSection } from "react-js-spatial-navigation";
 import { XFocusableContext, YFocusableContext } from "./XFocusableContext";
 import { Focusable } from "../Focusable/Focusable";
 import { FocusableContext } from "../Focusable/FocusableContext";
@@ -21,11 +22,11 @@ const ItemContent: React.FC<{
       if (parentXContextElement) {
         const parentRect = parentXContext.getBoundingClientRect();
         const rect = ref.current.getBoundingClientRect();
-        if (parentRect.right - rect.right < 0) {
+        if (parentRect.right - rect.right < 100) {
           parentXContext.scrollTo(
             parentXContext.value + rect.right - parentRect.right + 100
           );
-        } else if (parentRect.left - rect.left > 0) {
+        } else if (parentRect.left - rect.left > 100) {
           parentXContext.scrollTo(
             parentXContext.value + rect.left - parentRect.left - 100
           );
@@ -35,11 +36,11 @@ const ItemContent: React.FC<{
       if (parentYContextElement) {
         const parentRect = parentYContext.getBoundingClientRect();
         const rect = ref.current.getBoundingClientRect();
-        if (parentRect.bottom - rect.bottom < 0) {
+        if (parentRect.bottom - rect.bottom < 100) {
           parentYContext.scrollTo(
             parentYContext.value + rect.bottom - parentRect.bottom + 100
           );
-        } else if (parentRect.top - rect.top > 0) {
+        } else if (parentRect.top - rect.top > 100) {
           parentYContext.scrollTo(
             parentYContext.value + rect.top - parentRect.top - 100
           );
@@ -69,43 +70,77 @@ export const XFocusable: React.FC<{
   onClickEnter?: () => void;
   onUnfocus?: () => void;
   onFocus?: () => void;
-}> = observer(({ onClickEnter, children, className, onUnfocus, onFocus }) => {
-  const parentXContext = React.useContext(XFocusableContext);
-  const parentYContext = React.useContext(YFocusableContext);
-  const parentXContextElement = parentXContext && parentXContext.element;
-  const parentYContextElement = parentYContext && parentYContext.element;
-  return (
-    <Focusable
-      className={classNames(
-        className,
-        "inline-flex items-stretch text-sm rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
-      )}
-      onClickEnter={() => {
-        onClickEnter && onClickEnter();
-      }}
-      onFocus={() => {
-        onFocus && onFocus();
-      }}
-      onUnfocus={() => {
-        onUnfocus && onUnfocus();
-        if (parentXContextElement) {
-          const value = parentXContext.value;
-          requestAnimationFrame(() => {
-            parentXContext.set(value);
-          });
-        }
-        if (parentYContextElement) {
-          const value = parentYContext.value;
-          requestAnimationFrame(() => {
-            parentYContext.set(value);
-          });
-        }
-      }}
-    >
-      <ItemContent onClick={onClickEnter}>{children}</ItemContent>
-    </Focusable>
-  );
-});
+  shouldTrapRight?: boolean;
+  shouldTrapLeft?: boolean;
+}> = observer(
+  ({
+    onClickEnter,
+    children,
+    className,
+    onUnfocus,
+    onFocus,
+    shouldTrapRight,
+    shouldTrapLeft,
+  }) => {
+    const parentXContext = React.useContext(XFocusableContext);
+    const parentYContext = React.useContext(YFocusableContext);
+    const parentXContextElement = parentXContext && parentXContext.element;
+    const parentYContextElement = parentYContext && parentYContext.element;
+    return (
+      <Focusable
+        className={classNames(
+          className,
+          "inline-flex items-stretch text-sm rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
+        )}
+        onClickEnter={() => {
+          onClickEnter && onClickEnter();
+        }}
+        onFocus={(e) => {
+          onFocus && onFocus();
+        }}
+        onUnfocus={(e) => {
+          if (parentXContextElement) {
+            const value = parentXContext.value;
+            requestAnimationFrame(() => {
+              parentXContext.set(value);
+            });
+          }
+
+          if (parentYContextElement) {
+            const value = parentYContext.value;
+            requestAnimationFrame(() => {
+              parentYContext.set(value);
+            });
+          }
+
+          if (
+            shouldTrapLeft &&
+            e.detail.direction === "left" &&
+            !e.target.parentElement.contains(e.detail.nextElement)
+          ) {
+            requestAnimationFrame(() => {
+              e.target.focus();
+            });
+          }
+
+          if (
+            shouldTrapRight &&
+            e.detail.direction === "right" &&
+            !e.target.parentElement.contains(e.detail.nextElement)
+          ) {
+            requestAnimationFrame(() => {
+              e.target.focus();
+            });
+          }
+
+          onUnfocus && onUnfocus();
+        }}
+      >
+        <ItemContent onClick={onClickEnter}>{children}</ItemContent>
+      </Focusable>
+    );
+  }
+);
 
 export const XFocusableContainer: React.FC<{
   className?: string;
@@ -136,7 +171,7 @@ export const XFocusableContainer: React.FC<{
     scrollTo: (value) => {
       if (ref.current) {
         setX({
-          reset: true,
+          // reset: true,
           x: value,
           from: { x: ref.current.scrollLeft },
         } as any);
@@ -182,7 +217,7 @@ export const YBodyFocusableContainer: React.FC = observer(({ children }) => {
     },
     scrollTo: (value) => {
       setX({
-        reset: true,
+        // reset: true,
         y: value,
         from: { y: window.scrollY },
       } as any);

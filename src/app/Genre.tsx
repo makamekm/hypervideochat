@@ -104,6 +104,8 @@ export const Genre = observer(() => {
               onClickEnter={() => {
                 history.push("/tvshow/" + show.id);
               }}
+              shouldTrapLeft
+              shouldTrapRight
             >
               <img
                 style={{

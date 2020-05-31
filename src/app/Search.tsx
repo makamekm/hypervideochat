@@ -712,12 +712,14 @@ export const Search = observer(() => {
         </div>
       </div>
 
-      <div className="font-light text-4xl mb-8 text-gray-600 w-full px-10">
-        Результаты поиска
-        <span className="text-xl text-gray-700 ml-4">
-          # все что нам удалось найти
-        </span>
-      </div>
+      {state.results.length > 0 && (
+        <div className="font-light text-4xl mb-8 text-gray-600 w-full px-10">
+          Результаты поиска
+          <span className="text-xl text-gray-700 ml-4">
+            # все что нам удалось найти
+          </span>
+        </div>
+      )}
 
       {state.results.map((show) => {
         return (

@@ -108,6 +108,8 @@ export const Dashboard = observer(() => {
                   onClickEnter={() => {
                     history.push("/tvshow/" + show.id);
                   }}
+                  shouldTrapLeft
+                  shouldTrapRight
                 >
                   <img
                     style={{
@@ -147,6 +149,8 @@ export const Dashboard = observer(() => {
               onClickEnter={() => {
                 history.push("/tvshow/" + show.id);
               }}
+              shouldTrapLeft
+              shouldTrapRight
             >
               <img
                 style={{
@@ -184,6 +188,8 @@ export const Dashboard = observer(() => {
               onClickEnter={() => {
                 history.push("/tvshow/" + show.id);
               }}
+              shouldTrapLeft
+              shouldTrapRight
             >
               <img
                 style={{
