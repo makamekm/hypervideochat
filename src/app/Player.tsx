@@ -427,7 +427,7 @@ export const Player = observer(() => {
               </div>
             </div>
           </div>
-          <div className="w-full flex justify-between items-center mt-4">
+          <div className="w-full flex justify-between items-center mt-6">
             <div
               className="px-4 w-full rounded-lg relative"
               style={{

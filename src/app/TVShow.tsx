@@ -145,7 +145,7 @@ export const TVShow = observer(() => {
             if (isFavouriteIndex >= 0) {
               favoriteService.favoriteShows.splice(isFavouriteIndex, 1);
             } else {
-              favoriteService.favoriteShows.push(
+              favoriteService.favoriteShows.unshift(
                 toJS({
                   id,
                   poster: state.poster,
