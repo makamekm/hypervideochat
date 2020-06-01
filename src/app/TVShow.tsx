@@ -134,7 +134,7 @@ export const TVShow = observer(() => {
   useLayoutConfig({});
   React.useEffect(() => {
     state.load();
-  }, [state]);
+  }, [state, id]);
   return (
     <div className="flex flex-1 flex-col items-start justify-center">
       <div className="flex items-end justify-between font-light text-5xl mt-4 mb-4 text-gray-300 w-full px-10 max-h-screen leading-none">
