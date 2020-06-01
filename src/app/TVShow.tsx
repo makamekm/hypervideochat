@@ -241,7 +241,7 @@ export const TVShow = observer(() => {
                         width: "270px",
                         height: "150px",
                       }}
-                      className="rounded-lg"
+                      className="rounded-lg inline-block"
                       alt={episode.title}
                       src={"https:" + episode.poster}
                     />
