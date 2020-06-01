@@ -2,6 +2,7 @@ import React from "react";
 import { createService } from "~/components/ServiceProvider/ServiceProvider";
 import { useLocalStore } from "mobx-react";
 import { isEqual } from "lodash";
+import { focusFocusable } from "~/components/SpatialNavigation/SpatialNavigation";
 
 const defaultState = {
   empty: false,
@@ -44,4 +45,7 @@ export const useLayoutConfig = (config: LayoutConfig) => {
       service.change(config);
     }
   }, [service, config, storage]);
+  React.useEffect(() => {
+    focusFocusable();
+  }, []);
 };

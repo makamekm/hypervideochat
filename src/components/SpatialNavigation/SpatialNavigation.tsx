@@ -18,17 +18,26 @@ const KEYMAPPING = {
   "40": "down",
 };
 
+export const focusFocusable = () => {
+  if (
+    document.activeElement === document.body ||
+    !document.contains(config.lastFocused)
+  ) {
+    if (config.lastFocused && document.contains(config.lastFocused)) {
+      config.lastFocused.focus();
+    } else {
+      (document.querySelector(config.selector) as HTMLElement)?.focus();
+    }
+  }
+};
+
 export const FocusableRoot: React.FC = ({ children }) => {
   const onKeyDown = React.useCallback((e) => {
     const direction = KEYMAPPING[e.keyCode];
-    if (direction && document.activeElement === document.body) {
+    if (direction) {
       e.preventDefault();
       e.stopPropagation();
-      if (config.lastFocused) {
-        config.lastFocused.focus();
-      } else {
-        (document.querySelector(config.selector) as HTMLElement)?.focus();
-      }
+      focusFocusable();
     }
   }, []);
   React.useEffect(() => {
