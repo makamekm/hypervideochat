@@ -9,6 +9,7 @@ import {
 } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { FavoriteService } from "./FavoriteService";
+import { PROXY } from "@env/config";
 
 export const Dashboard = observer(() => {
   const loadingService = React.useContext(LoadingService);
@@ -27,9 +28,7 @@ export const Dashboard = observer(() => {
     }[],
     async load() {
       loadingService.setLoading(true, "dashboard");
-      const res = await fetch(
-        "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/"
-      );
+      const res = await fetch(`${PROXY}https://online.animedia.pro/`);
       const text = await res.text();
       // const buffer = await res.arrayBuffer();
       // const decoder = new TextDecoder("UTF-8");

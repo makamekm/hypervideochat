@@ -8,6 +8,7 @@ import {
   XFocusable,
 } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
+import { PROXY } from "@env/config";
 
 export const Top100 = observer(() => {
   const history = useHistory();
@@ -22,7 +23,7 @@ export const Top100 = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/top-100-anime"
+          `${PROXY}https://online.animedia.pro/top-100-anime`
         );
         const text = await res.text();
         const $ = cherio.load(text);

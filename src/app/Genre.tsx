@@ -8,6 +8,7 @@ import {
   XFocusable,
 } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
+import { PROXY } from "@env/config";
 
 function truncate(str: string, n: number) {
   return str.length > n ? str.substr(0, n - 1) + " ..." : str;
@@ -33,7 +34,7 @@ export const Genre = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/category/" +
+          `${PROXY}https://online.animedia.pro/category/` +
             genre +
             (state.pageNum > 0 ? `/P${12 * state.pageNum}` : "")
         );

@@ -7,7 +7,7 @@ const config = {
   focusableClassName: "focusable",
   selector: ".focusable",
   straightOnly: false,
-  straightOverlapThreshol: 0.5,
+  straightOverlapThreshold: 0.5,
   lastFocused: null as HTMLElement,
 };
 

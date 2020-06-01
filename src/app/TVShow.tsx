@@ -11,6 +11,7 @@ import {
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { FavoriteService } from "./FavoriteService";
 import { ProgressService } from "./ProgressService";
+import { PROXY } from "@env/config";
 
 export const TVShow = observer(() => {
   const history = useHistory();
@@ -49,7 +50,7 @@ export const TVShow = observer(() => {
       const seasons = [];
       for (let i of ids) {
         const res = await fetch(
-          `https://cors-anywhere.herokuapp.com/https://online.animedia.pro/embeds/playlist-j.txt/${uuid}/${Number(
+          `${PROXY}https://online.animedia.pro/embeds/playlist-j.txt/${uuid}/${Number(
             i
           ) + 1}`
         );
@@ -62,8 +63,7 @@ export const TVShow = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/anime/" +
-            id
+          `${PROXY}https://online.animedia.pro/anime/${id}`
         );
         const text = await res.text();
         const $ = cherio.load(text);

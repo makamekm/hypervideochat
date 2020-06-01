@@ -1,1 +1,1 @@
-export const SHOW_WIP_MENU = false;
+export const PROXY = "https://cors-anywhere.herokuapp.com/";

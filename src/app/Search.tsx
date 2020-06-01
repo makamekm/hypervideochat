@@ -6,6 +6,7 @@ import { useLayoutConfig } from "./LayoutService";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { Focusable } from "~/components/Focusable/Focusable";
+import { PROXY } from "@env/config";
 
 export const Search = observer(() => {
   const loadingService = React.useContext(LoadingService);
@@ -17,8 +18,7 @@ export const Search = observer(() => {
     async load() {
       loadingService.setLoading(true, "search");
       const res = await fetch(
-        "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/ajax/ss?_=" +
-          +new Date()
+        `${PROXY}https://online.animedia.pro/ajax/ss?_=${+new Date()}`
       );
       let text = await res.text();
       text = text.replace(/^\svar categoryContent = /m, "");
