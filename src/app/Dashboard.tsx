@@ -45,7 +45,8 @@ export const Dashboard = observer(() => {
             topWeek.push({
               poster: $(el)
                 .find(".ads-list__item__thumb img")
-                .attr("data-src"),
+                .attr("data-src")
+                .replace("?h=225&fit=crop&q=70", "?h=385&w=280&fit=crop&q=80"),
               id: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("href")
@@ -66,7 +67,8 @@ export const Dashboard = observer(() => {
             newShows.push({
               poster: $(el)
                 .find(".ads-list__item__thumb img")
-                .attr("data-src"),
+                .attr("data-src")
+                .replace("?h=225&fit=crop&q=70", "?h=385&w=280&fit=crop&q=80"),
               id: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("href")
@@ -115,7 +117,7 @@ export const Dashboard = observer(() => {
                     style={{
                       width: "200px",
                     }}
-                    className="rounded-lg"
+                    className="rounded-lg inline-block"
                     alt={show.title}
                     src={show.poster}
                   />
@@ -156,7 +158,7 @@ export const Dashboard = observer(() => {
                 style={{
                   width: "200px",
                 }}
-                className="rounded-lg"
+                className="rounded-lg inline-block"
                 alt={show.title}
                 src={show.poster}
               />
@@ -195,7 +197,7 @@ export const Dashboard = observer(() => {
                 style={{
                   width: "200px",
                 }}
-                className="rounded-lg"
+                className="rounded-lg inline-block"
                 alt={show.title}
                 src={show.poster}
               />

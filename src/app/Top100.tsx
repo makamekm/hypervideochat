@@ -77,7 +77,7 @@ export const Top100 = observer(() => {
                 style={{
                   width: "200px",
                 }}
-                className="rounded-lg"
+                className="rounded-lg inline-block"
                 alt={show.title}
                 src={show.poster}
               />

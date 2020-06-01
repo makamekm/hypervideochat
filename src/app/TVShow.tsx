@@ -20,6 +20,7 @@ export const TVShow = observer(() => {
   const progressService = React.useContext(ProgressService);
   const state = useLocalStore(() => ({
     title: "",
+    originalTitle: "",
     poster: "",
     description: "",
     genres: [] as {
@@ -68,7 +69,11 @@ export const TVShow = observer(() => {
         const $ = cherio.load(text);
         const mainElement = $(".media__tabs > ul[data-entry_id]");
         const uuid = mainElement.attr("data-entry_id");
-        state.title = $(".media__post__original-title").text();
+        state.originalTitle = $(".media__post__original-title").text();
+        state.title = $(".media__post__title")
+          .text()
+          .replace("смотреть онлайн", "")
+          .trim();
         state.description = $(".media__post__body").text();
         state.poster = $(".widget__post-info__poster img").attr("data-src");
         const seasonNames: string[] = [];
@@ -162,7 +167,7 @@ export const TVShow = observer(() => {
               className="ellipsis font-normal text-5xl"
               style={{ maxWidth: "50vw" }}
             >
-              {state.title}
+              {state.title} / {state.originalTitle}
             </div>
             <div className="font-bold text-3xl ml-6">
               {state.isFavourite ? (
