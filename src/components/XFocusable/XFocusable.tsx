@@ -186,7 +186,7 @@ export const XFocusableContainer: React.FC<{
   return (
     <div
       ref={ref}
-      className={classNames(className, "overflow-x-hidden whitespace-no-wrap")}
+      className={classNames(className, "overflow-x-auto whitespace-no-wrap")}
       style={style}
     >
       <XFocusableContext.Provider value={state}>

@@ -162,7 +162,7 @@ export const useSyncLocalStorage = <T, K extends keyof T>(
 
   React.useEffect(() => {
     const localValue = localStorage.getItem(key);
-    setObservable(state, name, toJS(localValue));
+    if (localValue != null) setObservable(state, name, toJS(localValue));
     return reaction(
       () => [localStorage.getItem(key)],
       debounce(([localValue]) => {

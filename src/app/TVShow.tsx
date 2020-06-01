@@ -246,11 +246,19 @@ export const TVShow = observer(() => {
                       src={"https:" + episode.poster}
                     />
                     <div
+                      className="ellipsis py-1 px-2 text-lg font-light"
+                      style={{
+                        maxWidth: "270px",
+                      }}
+                    >
+                      {episode.title}
+                    </div>
+                    <div
                       className="rounded-lg"
                       style={{
                         content: "",
                         position: "absolute",
-                        bottom: 10,
+                        top: 10,
                         left: 10,
                         height: "6px",
                         backgroundColor: "red",
