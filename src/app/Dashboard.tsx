@@ -30,9 +30,13 @@ export const Dashboard = observer(() => {
       const res = await fetch(
         "https://proxier.now.sh/api?url=https://online.animedia.tv/"
       );
+      const text = await res.text();
+      // const buffer = await res.arrayBuffer();
+      // const decoder = new TextDecoder("WINDOWS-1251");
+      // const text = decoder.decode(buffer);
+      // console.log(text);
       const topWeek = [];
       const newShows = [];
-      const text = await res.text();
       const $ = cherio.load(text);
       try {
         $(

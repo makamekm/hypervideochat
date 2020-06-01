@@ -7,9 +7,7 @@ import { FocusableContext } from "../Focusable/FocusableContext";
 import { observer, useLocalStore } from "mobx-react";
 import { useOnChange } from "~/hooks";
 
-const ItemContent: React.FC<{
-  onClick?: () => void;
-}> = observer(({ onClick, children }) => {
+const ItemContent: React.FC = observer(({ children }) => {
   const ref = React.useRef<HTMLElement>(null);
   const focusable = React.useContext(FocusableContext);
   const parentXContext = React.useContext(XFocusableContext);
@@ -58,7 +56,7 @@ const ItemContent: React.FC<{
   useOnChange(focusable, "focused", updatePos);
 
   return (
-    <span className="flex-1" ref={ref} onClick={onClick}>
+    <span className="flex-1" ref={ref}>
       {children}
     </span>
   );
@@ -97,9 +95,27 @@ export const XFocusable: React.FC<{
         onFocus={(e) => {
           onFocus && onFocus();
         }}
+        onBeforeNext={(e) => {
+          if (
+            shouldTrapLeft &&
+            e.direction === "left" &&
+            !e.currentElement.parentElement.contains(e.nextElement)
+          ) {
+            return false;
+          }
+
+          if (
+            shouldTrapRight &&
+            e.direction === "right" &&
+            !e.currentElement.parentElement.contains(e.nextElement)
+          ) {
+            return false;
+          }
+        }}
         onUnfocus={(e) => {
           if (parentXContextElement) {
             const value = parentXContext.value;
+            parentXContext.set(value);
             requestAnimationFrame(() => {
               parentXContext.set(value);
             });
@@ -107,35 +123,16 @@ export const XFocusable: React.FC<{
 
           if (parentYContextElement) {
             const value = parentYContext.value;
+            parentYContext.set(value);
             requestAnimationFrame(() => {
               parentYContext.set(value);
-            });
-          }
-
-          if (
-            shouldTrapLeft &&
-            e.detail.direction === "left" &&
-            !e.target.parentElement.contains(e.detail.nextElement)
-          ) {
-            requestAnimationFrame(() => {
-              e.target.focus();
-            });
-          }
-
-          if (
-            shouldTrapRight &&
-            e.detail.direction === "right" &&
-            !e.target.parentElement.contains(e.detail.nextElement)
-          ) {
-            requestAnimationFrame(() => {
-              e.target.focus();
             });
           }
 
           onUnfocus && onUnfocus();
         }}
       >
-        <ItemContent onClick={onClickEnter}>{children}</ItemContent>
+        <ItemContent>{children}</ItemContent>
       </Focusable>
     );
   }

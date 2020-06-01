@@ -25,7 +25,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
           }
           break;
         default:
-          console.log("Key code : " + e.keyCode);
+          // console.log("Key code : " + e.keyCode);
           break;
       }
     },
@@ -59,6 +59,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
                 <div className="flex items-center justify-between px-10 py-6">
                   <div>
                     <XFocusable
+                      shouldTrapLeft
                       className="text-gray-400 px-8 -mx-4"
                       onClickEnter={() => {
                         history.push("/");
@@ -77,6 +78,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
                       <i className="fas fa-search"></i>
                     </XFocusable>
                     <XFocusable
+                      shouldTrapRight
                       className="text-gray-400 leading-none font-normal text-3xl px-6 py-6 ml-4"
                       onClickEnter={() => {
                         history.push("/top100");
