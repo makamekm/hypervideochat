@@ -28,11 +28,11 @@ export const Dashboard = observer(() => {
     async load() {
       loadingService.setLoading(true, "dashboard");
       const res = await fetch(
-        "https://proxier.now.sh/api?url=https://online.animedia.tv/"
+        "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/"
       );
       const text = await res.text();
       // const buffer = await res.arrayBuffer();
-      // const decoder = new TextDecoder("WINDOWS-1251");
+      // const decoder = new TextDecoder("UTF-8");
       // const text = decoder.decode(buffer);
       // console.log(text);
       const topWeek = [];
@@ -54,7 +54,7 @@ export const Dashboard = observer(() => {
               id: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("href")
-                .replace("https://online.animedia.tv/anime/", ""),
+                .replace("https://online.animedia.pro/anime/", ""),
               title: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("title")
@@ -76,7 +76,7 @@ export const Dashboard = observer(() => {
               id: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("href")
-                .replace("https://online.animedia.tv/anime/", ""),
+                .replace("https://online.animedia.pro/anime/", ""),
               title: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("title")

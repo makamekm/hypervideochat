@@ -17,7 +17,7 @@ export const Search = observer(() => {
     async load() {
       loadingService.setLoading(true, "search");
       const res = await fetch(
-        "https://proxier.now.sh/api?url=https://online.animedia.tv/ajax/ss?_=" +
+        "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/ajax/ss?_=" +
           +new Date()
       );
       let text = await res.text();

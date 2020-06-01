@@ -49,7 +49,7 @@ export const TVShow = observer(() => {
       const seasons = [];
       for (let i of ids) {
         const res = await fetch(
-          `https://proxier.now.sh/api?url=https://online.animedia.tv/embeds/playlist-j.txt/${uuid}/${Number(
+          `https://cors-anywhere.herokuapp.com/https://online.animedia.pro/embeds/playlist-j.txt/${uuid}/${Number(
             i
           ) + 1}`
         );
@@ -62,7 +62,7 @@ export const TVShow = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          "https://proxier.now.sh/api?url=https://online.animedia.tv/anime/" +
+          "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/anime/" +
             id
         );
         const text = await res.text();
@@ -98,7 +98,7 @@ export const TVShow = observer(() => {
               title: $(el).text(),
               id: $(el)
                 .attr("href")
-                .replace("https://online.animedia.tv/category/", ""),
+                .replace("https://online.animedia.pro/category/", ""),
             });
           }
         );
@@ -115,7 +115,7 @@ export const TVShow = observer(() => {
                 .attr("data-src"),
               id: $(el)
                 .attr("href")
-                .replace("https://online.animedia.tv/anime/", ""),
+                .replace("https://online.animedia.pro/anime/", ""),
             });
           }
         );

@@ -33,7 +33,7 @@ export const Genre = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          "https://proxier.now.sh/api?url=https://online.animedia.tv/category/" +
+          "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/category/" +
             genre +
             (state.pageNum > 0 ? `/P${12 * state.pageNum}` : "")
         );
@@ -55,7 +55,7 @@ export const Genre = observer(() => {
             id: $(el)
               .find(".ads-list__item__thumb.js-postload a")
               .attr("href")
-              .replace("https://online.animedia.tv/anime/", ""),
+              .replace("https://online.animedia.pro/anime/", ""),
           });
         });
         (state.related as any).replace(related);

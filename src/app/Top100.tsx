@@ -22,7 +22,7 @@ export const Top100 = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          "https://proxier.now.sh/api?url=https://online.animedia.tv/top-100-anime"
+          "https://cors-anywhere.herokuapp.com/https://online.animedia.pro/top-100-anime"
         );
         const text = await res.text();
         const $ = cherio.load(text);
@@ -38,7 +38,7 @@ export const Top100 = observer(() => {
             id: $(el)
               .find(".ads-list__item__thumb.js-postload a")
               .attr("href")
-              .replace("https://online.animedia.tv/anime/", ""),
+              .replace("https://online.animedia.pro/anime/", ""),
           });
         });
         (state.related as any).replace(related);

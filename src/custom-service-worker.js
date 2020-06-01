@@ -27,7 +27,7 @@ const getSeasons = async (id) => {
   while (true) {
     i++;
     const res = await fetch(
-      `https://online.animedia.tv/embeds/playlist-j.txt/${id}/${i}`
+      `https://online.animedia.pro/embeds/playlist-j.txt/${id}/${i}`
     );
     console.log(await res.text());
 
