@@ -3,13 +3,13 @@ import React from "react";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
 import { debounce } from "lodash";
-import { useLayoutConfig } from "./LayoutService";
 import { LoadingService } from "~/components/Loading/LoadingService";
-import { TVKeys } from "./TVKeys";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { Focusable } from "~/components/Focusable/Focusable";
 import { useSimpleSyncLocalStorage } from "~/hooks";
-import { ProgressService } from "./ProgressService";
+import { ProgressService } from "~/app/ProgressService";
+import { TVKeys } from "~/app/TVKeys";
+import { useLayoutConfig } from "~/app/LayoutService";
 
 const webapis = (window as any).webapis;
 const tizen = (window as any).tizen;
@@ -280,11 +280,14 @@ export const Player = observer(() => {
       }
     },
     setQuality: (q: string) => {
+      const time = state.currentTime;
       state.stop();
       state.quality = q;
       state.prepare();
       state.play();
       state.focus();
+      state.currentTime = time;
+      webapis.avplay.seekTo(time * 1000);
     },
     goBack: () => {
       state.stop();

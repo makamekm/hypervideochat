@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
-    "@noriginmedia/react-spatial-navigation": "^2.12.3",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -52,11 +51,12 @@
     "visibilityjs": "^2.0.2"
   },
   "scripts": {
-    "start": "run-p build-tailwind start:app start:worker",
+    "start": "cross-env ENV=web run-p build-tailwind start:app start:worker",
     "start:app": "react-app-rewired start",
     "start:worker": "nodemon --watch src -e js --exec \"npm run dev:worker\"",
     "dev:worker": "cra-append-sw --mode dev ./src/custom-service-worker.js",
-    "build": "run-s build-tailwind build:app build:worker build:tizon-cp",
+    "build": "cross-env ENV=web run-s build-tailwind build:app build:worker build:tizon-cp",
+    "build:tv": "cross-env ENV=tv run-s build-tailwind build:app build:worker build:tizon-cp",
     "build:app": "react-app-rewired build",
     "build:worker": "cra-append-sw ./src/custom-service-worker.js",
     "build-tailwind": "tailwindcss build src/tailwind.css -o src/tailwind.generated.css",
@@ -92,6 +92,7 @@
   },
   "devDependencies": {
     "cra-append-sw": "^2.7.0",
+    "cross-env": "^7.0.2",
     "customize-cra": "^0.9.1",
     "figma-react": "^1.0.19",
     "nodemon": "^2.0.3",
