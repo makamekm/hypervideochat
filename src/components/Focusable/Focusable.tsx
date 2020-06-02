@@ -7,7 +7,9 @@ export const Focusable: React.FC<{
   onFocus?: (e) => void;
   onUnfocus?: (e) => void;
   onClickEnter?: () => void;
+  onClick?: (e) => void;
   onBeforeFocus?: (e) => void;
+  onDown?: (e) => void;
   onAfterFocus?: (e) => void;
   onBeforeNext?: (e) => HTMLElement | void | boolean;
   className?: string;
@@ -16,8 +18,10 @@ export const Focusable: React.FC<{
     children,
     className,
     onClickEnter,
+    onClick,
     onFocus,
     onUnfocus,
+    onDown,
     onBeforeNext,
     onAfterFocus,
     onBeforeFocus,
@@ -52,7 +56,8 @@ export const Focusable: React.FC<{
           onFocus={onUseFocus}
           onUnfocus={onUseUnfocus}
           onClickEnter={onUseClickEnter}
-          onClick={onUseClickEnter}
+          onClick={onClick}
+          onDown={onDown}
         >
           {children}
         </FocusableElement>

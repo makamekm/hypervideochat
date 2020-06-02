@@ -56,6 +56,7 @@ export const FocusableElement: React.FC<{
   onClick?: (e) => void;
   onFocus?: (e) => void;
   onUnfocus?: (e) => void;
+  onDown?: (e) => void;
   onClickEnter?: (e) => void;
   onBeforeFocus?: (e) => void;
   onAfterFocus?: (e) => void;
@@ -66,6 +67,7 @@ export const FocusableElement: React.FC<{
   className,
   onUnfocus,
   onClickEnter,
+  onDown,
   onFocus,
   onBeforeNext,
   onBeforeFocus,
@@ -162,6 +164,8 @@ export const FocusableElement: React.FC<{
       ref={ref}
       className={classNames(config.focusableClassName, className)}
       onClick={onClick}
+      onMouseDown={onDown}
+      onTouchStart={onDown}
       onFocus={componentFocused}
       onBlur={componentUnfocused}
       tabIndex={-1}

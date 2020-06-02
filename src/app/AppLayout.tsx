@@ -6,6 +6,7 @@ import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { useHistory } from "react-router";
 import { TVKeys } from "./TVKeys";
 import { Logo } from "./Logo";
+import { SHOW_FULLSCREEN } from "@env/config";
 
 export const AppLayout: React.FC = observer(({ children }) => {
   const history = useHistory();
@@ -77,6 +78,18 @@ export const AppLayout: React.FC = observer(({ children }) => {
                     >
                       <i className="fas fa-search"></i>
                     </XFocusable>
+                    {SHOW_FULLSCREEN && (
+                      <XFocusable
+                        className="text-gray-400 leading-none font-bold text-3xl px-6 py-6"
+                        onClickEnter={service.toggleFullScreen}
+                      >
+                        {service.isFullscreen ? (
+                          <i className="fas fa-compress"></i>
+                        ) : (
+                          <i className="fas fa-expand"></i>
+                        )}
+                      </XFocusable>
+                    )}
                     <XFocusable
                       shouldTrapRight
                       className="text-gray-400 leading-none font-normal text-3xl px-6 py-6 ml-4"

@@ -9,7 +9,7 @@ import { Focusable } from "~/components/Focusable/Focusable";
 import { useSimpleSyncLocalStorage } from "~/hooks";
 import { ProgressService } from "~/app/ProgressService";
 import { TVKeys } from "~/app/TVKeys";
-import { useLayoutConfig } from "~/app/LayoutService";
+import { useLayoutConfig, LayoutService } from "~/app/LayoutService";
 
 const videojs = (window as any).videojs;
 
@@ -26,6 +26,7 @@ export const Player = observer(() => {
   const history = useHistory();
   const loadingService = React.useContext(LoadingService);
   const progressService = React.useContext(ProgressService);
+  const service = React.useContext(LayoutService);
   const state = useLocalStore(() => ({
     isVideoFocused: false,
     isProgressFocused: false,
@@ -372,7 +373,13 @@ export const Player = observer(() => {
     };
   }, [history, state]);
   return (
-    <>
+    <div
+      className="flex-1 flex flex-col min-h-screen min-w-full"
+      onClick={() => {
+        state.toggle();
+        (document.querySelector(".player") as HTMLElement)?.focus();
+      }}
+    >
       <XFocusable
         className="player"
         onFocus={() => {
@@ -401,7 +408,7 @@ export const Player = observer(() => {
           }}
         />
       </XFocusable>
-      <div className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8">
+      <div className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8 pointer-events-none">
         <div
           className="w-full flex flex-col items-center justify-end py-6 rounded-lg px-10"
           style={{
@@ -514,7 +521,7 @@ export const Player = observer(() => {
               </Focusable>
             </div>
           </div>
-          <div className="w-full flex justify-center items-center mt-6">
+          <div className="w-full flex justify-center items-center mt-6 pointer-events-auto">
             <XFocusable
               className="text-4xl px-6 py-5 mx-2 leading-none"
               onClickEnter={state.toggle}
@@ -530,6 +537,16 @@ export const Player = observer(() => {
               onClickEnter={state.goBack}
             >
               <i className="fas fa-stop"></i>
+            </XFocusable>
+            <XFocusable
+              className="text-4xl px-6 py-5 mx-2 leading-none"
+              onClickEnter={service.toggleFullScreen}
+            >
+              {service.isFullscreen ? (
+                <i className="fas fa-compress"></i>
+              ) : (
+                <i className="fas fa-expand"></i>
+              )}
             </XFocusable>
             {state.qualities.map((q) => {
               return q === state.quality ? (
@@ -547,6 +564,6 @@ export const Player = observer(() => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 });

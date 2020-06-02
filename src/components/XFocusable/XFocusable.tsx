@@ -7,6 +7,9 @@ import { FocusableContext } from "../Focusable/FocusableContext";
 import { observer, useLocalStore } from "mobx-react";
 import { useOnChange } from "~/hooks";
 
+// let isDisableScroll = false;
+// let disableScrollTimeout = 0;
+
 const ItemContent: React.FC = observer(({ children }) => {
   const ref = React.useRef<HTMLElement>(null);
   const focusable = React.useContext(FocusableContext);
@@ -15,6 +18,9 @@ const ItemContent: React.FC = observer(({ children }) => {
   const parentXContextElement = parentXContext && parentXContext.element;
   const parentYContextElement = parentYContext && parentYContext.element;
   const updatePos = React.useCallback(() => {
+    // if (isDisableScroll) {
+    //   return;
+    // }
     if (focusable.focused && ref.current) {
       if (parentXContextElement) {
         const parentRect = parentXContext.getBoundingClientRect();
@@ -90,6 +96,21 @@ export const XFocusable: React.FC<{
           "inline-flex items-stretch text-sm rounded-lg hover:bg-white focus:bg-white focus:text-gray-800 hover:text-gray-800 focus:outline-none focus:shadow-outline"
         )}
         onClickEnter={() => {
+          onClickEnter && onClickEnter();
+        }}
+        onDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          // isDisableScroll = true;
+          // window.clearTimeout(disableScrollTimeout);
+          // disableScrollTimeout = window.setTimeout(() => {
+          //   isDisableScroll = false;
+          // }, 1000);
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          (document.activeElement as HTMLElement).blur();
           onClickEnter && onClickEnter();
         }}
         onFocus={(e) => {
@@ -199,34 +220,27 @@ export const YBodyFocusableContainer: React.FC = observer(({ children }) => {
       ({
         y: 0,
         onFrame: ({ y }) => {
-          window.scroll(0, y);
+          state.element.scrollTop = y;
         },
       } as any)
   );
   const state = useLocalStore(() => ({
-    element: document.body,
+    element: document.querySelector("#root"),
     get value() {
-      return window.scrollY;
+      return state.element.scrollTop;
     },
     set(value) {
-      window.scroll(0, value);
+      state.element.scrollTop = value;
     },
     scrollTo: (value) => {
       setX({
         // reset: true,
         y: value,
-        from: { y: window.scrollY },
+        from: { y: state.element.scrollTop },
       } as any);
     },
     getBoundingClientRect: () => {
-      return {
-        left: 0,
-        right: window.innerWidth,
-        top: 0,
-        bottom: window.innerHeight,
-        height: window.innerHeight,
-        width: window.innerWidth,
-      };
+      return state.element.getBoundingClientRect();
     },
   }));
   return (
