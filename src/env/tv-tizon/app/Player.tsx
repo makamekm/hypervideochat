@@ -495,7 +495,7 @@ export const Player = observer(() => {
                 }}
               ></div>
               <Focusable
-                className="progress-dot static"
+                className="progress-dot static focus:outline-none"
                 onFocus={() => {
                   state.seekTime = state.currentTime;
                   state.isProgressFocused = true;

@@ -14,6 +14,7 @@ body {
 #root {
   overflow-x: hidden;
   overflow-y: auto;
+  min-width: 100vw;
   max-width: 100vw;
   min-height: 100vh;
   max-height: 100vh;
@@ -36,31 +37,4 @@ a {
 a:not(.button):hover,
 a:not(.button):focus {
   opacity: 0.6;
-}
-
-// *:focus-within {
-//   position: relative;
-//   z-index: 100;
-// }
-
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.4);
-  transition: opacoty 0.2s;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.9);
 }
