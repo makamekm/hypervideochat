@@ -91,6 +91,17 @@ export const setObservable = <T, K extends keyof T>(
     if (value) {
       (state[name] as any).replace(value);
     }
+  } else if (
+    typeof value === "object" &&
+    value != null &&
+    state[name] != null
+  ) {
+    for (const key in state[name]) {
+      delete state[name][key];
+    }
+    for (const key in value) {
+      state[name][key] = value[key];
+    }
   } else {
     state[name] = value;
   }
@@ -151,7 +162,9 @@ export const useSyncLocalStorage = <T, K extends keyof T>(
   const key = storageName || (name as string);
 
   React.useEffect(() => {
+    console.log("observe Value", name, key);
     return deepObserve(state[name], () => {
+      console.log("set Value", name, key);
       const value = state[name];
       const localValue = localStorage.getItem(key);
       if (!isObservableEquals(localValue, value)) {

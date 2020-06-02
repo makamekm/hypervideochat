@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from "react";
+import classNames from "classnames";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
 import { debounce } from "lodash";
@@ -81,7 +82,7 @@ export const Player = observer(() => {
     setIsFocusedInterval() {
       state.windowFocusinterval = window.setInterval(
         state.checkIsFocused,
-        3000
+        1000
       );
     },
     unsetIsFocusedInterval() {
@@ -94,7 +95,7 @@ export const Player = observer(() => {
         state.seekTime = Math.min(state.seekTime, state.totalTime);
         state.currentTime = state.seekTime;
         // webapis.avplay.seekTo(Math.floor(state.seekTime));
-        ref.current.currentTime = Math.floor(state.seekTime);
+        state.player.currentTime(Math.floor(state.seekTime));
       }
     },
     get file() {
@@ -138,9 +139,9 @@ export const Player = observer(() => {
     },
     setSeek: debounce(() => {
       // webapis.avplay.seekTo(Math.floor(state.seekTime));
-      ref.current.currentTime = Math.floor(state.seekTime);
+      state.player.currentTime(Math.floor(state.seekTime));
       state.currentTime = state.seekTime;
-    }, 500),
+    }, 1000),
     onKeyDown: (e) => {
       state.setFocusTimeout();
       switch (e.keyCode) {
@@ -217,22 +218,17 @@ export const Player = observer(() => {
       document.addEventListener("keydown", state.onKeyDown);
     },
     setEventListeners() {
-      ref.current.addEventListener("timeupdate", () => {
-        if (ref.current) {
-          const duration = ref.current.currentTime;
-          if (duration > 0) {
-            state.currentTime = ref.current.currentTime;
-            state.totalTime = ref.current.duration;
-          }
-        }
+      state.player.on("timeupdate", () => {
+        state.currentTime = state.player.currentTime();
+        state.totalTime = state.player.duration();
       });
-      ref.current.addEventListener("play", () => {
+      state.player.on("play", () => {
         state.playState = PlayState.PLAYING;
       });
-      ref.current.addEventListener("pause", () => {
+      state.player.on("pause", () => {
         state.playState = PlayState.PAUSED;
       });
-      ref.current.addEventListener("stop", () => {
+      state.player.on("stop", () => {
         state.playState = PlayState.STOPPED;
       });
     },
@@ -240,7 +236,12 @@ export const Player = observer(() => {
     async prepare() {
       const url = String(state.file);
       console.log(url);
-      state.player = videojs(ref.current);
+      state.player = videojs(ref.current, {
+        controls: false,
+        autoplay: false,
+        preload: "auto",
+        techOrder: ["html5", "flash"],
+      });
       state.player.src(
         /\.m3u8$/i.test(state.file)
           ? {
@@ -249,7 +250,9 @@ export const Player = observer(() => {
             }
           : String(state.file)
       );
-      ref.current.load();
+      state.player.load();
+      await new Promise((r) => state.player.ready(r));
+      state.setEventListeners();
       await new Promise((r) => setTimeout(r, 500));
       state.playState = PlayState.PREPARED;
     },
@@ -271,9 +274,8 @@ export const Player = observer(() => {
     play() {
       if (state.playState >= PlayState.PAUSED) {
         state.playState = PlayState.PLAYING;
-        ref.current.play();
-        state.totalTime = ref.current.duration;
-        // webapis.avplay.play();
+        state.player.play();
+        state.totalTime = state.player.duration();
       }
     },
     setQuality: async (q: string) => {
@@ -284,7 +286,7 @@ export const Player = observer(() => {
       state.play();
       state.focus();
       state.currentTime = time;
-      ref.current.currentTime = time;
+      state.player.currentTime(time);
     },
     goBack: () => {
       state.stop();
@@ -304,13 +306,13 @@ export const Player = observer(() => {
         return;
       }
       state.playState = PlayState.PAUSED;
-      ref.current.pause();
+      state.player.pause();
       // webapis.avplay.pause();
     },
     stop() {
       console.log("Player.stop()");
       state.playState = PlayState.STOPPED;
-      ref.current.pause();
+      state.player.pause();
       // webapis.avplay.stop();
     },
     load: async () => {
@@ -328,17 +330,34 @@ export const Player = observer(() => {
       loadingService.setLoading(false, "player");
       loadingService.setLoading(false, "playerGlobal");
     },
+    checkProgressInterval: 0,
+    checkPlayerProgress: () => {
+      if (state.player) {
+        state.currentTime = state.player.currentTime();
+        state.totalTime = state.player.duration();
+      }
+    },
+    setCheckProgressInterval() {
+      state.checkProgressInterval = window.setInterval(
+        state.checkPlayerProgress,
+        1000
+      );
+    },
+    unsetCheckProgressInterval() {
+      window.clearInterval(state.windowFocusinterval);
+    },
     mount() {
       try {
+        state.setCheckProgressInterval();
         state.setSaveProgressInterval();
         state.setIsFocusedInterval();
         state.setHandleKeyDown();
-        state.setEventListeners();
       } catch (error) {
         console.error(error);
       }
     },
     unmount() {
+      state.unsetCheckProgressInterval();
       state.unsetSaveProgressInterval();
       state.unsetIsFocusedInterval();
       document.removeEventListener("keydown", state.onKeyDown);
@@ -358,6 +377,7 @@ export const Player = observer(() => {
     if (!history.location.state) {
       return history.push("/");
       // history.location.state = {
+      //   id: "test",
       //   title: "Серия 1",
       //   file:
       //     "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
@@ -372,14 +392,24 @@ export const Player = observer(() => {
       state.unmount();
     };
   }, [history, state]);
+  const showControls = !(
+    (state.isVideoFocused && state.playState === PlayState.PLAYING) ||
+    !state.isFocused
+  );
+  const onProgressClick = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      state.seekTime = (state.totalTime * (e.clientX - rect.left)) / rect.width;
+      state.currentTime = state.seekTime;
+      state.player.currentTime(Math.floor(state.seekTime));
+      (document.querySelector(".progress-dot") as HTMLElement).focus();
+    },
+    [state]
+  );
   return (
-    <div
-      className="flex-1 flex flex-col min-h-screen min-w-full"
-      onClick={() => {
-        state.toggle();
-        (document.querySelector(".player") as HTMLElement)?.focus();
-      }}
-    >
+    <div className="flex-1 flex flex-col min-h-screen min-w-full pointer-events-none">
       <XFocusable
         className="player"
         onFocus={() => {
@@ -407,16 +437,18 @@ export const Player = observer(() => {
           }}
         />
       </XFocusable>
-      <div className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8 pointer-events-none">
+      <div
+        className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8 pointer-events-auto"
+        onClick={() => {
+          state.toggle();
+          (document.querySelector(".player") as HTMLElement)?.focus();
+        }}
+      >
         <div
           className="w-full flex flex-col items-center justify-end py-6 rounded-lg px-10"
           style={{
             transition: "opacity 0.4s",
-            opacity:
-              (state.isVideoFocused && state.playState === PlayState.PLAYING) ||
-              !state.isFocused
-                ? 0
-                : 1,
+            opacity: showControls ? 1 : 0,
             background: "rgba(0, 0, 0, 0.8)",
           }}
         >
@@ -469,11 +501,15 @@ export const Player = observer(() => {
           </div>
           <div className="w-full flex justify-between items-center mt-6">
             <div
-              className="px-4 w-full rounded-lg relative"
+              className={
+                "px-4 w-full rounded-lg relative bg-gray-800 hover:bg-gray-600"
+              }
+              onClick={onProgressClick}
               style={{
-                background: "rgba(255, 255, 255, 0.5)",
+                pointerEvents: showControls ? "all" : "none",
                 borderRadius: "100px",
                 height: "20px",
+                transition: "background 0.4s",
               }}
             >
               <div
@@ -520,7 +556,14 @@ export const Player = observer(() => {
               </Focusable>
             </div>
           </div>
-          <div className="w-full flex justify-center items-center mt-6 pointer-events-auto">
+          <div
+            className={classNames(
+              "w-full flex justify-center items-center mt-6",
+              {
+                "pointer-events-auto": showControls,
+              }
+            )}
+          >
             <XFocusable
               className="text-4xl px-6 py-5 mx-2 leading-none"
               onClickEnter={state.toggle}
