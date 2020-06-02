@@ -393,7 +393,6 @@ export const Player = observer(() => {
       >
         <video
           className="video-js"
-          data-setup="{}"
           ref={ref as any}
           style={{
             position: "absolute",
