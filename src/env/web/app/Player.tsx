@@ -88,7 +88,7 @@ export const Player = observer(() => {
     unsetIsFocusedInterval() {
       window.clearInterval(state.windowFocusinterval);
     },
-    restoreProgress() {
+    resume() {
       if (state.savedProgress && state.savedProgress < 0.99) {
         state.seekTime = state.totalTime * state.savedProgress;
         state.seekTime = Math.max(state.seekTime, 0);
@@ -96,6 +96,7 @@ export const Player = observer(() => {
         state.currentTime = state.seekTime;
         // webapis.avplay.seekTo(Math.floor(state.seekTime));
         state.player.currentTime(Math.floor(state.seekTime));
+        state.play();
       }
     },
     get file() {
@@ -239,8 +240,7 @@ export const Player = observer(() => {
       state.player = videojs(ref.current, {
         controls: false,
         autoplay: false,
-        preload: "auto",
-        techOrder: ["html5", "flash"],
+        techOrder: ["html5"],
       });
       state.player.src(
         /\.m3u8$/i.test(state.file)
@@ -271,10 +271,14 @@ export const Player = observer(() => {
         player.focus();
       }
     },
-    play() {
+    async play() {
       if (state.playState >= PlayState.PAUSED) {
         state.playState = PlayState.PLAYING;
-        state.player.play();
+        try {
+          await state.player.play();
+        } catch (e) {
+          console.error(e);
+        }
         state.totalTime = state.player.duration();
       }
     },
@@ -283,7 +287,7 @@ export const Player = observer(() => {
       state.stop();
       state.quality = q;
       await state.prepare();
-      state.play();
+      await state.play();
       state.focus();
       state.currentTime = time;
       state.player.currentTime(time);
@@ -321,9 +325,9 @@ export const Player = observer(() => {
       try {
         state.files = state.getFiles();
         await state.prepare();
-        state.play();
+        await state.play();
         state.focus();
-        state.restoreProgress();
+        state.resume();
       } catch (error) {
         console.error(error);
       }
@@ -422,6 +426,7 @@ export const Player = observer(() => {
         onClickEnter={state.toggle}
       >
         <video
+          autoPlay
           className="video-js"
           ref={ref as any}
           style={{
