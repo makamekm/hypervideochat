@@ -1,5 +1,6 @@
 import React from "react";
 import classNames from "classnames";
+import "focus-options-polyfill";
 import { navigate } from "./utils";
 
 const config = {
@@ -56,6 +57,8 @@ export const FocusableElement: React.FC<{
   onFocus?: (e) => void;
   onUnfocus?: (e) => void;
   onClickEnter?: (e) => void;
+  onBeforeFocus?: (e) => void;
+  onAfterFocus?: (e) => void;
   onBeforeNext?: (e) => HTMLElement | void | boolean;
 }> = ({
   children,
@@ -65,6 +68,8 @@ export const FocusableElement: React.FC<{
   onClickEnter,
   onFocus,
   onBeforeNext,
+  onBeforeFocus,
+  onAfterFocus,
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const componentFocused = React.useCallback(
@@ -132,13 +137,25 @@ export const FocusableElement: React.FC<{
       if (direction) {
         const nextElement = componentBeforeNext(direction);
         if (nextElement) {
-          nextElement.focus();
+          onBeforeFocus &&
+            onBeforeFocus({
+              direction,
+              nextElement,
+              currentElement: ref.current,
+            });
+          nextElement.focus({ preventScroll: true });
+          onAfterFocus &&
+            onAfterFocus({
+              direction,
+              nextElement,
+              currentElement: ref.current,
+            });
         }
       } else if (e.keyCode === 13) {
         componentClickEnter(e);
       }
     },
-    [componentClickEnter, componentBeforeNext]
+    [componentClickEnter, componentBeforeNext, onAfterFocus, onBeforeFocus]
   );
   return (
     <div

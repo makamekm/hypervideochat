@@ -7,10 +7,21 @@ export const Focusable: React.FC<{
   onFocus?: (e) => void;
   onUnfocus?: (e) => void;
   onClickEnter?: () => void;
+  onBeforeFocus?: (e) => void;
+  onAfterFocus?: (e) => void;
   onBeforeNext?: (e) => HTMLElement | void | boolean;
   className?: string;
 }> = observer(
-  ({ children, className, onClickEnter, onFocus, onUnfocus, onBeforeNext }) => {
+  ({
+    children,
+    className,
+    onClickEnter,
+    onFocus,
+    onUnfocus,
+    onBeforeNext,
+    onAfterFocus,
+    onBeforeFocus,
+  }) => {
     const state = useLocalStore(() => ({
       focused: false,
     }));
@@ -34,6 +45,8 @@ export const Focusable: React.FC<{
     return (
       <FocusableContext.Provider value={state}>
         <FocusableElement
+          onAfterFocus={onAfterFocus}
+          onBeforeFocus={onBeforeFocus}
           onBeforeNext={onBeforeNext}
           className={className}
           onFocus={onUseFocus}
