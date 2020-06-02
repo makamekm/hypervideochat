@@ -54,8 +54,6 @@ export const LayoutService = createService(
             (document as any).mozFullScreenElement !== null) ||
           ((document as any).msFullscreenElement &&
             (document as any).msFullscreenElement !== null);
-
-        console.log("dffdg", isInFullScreen);
         state.isFullscreen = !!isInFullScreen;
       },
       toggleFullScreen: () => {
