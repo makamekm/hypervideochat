@@ -7,9 +7,6 @@ import { FocusableContext } from "../Focusable/FocusableContext";
 import { observer, useLocalStore } from "mobx-react";
 import { useOnChange } from "~/hooks";
 
-// let isDisableScroll = false;
-// let disableScrollTimeout = 0;
-
 const ItemContent: React.FC = observer(({ children }) => {
   const ref = React.useRef<HTMLElement>(null);
   const focusable = React.useContext(FocusableContext);
@@ -18,9 +15,6 @@ const ItemContent: React.FC = observer(({ children }) => {
   const parentXContextElement = parentXContext && parentXContext.element;
   const parentYContextElement = parentYContext && parentYContext.element;
   const updatePos = React.useCallback(() => {
-    // if (isDisableScroll) {
-    //   return;
-    // }
     if (focusable.focused && ref.current) {
       if (parentXContextElement) {
         const parentRect = parentXContext.getBoundingClientRect();
@@ -101,11 +95,6 @@ export const XFocusable: React.FC<{
         onDown={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          // isDisableScroll = true;
-          // window.clearTimeout(disableScrollTimeout);
-          // disableScrollTimeout = window.setTimeout(() => {
-          //   isDisableScroll = false;
-          // }, 1000);
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -204,7 +193,10 @@ export const XFocusableContainer: React.FC<{
   return (
     <div
       ref={ref}
-      className={classNames(className, "overflow-x-auto whitespace-no-wrap")}
+      className={classNames(
+        className,
+        "overflow-y-visible overflow-x-auto whitespace-no-wrap"
+      )}
       style={style}
     >
       <XFocusableContext.Provider value={state}>
