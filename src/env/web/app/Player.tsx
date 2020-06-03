@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from "react";
 import classNames from "classnames";
+import WebTorrent from "webtorrent";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
 import { debounce } from "lodash";
@@ -237,21 +238,45 @@ export const Player = observer(() => {
     async prepare() {
       const url = String(state.file);
       console.log(url);
+      // const htmlPlayer = document.getElementById(
+      //   "HtmlVideo"
+      // ) as HTMLVideoElement;
       state.player = videojs(ref.current, {
         controls: false,
-        autoplay: false,
+        autoplay: true,
+        fluid: true,
+        preload: "auto",
         techOrder: ["html5"],
       });
-      state.player.src(
-        /\.m3u8$/i.test(state.file)
-          ? {
-              src: String(state.file),
-              type: "application/x-mpegURL",
-            }
-          : String(state.file)
-      );
-      state.player.load();
-      await new Promise((r) => state.player.ready(r));
+      if (/^magnet/i.test(url)) {
+        const client = new WebTorrent();
+        const file = await new Promise<WebTorrent.TorrentFile>((r) =>
+          client.add(url, (torrent) => {
+            const file = torrent.files.find((file) => {
+              return file.name.endsWith(".mp4");
+            });
+            r(file);
+          })
+        );
+        file.renderTo(ref.current, {
+          autoplay: true,
+          controls: false,
+        });
+        const blobUrl = ref.current.getAttribute("src");
+        state.player.cache_.source = { type: "video/mp4", src: blobUrl };
+        // console.log(blobUrl);
+      } else {
+        state.player.src(
+          /\.m3u8$/i.test(state.file)
+            ? {
+                src: String(state.file),
+                type: "application/x-mpegURL",
+              }
+            : String(state.file)
+        );
+        state.player.load();
+        await new Promise((r) => state.player.ready(r));
+      }
       state.setEventListeners();
       await new Promise((r) => setTimeout(r, 500));
       state.playState = PlayState.PREPARED;
@@ -276,10 +301,10 @@ export const Player = observer(() => {
         state.playState = PlayState.PLAYING;
         try {
           await state.player.play();
+          state.totalTime = state.player.duration();
         } catch (e) {
           console.error(e);
         }
-        state.totalTime = state.player.duration();
       }
     },
     setQuality: async (q: string) => {
@@ -325,7 +350,9 @@ export const Player = observer(() => {
       try {
         state.files = state.getFiles();
         await state.prepare();
+        console.log("here");
         await state.play();
+        console.log("here");
         state.focus();
         state.resume();
       } catch (error) {
@@ -379,16 +406,18 @@ export const Player = observer(() => {
   });
   React.useEffect(() => {
     if (!history.location.state) {
-      return history.push("/");
-      // history.location.state = {
-      //   id: "test",
-      //   title: "Серия 1",
-      //   file:
-      //     "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
-      //   // file:
-      //   //   "https://slow.animedia.biz/video/dir158/smil:15861641376917391e12be240ea81c7a6acad607eff65b0e11.smil/playlist.m3u8",
-      //   prevUrl: "/tvshow/13878",
-      // };
+      // return history.push("/");
+      history.location.state = {
+        id: "test",
+        title: "Серия 1",
+        file:
+          "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent",
+        // file:
+        //   "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
+        // file:
+        //   "https://slow.animedia.biz/video/dir158/smil:15861641376917391e12be240ea81c7a6acad607eff65b0e11.smil/playlist.m3u8",
+        prevUrl: "/tvshow/13878",
+      };
     }
     state.mount();
     state.load();
@@ -426,6 +455,7 @@ export const Player = observer(() => {
         onClickEnter={state.toggle}
       >
         <video
+          id="video"
           autoPlay
           className="video-js"
           ref={ref as any}

@@ -49,7 +49,8 @@
     "signalhub": "^4.9.0",
     "simple-peer": "^9.7.0",
     "typescript": "^3.7.5",
-    "visibilityjs": "^2.0.2"
+    "visibilityjs": "^2.0.2",
+    "webtorrent": "^0.108.6"
   },
   "scripts": {
     "start": "cross-env ENV=web run-p build-tailwind start:app start:worker",
@@ -92,6 +93,7 @@
     ]
   },
   "devDependencies": {
+    "@types/webtorrent": "^0.107.2",
     "cra-append-sw": "^2.7.0",
     "cross-env": "^7.0.2",
     "customize-cra": "^0.9.1",
