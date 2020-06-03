@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from "react-router";
 import { Error404 } from "./app/Error404";
 import { Dashboard } from "./app/Dashboard";
 import { TVShow } from "./app/TVShow";
-import { Player } from "@env/app/Player";
+import { Player } from "./app/Player";
 import { Search } from "./app/Search";
 import { Genre } from "./app/Genre";
 import { Top100 } from "./app/Top100";
