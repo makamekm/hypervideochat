@@ -149,14 +149,14 @@ export const TVShow = observer(() => {
           className="text-gray-400 leading-none mr-4 py-6 px-6"
           onClickEnter={() => {
             const isFavouriteIndex = favoriteService.favoriteShows.findIndex(
-              (s) => s.id === id
+              (s) => s.id === state.id
             );
             if (isFavouriteIndex >= 0) {
               favoriteService.favoriteShows.splice(isFavouriteIndex, 1);
             } else {
               favoriteService.favoriteShows.unshift(
                 toJS({
-                  id,
+                  id: state.id,
                   poster: state.poster,
                   title: state.title,
                 })
@@ -232,7 +232,7 @@ export const TVShow = observer(() => {
                         history.push({
                           pathname: "/player",
                           state: {
-                            id: id + "__" + episode.id,
+                            id: state.id + "__" + episode.id,
                             header: state.title,
                             poster: state.poster,
                             title: episode.title,
@@ -271,7 +271,7 @@ export const TVShow = observer(() => {
                         backgroundColor: "red",
                         opacity: 0.8,
                         width: `calc(${(progressService.episodeProgress[
-                          id + "__" + episode.id
+                          state.id + "__" + episode.id
                         ] || 0) * 100}% - 20px)`,
                       }}
                     ></div>
