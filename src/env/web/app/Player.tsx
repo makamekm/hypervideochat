@@ -235,12 +235,20 @@ export const Player = observer(() => {
       });
     },
     player: null,
+    client: null as WebTorrent.Instance,
+    torrent: null as WebTorrent.Torrent,
     async prepare() {
       const url = String(state.file);
       console.log(url);
       // const htmlPlayer = document.getElementById(
       //   "HtmlVideo"
       // ) as HTMLVideoElement;
+      if (state.client) {
+        state.torrent.destroy();
+        state.torrent = null;
+        state.client.destroy();
+        state.client = null;
+      }
       state.player = videojs(ref.current, {
         controls: false,
         autoplay: true,
@@ -249,22 +257,28 @@ export const Player = observer(() => {
         techOrder: ["html5"],
       });
       if (/^magnet/i.test(url)) {
-        const client = new WebTorrent();
-        const file = await new Promise<WebTorrent.TorrentFile>((r) =>
-          client.add(url, (torrent) => {
+        const [magnet, fileName] = url.split("|");
+        state.client = new WebTorrent();
+        const torrentFile = await new Promise<{
+          torrent: WebTorrent.Torrent;
+          file: WebTorrent.TorrentFile;
+        }>((r) =>
+          state.client.add(magnet, (torrent) => {
             const file = torrent.files.find((file) => {
-              return file.name.endsWith(".mp4");
+              return fileName
+                ? file.name === fileName
+                : file.name.endsWith(".mp4");
             });
-            r(file);
+            r({ torrent, file });
           })
         );
-        file.renderTo(ref.current, {
+        state.torrent = torrentFile.torrent;
+        torrentFile.file.renderTo(ref.current, {
           autoplay: true,
           controls: false,
         });
         const blobUrl = ref.current.getAttribute("src");
         state.player.cache_.source = { type: "video/mp4", src: blobUrl };
-        // console.log(blobUrl);
       } else {
         state.player.src(
           /\.m3u8$/i.test(state.file)
@@ -375,10 +389,27 @@ export const Player = observer(() => {
       );
     },
     unsetCheckProgressInterval() {
-      window.clearInterval(state.windowFocusinterval);
+      window.clearInterval(state.checkProgressInterval);
+    },
+    torrentNumPeers: 0,
+    checkTorrentInterval: 0,
+    checkPlayerTorrent: () => {
+      if (state.torrent) {
+        state.torrentNumPeers = state.torrent.numPeers;
+      }
+    },
+    setCheckTorrentInterval() {
+      state.checkTorrentInterval = window.setInterval(
+        state.checkPlayerTorrent,
+        3000
+      );
+    },
+    unsetCheckTorrentInterval() {
+      window.clearInterval(state.checkTorrentInterval);
     },
     mount() {
       try {
+        state.setCheckTorrentInterval();
         state.setCheckProgressInterval();
         state.setSaveProgressInterval();
         state.setIsFocusedInterval();
@@ -388,6 +419,13 @@ export const Player = observer(() => {
       }
     },
     unmount() {
+      if (state.client) {
+        state.torrent.destroy();
+        state.torrent = null;
+        state.client.destroy();
+        state.client = null;
+      }
+      state.unsetCheckTorrentInterval();
       state.unsetCheckProgressInterval();
       state.unsetSaveProgressInterval();
       state.unsetIsFocusedInterval();
@@ -405,18 +443,22 @@ export const Player = observer(() => {
     empty: true,
   });
   React.useEffect(() => {
+    console.log(history.location.state);
+
     if (!history.location.state) {
       // return history.push("/");
       history.location.state = {
-        id: "test",
+        header: "Глейпнир",
+        poster: "https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385",
         title: "Серия 1",
+        prevUrl: "/tvshow/glejpnir",
+        id: "test",
         file:
-          "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent",
+          "[720p]magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent|Sintel.mp4",
         // file:
         //   "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
         // file:
         //   "https://slow.animedia.biz/video/dir158/smil:15861641376917391e12be240ea81c7a6acad607eff65b0e11.smil/playlist.m3u8",
-        prevUrl: "/tvshow/13878",
       };
     }
     state.mount();
@@ -638,6 +680,13 @@ export const Player = observer(() => {
                 </XFocusable>
               );
             })}
+            {state.torrent && (
+              <div className="text-2xl px-8 py-5 mx-2 opacity-50">
+                {state.torrentNumPeers > 1
+                  ? `${state.torrentNumPeers} peers`
+                  : `${state.torrentNumPeers} peer`}
+              </div>
+            )}
           </div>
         </div>
       </div>

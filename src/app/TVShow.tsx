@@ -15,7 +15,9 @@ import { PROXY } from "@env/config";
 
 export const TVShow = observer(() => {
   const history = useHistory();
-  const { id } = useParams();
+  const params: {
+    id: string;
+  } = useParams();
   const loadingService = React.useContext(LoadingService);
   const favoriteService = React.useContext(FavoriteService);
   const progressService = React.useContext(ProgressService);
@@ -44,7 +46,7 @@ export const TVShow = observer(() => {
       }[];
     }[],
     get isFavourite() {
-      return !!favoriteService.favoriteShows.find((s) => s.id === id);
+      return !!favoriteService.favoriteShows.find((s) => s.id === params.id);
     },
     getSeasons: async (uuid: string, ids: string[]) => {
       const seasons = [];
@@ -63,7 +65,7 @@ export const TVShow = observer(() => {
       loadingService.setLoading(true, "tvshow");
       try {
         const res = await fetch(
-          `${PROXY}https://online.animedia.pro/anime/${id}`
+          `${PROXY}https://online.animedia.pro/anime/${params.id}`
         );
         const text = await res.text();
         const $ = cherio.load(text);
@@ -139,7 +141,7 @@ export const TVShow = observer(() => {
   useLayoutConfig({});
   React.useEffect(() => {
     state.load();
-  }, [state, id]);
+  }, [state, params]);
   return (
     <div className="flex flex-1 flex-col items-start justify-center">
       <div className="flex items-end justify-between font-light text-5xl mt-4 mb-4 text-gray-300 w-full px-10 max-h-screen leading-none">
@@ -147,14 +149,14 @@ export const TVShow = observer(() => {
           className="text-gray-400 leading-none mr-4 py-6 px-6"
           onClickEnter={() => {
             const isFavouriteIndex = favoriteService.favoriteShows.findIndex(
-              (s) => s.id === id
+              (s) => s.id === params.id
             );
             if (isFavouriteIndex >= 0) {
               favoriteService.favoriteShows.splice(isFavouriteIndex, 1);
             } else {
               favoriteService.favoriteShows.unshift(
                 toJS({
-                  id,
+                  id: params.id,
                   poster: state.poster,
                   title: state.title,
                 })
@@ -230,7 +232,7 @@ export const TVShow = observer(() => {
                         history.push({
                           pathname: "/player",
                           state: {
-                            id: id + "__" + episode.id,
+                            id: params.id + "__" + episode.id,
                             header: state.title,
                             poster: state.poster,
                             title: episode.title,
@@ -269,7 +271,7 @@ export const TVShow = observer(() => {
                         backgroundColor: "red",
                         opacity: 0.8,
                         width: `calc(${(progressService.episodeProgress[
-                          id + "__" + episode.id
+                          params.id + "__" + episode.id
                         ] || 0) * 100}% - 20px)`,
                       }}
                     ></div>
