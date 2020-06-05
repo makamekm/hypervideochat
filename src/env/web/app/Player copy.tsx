@@ -2,7 +2,6 @@
 import React from "react";
 import classNames from "classnames";
 import WebTorrent from "webtorrent";
-import * as p2pm from "p2p-media-loader-core";
 import * as p2pMediaLoader from "p2p-media-loader-hlsjs";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
@@ -237,14 +236,22 @@ export const Player = observer(() => {
       });
     },
     player: null,
+    client: null as WebTorrent.Instance,
+    torrent: null as WebTorrent.Torrent,
     engine: null as p2pMediaLoader.Engine,
-    torrentNumPeers: 0,
     async prepare() {
       const url = String(state.file);
       console.log(url);
       // const htmlPlayer = document.getElementById(
       //   "HtmlVideo"
       // ) as HTMLVideoElement;
+      if (state.client) {
+        state.torrent.destroy();
+        state.torrent = null;
+        state.client.destroy();
+        state.client = null;
+      }
+      console.log(p2pMediaLoader);
       state.engine = new p2pMediaLoader.Engine();
 
       state.player = videojs(ref.current, {
@@ -265,12 +272,6 @@ export const Player = observer(() => {
 
       if (WebTorrent.WEBRTC_SUPPORT) {
         p2pMediaLoader.initVideoJsContribHlsJsPlayer(state.player);
-        state.engine.on(p2pm.Events.PeerConnect, () => {
-          state.torrentNumPeers++;
-        });
-        state.engine.on(p2pm.Events.PeerClose, () => {
-          state.torrentNumPeers--;
-        });
       }
 
       // if (/^magnet/i.test(url)) {
@@ -420,8 +421,25 @@ export const Player = observer(() => {
     unsetCheckProgressInterval() {
       window.clearInterval(state.checkProgressInterval);
     },
+    torrentNumPeers: 0,
+    checkTorrentInterval: 0,
+    checkPlayerTorrent: () => {
+      if (state.torrent) {
+        state.torrentNumPeers = state.torrent.numPeers;
+      }
+    },
+    setCheckTorrentInterval() {
+      state.checkTorrentInterval = window.setInterval(
+        state.checkPlayerTorrent,
+        3000
+      );
+    },
+    unsetCheckTorrentInterval() {
+      window.clearInterval(state.checkTorrentInterval);
+    },
     mount() {
       try {
+        state.setCheckTorrentInterval();
         state.setCheckProgressInterval();
         state.setSaveProgressInterval();
         state.setIsFocusedInterval();
@@ -431,6 +449,13 @@ export const Player = observer(() => {
       }
     },
     unmount() {
+      if (state.client) {
+        state.torrent.destroy();
+        state.torrent = null;
+        state.client.destroy();
+        state.client = null;
+      }
+      state.unsetCheckTorrentInterval();
       state.unsetCheckProgressInterval();
       state.unsetSaveProgressInterval();
       state.unsetIsFocusedInterval();
@@ -685,7 +710,7 @@ export const Player = observer(() => {
                 </XFocusable>
               );
             })}
-            {state.torrentNumPeers > 0 && (
+            {state.torrent && (
               <div className="text-2xl px-8 py-5 mx-2 opacity-50">
                 {state.torrentNumPeers > 1
                   ? `${state.torrentNumPeers} peers`

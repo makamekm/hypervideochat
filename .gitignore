@@ -24,3 +24,4 @@ yarn-error.log*
 .env
 .now
 /public/custom-service-worker.js
+/resources

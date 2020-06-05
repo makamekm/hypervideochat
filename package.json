@@ -21,11 +21,14 @@
     "@types/workbox-sw": "^4.3.0",
     "cheerio": "^1.0.0-rc.3",
     "classnames": "^2.2.6",
+    "concurrent-file-store": "^0.5.1",
+    "create-torrent": "^4.4.2",
     "focus-options-polyfill": "^1.4.0",
     "focus-trap-react": "^6.0.0",
     "fuse.js": "^6.0.0",
     "hark": "^1.2.3",
     "localforage": "^1.7.3",
+    "md5": "^2.2.1",
     "mobx": "^5.15.4",
     "mobx-localstorage": "^1.2.0",
     "mobx-react": "^6.2.2",
@@ -34,6 +37,7 @@
     "ncp": "^2.0.0",
     "ndjson": "^1.5.0",
     "node-sass": "^4.14.0",
+    "p2p-media-loader-hlsjs": "^0.6.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.0.0",
@@ -50,7 +54,8 @@
     "simple-peer": "^9.7.0",
     "typescript": "^3.7.5",
     "visibilityjs": "^2.0.2",
-    "webtorrent": "^0.108.6"
+    "webtorrent": "^0.108.6",
+    "webtorrent-hybrid": "^4.0.1"
   },
   "scripts": {
     "start": "cross-env ENV=web run-p build-tailwind start:app start:worker",
