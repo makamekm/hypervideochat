@@ -230,7 +230,9 @@ export const TVShow = observer(() => {
                       loadingService.setLoading(true, "playerGlobal");
                       setTimeout(() => {
                         history.push({
-                          pathname: "/player",
+                          pathname: /\.m3u8$/i.test(episode.file)
+                            ? "/player"
+                            : "/default-player",
                           state: {
                             id: state.id + "__" + episode.id,
                             header: state.title,

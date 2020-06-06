@@ -1,9 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from "react";
-import classNames from "classnames";
-import WebTorrent from "webtorrent";
-import * as p2pm from "p2p-media-loader-core";
-import * as p2pMediaLoader from "p2p-media-loader-hlsjs";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
 import { debounce } from "lodash";
@@ -13,10 +9,10 @@ import { Focusable } from "~/components/Focusable/Focusable";
 import { useSimpleSyncLocalStorage } from "~/hooks";
 import { ProgressService } from "~/app/ProgressService";
 import { TVKeys } from "~/app/TVKeys";
-import { useLayoutConfig, LayoutService } from "~/app/LayoutService";
-import { SHOW_FULLSCREEN } from "@env/config";
+import { useLayoutConfig } from "~/app/LayoutService";
 
-const videojs = (window as any).videojs;
+const webapis = (window as any).webapis;
+const tizen = (window as any).tizen;
 
 enum PlayState {
   ERROR = -1,
@@ -26,12 +22,11 @@ enum PlayState {
   PREPARED = 3,
 }
 
-export const Player = observer(() => {
+export const DefaultPlayer = observer(() => {
   const ref = React.useRef<HTMLVideoElement>(null);
   const history = useHistory();
   const loadingService = React.useContext(LoadingService);
   const progressService = React.useContext(ProgressService);
-  const service = React.useContext(LayoutService);
   const state = useLocalStore(() => ({
     isVideoFocused: false,
     isProgressFocused: false,
@@ -78,29 +73,13 @@ export const Player = observer(() => {
     unsetSaveProgressInterval() {
       window.clearInterval(state.saveProgressInterval);
     },
-    isFocused: true,
-    windowFocusinterval: 0,
-    checkIsFocused: () => {
-      state.isFocused = document.hasFocus();
-    },
-    setIsFocusedInterval() {
-      state.windowFocusinterval = window.setInterval(
-        state.checkIsFocused,
-        1000
-      );
-    },
-    unsetIsFocusedInterval() {
-      window.clearInterval(state.windowFocusinterval);
-    },
-    resume() {
+    restoreProgress() {
       if (state.savedProgress && state.savedProgress < 0.99) {
         state.seekTime = state.totalTime * state.savedProgress;
         state.seekTime = Math.max(state.seekTime, 0);
         state.seekTime = Math.min(state.seekTime, state.totalTime);
         state.currentTime = state.seekTime;
-        // webapis.avplay.seekTo(Math.floor(state.seekTime));
-        state.player.currentTime(Math.floor(state.seekTime));
-        state.play();
+        webapis.avplay.seekTo(state.seekTime * 1000);
       }
     },
     get file() {
@@ -142,11 +121,22 @@ export const Player = observer(() => {
         ss
       );
     },
+    setRegisterMediaKeys() {
+      try {
+        tizen.tvinputdevice.registerKey("MediaPlayPause");
+        tizen.tvinputdevice.registerKey("MediaPlay");
+        tizen.tvinputdevice.registerKey("MediaStop");
+        tizen.tvinputdevice.registerKey("MediaPause");
+        tizen.tvinputdevice.registerKey("MediaRewind");
+        tizen.tvinputdevice.registerKey("MediaFastForward");
+      } catch (error) {
+        console.error(error);
+      }
+    },
     setSeek: debounce(() => {
-      // webapis.avplay.seekTo(Math.floor(state.seekTime));
-      state.player.currentTime(Math.floor(state.seekTime));
+      webapis.avplay.seekTo(state.seekTime * 1000);
       state.currentTime = state.seekTime;
-    }, 1000),
+    }, 500),
     onKeyDown: (e) => {
       state.setFocusTimeout();
       switch (e.keyCode) {
@@ -223,119 +213,46 @@ export const Player = observer(() => {
       document.addEventListener("keydown", state.onKeyDown);
     },
     setEventListeners() {
-      state.player.on("timeupdate", () => {
-        state.currentTime = state.player.currentTime();
-        state.totalTime = state.player.duration();
-      });
-      state.player.on("play", () => {
-        state.playState = PlayState.PLAYING;
-      });
-      state.player.on("pause", () => {
-        state.playState = PlayState.PAUSED;
-      });
-      state.player.on("stop", () => {
-        state.playState = PlayState.STOPPED;
-      });
-    },
-    player: null,
-    engine: null as p2pMediaLoader.Engine,
-    torrentNumPeers: 0,
-    async prepare() {
-      const url = String(state.file);
-      console.log(url);
-      // const htmlPlayer = document.getElementById(
-      //   "HtmlVideo"
-      // ) as HTMLVideoElement;
-      const config = {
-        segments: {
-          // swarmId: "swarmId",
+      const listener = {
+        onbufferingstart: () => {
+          console.log("Buffering...");
         },
-        loader: {
-          trackerAnnounce: [
-            "wss://tracker.novage.com.ua",
-            "wss://tracker.openwebtorrent.com",
-          ],
+        onbufferingprogress: (percent) => {
+          console.log("Buffering progress: " + percent);
+        },
+        onbufferingcomplete: () => {
+          console.log("Buffering Complete, Can play now!");
+        },
+        onstreamcompleted: () => {
+          console.log("video has ended.");
+          webapis.avplay.stop();
+          state.playState = PlayState.STOPPED;
+        },
+        oncurrentplaytime: (currentTime) => {
+          const duration = webapis.avplay.getDuration();
+          if (duration > 0) {
+            state.currentTime = currentTime / 1000;
+            state.totalTime = duration / 1000;
+          }
+        },
+        ondrmevent: (drmEvent, drmData) => {
+          console.log("DRM callback: " + drmEvent + ", data: " + drmData);
+        },
+        onerror: (type, data) => {
+          console.log("OnError: " + data);
         },
       };
-      state.engine = new p2pMediaLoader.Engine(config);
 
-      state.player = videojs(ref.current, {
-        controls: false,
-        // autoplay: true,
-        // fluid: true,
-        // preload: "auto",
-        // techOrder: ["html5"],
-        html5: {
-          hlsjsConfig: {
-            liveSyncDurationCount: 7,
-            loader: WebTorrent.WEBRTC_SUPPORT
-              ? state.engine.createLoaderClass()
-              : (window as any).Hls.DefaultConfig.loader,
-          },
-        },
-      });
-
-      if (WebTorrent.WEBRTC_SUPPORT) {
-        p2pMediaLoader.initVideoJsContribHlsJsPlayer(state.player);
-        state.engine.on(p2pm.Events.PeerConnect, () => {
-          state.torrentNumPeers++;
-        });
-        state.engine.on(p2pm.Events.PeerClose, () => {
-          state.torrentNumPeers--;
-        });
-      }
-
-      // if (/^magnet/i.test(url)) {
-      //   // const [magnet, fileName] = url.split("|");
-      //   const url =
-      //     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-      //   // const magnetUrl =
-      //   // "http://localhost:1111/register/" + url;
-      //   // "http://localhost:1111/torrent/" + url;
-
-      //   const fileName = url.substring(url.lastIndexOf("/") + 1);
-
-      //   const fileT = await fetch("http://localhost:1111/register/" + url);
-      //   const magnet = await fileT.text();
-      //   console.log(magnet);
-
-      //   state.client = new WebTorrent();
-      //   const torrentFile = await new Promise<{
-      //     torrent: WebTorrent.Torrent;
-      //     file: WebTorrent.TorrentFile;
-      //   }>((r) =>
-      //     state.client.add(magnet, (torrent) => {
-      //       console.log("here", torrent);
-      //       // torrent.addWebSeed("http://localhost:1111/torrent/" + url);
-      //       const file = torrent.files.find((file) => {
-      //         return fileName
-      //           ? file.name === fileName
-      //           : file.name.endsWith(".mp4");
-      //       });
-      //       r({ torrent, file });
-      //     })
-      //   );
-      //   state.torrent = torrentFile.torrent;
-      //   torrentFile.file.renderTo(ref.current, {
-      //     autoplay: true,
-      //     controls: false,
-      //   });
-      //   const blobUrl = ref.current.getAttribute("src");
-      //   state.player.cache_.source = { type: "video/mp4", src: blobUrl };
-      // } else {
-      state.player.src(
-        /\.m3u8$/i.test(state.file)
-          ? {
-              src: String(state.file),
-              type: "application/x-mpegURL",
-            }
-          : String(state.file)
-      );
-      state.player.load();
-      await new Promise((r) => state.player.ready(r));
-      // }
-      state.setEventListeners();
-      await new Promise((r) => setTimeout(r, 500));
+      webapis.avplay.setListener(listener);
+    },
+    prepare() {
+      const url = String(state.file);
+      console.log(url);
+      webapis.avplay.open(String(state.file));
+      webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
+      // webapis.avplay.setStreamingProperty("SET_MODE_4K"); //for 4K contents
+      webapis.avplay.prepare();
+      state.totalTime = webapis.avplay.getDuration() / 1000;
       state.playState = PlayState.PREPARED;
     },
     timeout: 0,
@@ -347,32 +264,30 @@ export const Player = observer(() => {
         }
       }, 4000);
     },
-    focus: () => {
+    focus() {
       const player = document.querySelector(".player") as HTMLElement;
       if (player) {
         player.focus();
       }
     },
-    async play() {
+    play() {
       if (state.playState >= PlayState.PAUSED) {
-        state.playState = PlayState.PLAYING;
-        try {
-          await state.player.play();
-          state.totalTime = state.player.duration();
-        } catch (e) {
-          console.error(e);
+        if (ref.current) {
+          state.playState = PlayState.PLAYING;
+          ref.current.src = String(state.file);
+          webapis.avplay.play();
         }
       }
     },
-    setQuality: async (q: string) => {
+    setQuality: (q: string) => {
       const time = state.currentTime;
       state.stop();
       state.quality = q;
-      await state.prepare();
-      await state.play();
+      state.prepare();
+      state.play();
       state.focus();
       state.currentTime = time;
-      state.player.currentTime(time);
+      webapis.avplay.seekTo(time * 1000);
     },
     goBack: () => {
       state.stop();
@@ -392,63 +307,56 @@ export const Player = observer(() => {
         return;
       }
       state.playState = PlayState.PAUSED;
-      state.player.pause();
-      // webapis.avplay.pause();
+      webapis.avplay.pause();
     },
     stop() {
       console.log("Player.stop()");
       state.playState = PlayState.STOPPED;
-      state.player.pause();
-      // webapis.avplay.stop();
+      webapis.avplay.stop();
     },
     load: async () => {
       loadingService.setLoading(true, "player");
       state.setFocusTimeout();
       try {
         state.files = state.getFiles();
-        await state.prepare();
-        await state.play();
+        state.prepare();
+        state.play();
         state.focus();
-        state.resume();
+        state.restoreProgress();
       } catch (error) {
         console.error(error);
       }
       loadingService.setLoading(false, "player");
       loadingService.setLoading(false, "playerGlobal");
     },
-    checkProgressInterval: 0,
-    checkPlayerProgress: () => {
-      if (state.player) {
-        state.currentTime = state.player.currentTime();
-        state.totalTime = state.player.duration();
-      }
-    },
-    setCheckProgressInterval() {
-      state.checkProgressInterval = window.setInterval(
-        state.checkPlayerProgress,
-        1000
-      );
-    },
-    unsetCheckProgressInterval() {
-      window.clearInterval(state.checkProgressInterval);
-    },
     mount() {
       try {
-        state.setCheckProgressInterval();
         state.setSaveProgressInterval();
-        state.setIsFocusedInterval();
+        state.setRegisterMediaKeys();
         state.setHandleKeyDown();
+        state.setEventListeners();
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    unsetRegisterMediaKeys() {
+      try {
+        tizen.tvinputdevice.unregisterKey("MediaPlayPause");
+        tizen.tvinputdevice.unregisterKey("MediaPlay");
+        tizen.tvinputdevice.unregisterKey("MediaStop");
+        tizen.tvinputdevice.unregisterKey("MediaPause");
+        tizen.tvinputdevice.unregisterKey("MediaRewind");
+        tizen.tvinputdevice.unregisterKey("MediaFastForward");
       } catch (error) {
         console.error(error);
       }
     },
     unmount() {
-      state.unsetCheckProgressInterval();
       state.unsetSaveProgressInterval();
-      state.unsetIsFocusedInterval();
       document.removeEventListener("keydown", state.onKeyDown);
+      state.unsetRegisterMediaKeys();
       try {
-        // webapis.avplay.close();
+        webapis.avplay.close();
       } catch (error) {
         console.error(error);
       }
@@ -460,23 +368,14 @@ export const Player = observer(() => {
     empty: true,
   });
   React.useEffect(() => {
-    console.log(history.location.state);
-
     if (!history.location.state) {
-      // return history.push("/");
-      history.location.state = {
-        header: "Глейпнир",
-        poster: "https://static.animedia.tv/uploads/gleipnir.jpg?w=280&h=385",
-        title: "Серия 1",
-        prevUrl: "/tvshow/glejpnir",
-        id: "test",
-        // file:
-        //   "[720p]magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent|Sintel.mp4",
-        // // file:
-        // //   "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
-        file:
-          "https://slow.animedia.biz/video/dir158/smil:15861641376917391e12be240ea81c7a6acad607eff65b0e11.smil/playlist.m3u8",
-      };
+      return history.push("/");
+      // history.location.state = {
+      //   title: "Серия 1",
+      //   file:
+      //     "[360p]//mp4.animedia.biz/dir291/7344_360.mp4, [480p]//mp4.animedia.biz/dir291/7344_480.mp4,[720p]//mp4.animedia.biz/dir291/7344.mp4",
+      //   prevUrl: "/tvshow/13878",
+      // };
     }
     state.mount();
     state.load();
@@ -484,24 +383,8 @@ export const Player = observer(() => {
       state.unmount();
     };
   }, [history, state]);
-  const showControls = !(
-    (state.isVideoFocused && state.playState === PlayState.PLAYING) ||
-    !state.isFocused
-  );
-  const onProgressClick = React.useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      state.seekTime = (state.totalTime * (e.clientX - rect.left)) / rect.width;
-      state.currentTime = state.seekTime;
-      state.player.currentTime(Math.floor(state.seekTime));
-      (document.querySelector(".progress-dot") as HTMLElement).focus();
-    },
-    [state]
-  );
   return (
-    <div className="flex-1 flex flex-col min-h-screen min-w-full pointer-events-none">
+    <>
       <XFocusable
         className="player"
         onFocus={() => {
@@ -513,11 +396,9 @@ export const Player = observer(() => {
         }}
         onClickEnter={state.toggle}
       >
-        <video
-          id="video"
-          autoPlay
-          className="video-js"
+        <object
           ref={ref as any}
+          type="application/avplayer"
           style={{
             position: "absolute",
             left: 0,
@@ -531,18 +412,15 @@ export const Player = observer(() => {
           }}
         />
       </XFocusable>
-      <div
-        className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8 pointer-events-auto"
-        onClick={() => {
-          state.toggle();
-          (document.querySelector(".player") as HTMLElement)?.focus();
-        }}
-      >
+      <div className="flex flex-1 flex-col items-center justify-end z-10 text-2xl p-8">
         <div
           className="w-full flex flex-col items-center justify-end py-6 rounded-lg px-10"
           style={{
             transition: "opacity 0.4s",
-            opacity: showControls ? 1 : 0,
+            opacity:
+              state.isVideoFocused && state.playState === PlayState.PLAYING
+                ? 0
+                : 1,
             background: "rgba(0, 0, 0, 0.8)",
           }}
         >
@@ -595,15 +473,11 @@ export const Player = observer(() => {
           </div>
           <div className="w-full flex justify-between items-center mt-6">
             <div
-              className={
-                "px-4 w-full rounded-lg relative bg-gray-800 hover:bg-gray-600"
-              }
-              onClick={onProgressClick}
+              className="px-4 w-full rounded-lg relative"
               style={{
-                pointerEvents: showControls ? "all" : "none",
+                background: "rgba(255, 255, 255, 0.5)",
                 borderRadius: "100px",
                 height: "20px",
-                transition: "background 0.4s",
               }}
             >
               <div
@@ -650,14 +524,7 @@ export const Player = observer(() => {
               </Focusable>
             </div>
           </div>
-          <div
-            className={classNames(
-              "w-full flex justify-center items-center mt-6",
-              {
-                "pointer-events-auto": showControls,
-              }
-            )}
-          >
+          <div className="w-full flex justify-center items-center mt-6">
             <XFocusable
               className="text-4xl px-6 py-5 mx-2 leading-none"
               onClickEnter={state.toggle}
@@ -674,18 +541,6 @@ export const Player = observer(() => {
             >
               <i className="fas fa-stop"></i>
             </XFocusable>
-            {SHOW_FULLSCREEN && (
-              <XFocusable
-                className="text-4xl px-6 py-5 mx-2 leading-none"
-                onClickEnter={service.toggleFullScreen}
-              >
-                {service.isFullscreen ? (
-                  <i className="fas fa-compress"></i>
-                ) : (
-                  <i className="fas fa-expand"></i>
-                )}
-              </XFocusable>
-            )}
             {state.qualities.map((q) => {
               return q === state.quality ? (
                 <div className="text-2xl px-8 py-5 mx-2 opacity-50">{q}</div>
@@ -699,16 +554,9 @@ export const Player = observer(() => {
                 </XFocusable>
               );
             })}
-            {state.torrentNumPeers > 0 && (
-              <div className="text-2xl px-8 py-5 mx-2 opacity-50">
-                {state.torrentNumPeers > 1
-                  ? `${state.torrentNumPeers} peers`
-                  : `${state.torrentNumPeers} peer`}
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 });

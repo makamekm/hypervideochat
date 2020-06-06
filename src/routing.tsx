@@ -4,6 +4,7 @@ import { Error404 } from "./app/Error404";
 import { Dashboard } from "./app/Dashboard";
 import { TVShow } from "./app/TVShow";
 import { Player } from "@env/app/Player";
+import { DefaultPlayer } from "@env/app/DefaultPlayer";
 import { Search } from "./app/Search";
 import { Genre } from "./app/Genre";
 import { Top100 } from "./app/Top100";
@@ -18,6 +19,7 @@ export const RoutedContent = () => {
       <Route path="/dashboard" exact component={Dashboard} />
       <Route path="/tvshow/:id" exact component={TVShow} />
       <Route path="/player" exact component={Player} />
+      <Route path="/default-player" exact component={DefaultPlayer} />
       <Route path="/search" exact component={Search} />
       <Route path="/genre/:genre/:page?" exact component={Genre} />
       <Route path="/top100" exact component={Top100} />
