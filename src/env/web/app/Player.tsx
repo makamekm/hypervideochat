@@ -245,14 +245,25 @@ export const Player = observer(() => {
       // const htmlPlayer = document.getElementById(
       //   "HtmlVideo"
       // ) as HTMLVideoElement;
-      state.engine = new p2pMediaLoader.Engine();
+      const config = {
+        segments: {
+          // swarmId: "swarmId",
+        },
+        loader: {
+          trackerAnnounce: [
+            "wss://tracker.novage.com.ua",
+            "wss://tracker.openwebtorrent.com",
+          ],
+        },
+      };
+      state.engine = new p2pMediaLoader.Engine(config);
 
       state.player = videojs(ref.current, {
         controls: false,
-        autoplay: true,
-        fluid: true,
-        preload: "auto",
-        techOrder: ["html5"],
+        // autoplay: true,
+        // fluid: true,
+        // preload: "auto",
+        // techOrder: ["html5"],
         html5: {
           hlsjsConfig: {
             liveSyncDurationCount: 7,
