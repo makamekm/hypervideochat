@@ -6,8 +6,6 @@ import { debounce } from "lodash";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { Focusable } from "~/components/Focusable/Focusable";
-import { useSimpleSyncLocalStorage } from "~/hooks";
-import { ProgressService } from "~/app/ProgressService";
 import { TVKeys } from "~/app/TVKeys";
 import { useLayoutConfig } from "~/app/LayoutService";
 
@@ -26,7 +24,6 @@ export const DefaultPlayer = observer(() => {
   const ref = React.useRef<HTMLVideoElement>(null);
   const history = useHistory();
   const loadingService = React.useContext(LoadingService);
-  const progressService = React.useContext(ProgressService);
   const state = useLocalStore(() => ({
     isVideoFocused: false,
     isProgressFocused: false,
@@ -40,73 +37,8 @@ export const DefaultPlayer = observer(() => {
       );
     },
     totalTime: 0,
-    quality: "720p",
-    files: {} as {
-      [quality: string]: string;
-    },
-    get qualities() {
-      return Object.keys(state.files).filter((s) => s !== "default");
-    },
-    get title() {
-      return (history.location?.state as any)?.title;
-    },
-    get header() {
-      return (history.location?.state as any)?.header;
-    },
-    get poster() {
-      return (history.location?.state as any)?.poster;
-    },
-    get id() {
-      return (history.location?.state as any)?.id;
-    },
-    get savedProgress() {
-      return progressService.episodeProgress[state.id];
-    },
-    saveProgressInterval: 0,
-    saveProgress: () => {
-      progressService.episodeProgress[state.id] =
-        state.currentTime / state.totalTime;
-    },
-    setSaveProgressInterval() {
-      state.saveProgressInterval = window.setInterval(state.saveProgress, 5000);
-    },
-    unsetSaveProgressInterval() {
-      window.clearInterval(state.saveProgressInterval);
-    },
-    restoreProgress() {
-      if (state.savedProgress && state.savedProgress < 0.99) {
-        state.seekTime = state.totalTime * state.savedProgress;
-        state.seekTime = Math.max(state.seekTime, 0);
-        state.seekTime = Math.min(state.seekTime, state.totalTime);
-        state.currentTime = state.seekTime;
-        webapis.avplay.seekTo(state.seekTime * 1000);
-      }
-    },
-    get file() {
-      let url =
-        state.files[state.quality] ||
-        state.files["default"] ||
-        state.files[state.qualities[state.qualities.length - 1]];
-      if (/^\/\//gi.test(url)) {
-        url = "https:" + url;
-      }
-      return url;
-    },
-    getFiles: () => {
-      const file: string = (history.location.state as any).file;
-      const urls = file
-        .split(",")
-        .map((s) => s.trim())
-        .reduce((o, p) => {
-          if (/^\[/gi.test(p)) {
-            const [, quality, path] = /^\[(.+)\](.*)/gi.exec(p);
-            o[quality] = path;
-          } else {
-            o["default"] = p;
-          }
-          return o;
-        }, {});
-      return urls;
+    get server() {
+      return (history.location?.state as any)?.server;
     },
     formatTime(seconds) {
       const hh = Math.floor(seconds / 3600);
@@ -246,9 +178,7 @@ export const DefaultPlayer = observer(() => {
       webapis.avplay.setListener(listener);
     },
     prepare() {
-      const url = String(state.file);
-      console.log(url);
-      webapis.avplay.open(String(state.file));
+      webapis.avplay.open(String(state.server));
       webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
       // webapis.avplay.setStreamingProperty("SET_MODE_4K"); //for 4K contents
       webapis.avplay.prepare();
@@ -274,20 +204,10 @@ export const DefaultPlayer = observer(() => {
       if (state.playState >= PlayState.PAUSED) {
         if (ref.current) {
           state.playState = PlayState.PLAYING;
-          ref.current.src = String(state.file);
+          ref.current.src = String(state.server);
           webapis.avplay.play();
         }
       }
-    },
-    setQuality: (q: string) => {
-      const time = state.currentTime;
-      state.stop();
-      state.quality = q;
-      state.prepare();
-      state.play();
-      state.focus();
-      state.currentTime = time;
-      webapis.avplay.seekTo(time * 1000);
     },
     goBack: () => {
       state.stop();
@@ -318,11 +238,9 @@ export const DefaultPlayer = observer(() => {
       loadingService.setLoading(true, "player");
       state.setFocusTimeout();
       try {
-        state.files = state.getFiles();
         state.prepare();
         state.play();
         state.focus();
-        state.restoreProgress();
       } catch (error) {
         console.error(error);
       }
@@ -331,7 +249,6 @@ export const DefaultPlayer = observer(() => {
     },
     mount() {
       try {
-        state.setSaveProgressInterval();
         state.setRegisterMediaKeys();
         state.setHandleKeyDown();
         state.setEventListeners();
@@ -352,7 +269,6 @@ export const DefaultPlayer = observer(() => {
       }
     },
     unmount() {
-      state.unsetSaveProgressInterval();
       document.removeEventListener("keydown", state.onKeyDown);
       state.unsetRegisterMediaKeys();
       try {
@@ -362,7 +278,6 @@ export const DefaultPlayer = observer(() => {
       }
     },
   }));
-  useSimpleSyncLocalStorage(state, "quality");
   useLayoutConfig({
     scrollable: false,
     empty: true,
@@ -424,42 +339,8 @@ export const DefaultPlayer = observer(() => {
             background: "rgba(0, 0, 0, 0.8)",
           }}
         >
-          <div
-            className="p-8 rounded-lg flex justify-between items-start"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-            }}
-          >
-            <div
-              className="p-6 rounded-lg"
-              style={{
-                background: "rgba(0, 0, 0, 0.8)",
-              }}
-            >
-              <img src="/logo.svg" alt="logo" />
-            </div>
-            <div className="flex flex-col items-end rounded-lg text-right">
-              <img
-                style={{
-                  height: "250px",
-                }}
-                className="rounded-lg shadow-md border border-gray-700"
-                alt={state.header}
-                src={state.poster}
-              />
-              <div
-                className="ellipsis font-light text-3xl mt-3 p-6 rounded-lg leading-none"
-                style={{ maxWidth: "50vw", background: "rgba(0, 0, 0, 0.8)" }}
-              >
-                {state.header} / {state.title}
-              </div>
-            </div>
-          </div>
           <div className="w-full flex justify-between items-center">
-            <div className="pr-4">{state.title}</div>
+            <div className="pr-4">{state.server}</div>
             <div className="pl-4">
               <div className="time-info">
                 <span>
@@ -541,19 +422,6 @@ export const DefaultPlayer = observer(() => {
             >
               <i className="fas fa-stop"></i>
             </XFocusable>
-            {state.qualities.map((q) => {
-              return q === state.quality ? (
-                <div className="text-2xl px-8 py-5 mx-2 opacity-50">{q}</div>
-              ) : (
-                <XFocusable
-                  key={q}
-                  className={"text-2xl px-6 py-5 mx-2"}
-                  onClickEnter={() => state.setQuality(q)}
-                >
-                  {q}
-                </XFocusable>
-              );
-            })}
           </div>
         </div>
       </div>

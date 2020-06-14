@@ -1,17 +1,12 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React from "react";
 import classNames from "classnames";
-import WebTorrent from "webtorrent";
-import * as p2pm from "p2p-media-loader-core";
-import * as p2pMediaLoader from "p2p-media-loader-hlsjs";
 import { observer, useLocalStore } from "mobx-react";
 import { useHistory } from "react-router";
 import { debounce } from "lodash";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { Focusable } from "~/components/Focusable/Focusable";
-import { useSimpleSyncLocalStorage } from "~/hooks";
-import { ProgressService } from "~/app/ProgressService";
 import { TVKeys } from "~/app/TVKeys";
 import { useLayoutConfig, LayoutService } from "~/app/LayoutService";
 import { SHOW_FULLSCREEN } from "@env/config";
@@ -30,7 +25,6 @@ export const Player = observer(() => {
   const ref = React.useRef<HTMLVideoElement>(null);
   const history = useHistory();
   const loadingService = React.useContext(LoadingService);
-  const progressService = React.useContext(ProgressService);
   const service = React.useContext(LayoutService);
   const state = useLocalStore(() => ({
     isVideoFocused: false,
@@ -45,38 +39,11 @@ export const Player = observer(() => {
       );
     },
     totalTime: 0,
-    quality: "720p",
     files: {} as {
       [quality: string]: string;
     },
-    get qualities() {
-      return Object.keys(state.files).filter((s) => s !== "default");
-    },
-    get title() {
-      return (history.location?.state as any)?.title;
-    },
-    get header() {
-      return (history.location?.state as any)?.header;
-    },
-    get poster() {
-      return (history.location?.state as any)?.poster;
-    },
-    get id() {
-      return (history.location?.state as any)?.id;
-    },
-    get savedProgress() {
-      return progressService.episodeProgress[state.id];
-    },
-    saveProgressInterval: 0,
-    saveProgress: () => {
-      progressService.episodeProgress[state.id] =
-        state.currentTime / state.totalTime;
-    },
-    setSaveProgressInterval() {
-      state.saveProgressInterval = window.setInterval(state.saveProgress, 5000);
-    },
-    unsetSaveProgressInterval() {
-      window.clearInterval(state.saveProgressInterval);
+    get server() {
+      return (history.location?.state as any)?.server;
     },
     isFocused: true,
     windowFocusinterval: 0,
@@ -91,43 +58,6 @@ export const Player = observer(() => {
     },
     unsetIsFocusedInterval() {
       window.clearInterval(state.windowFocusinterval);
-    },
-    resume() {
-      if (state.savedProgress && state.savedProgress < 0.99) {
-        state.seekTime = state.totalTime * state.savedProgress;
-        state.seekTime = Math.max(state.seekTime, 0);
-        state.seekTime = Math.min(state.seekTime, state.totalTime);
-        state.currentTime = state.seekTime;
-        // webapis.avplay.seekTo(Math.floor(state.seekTime));
-        state.player.currentTime(Math.floor(state.seekTime));
-        state.play();
-      }
-    },
-    get file() {
-      let url =
-        state.files[state.quality] ||
-        state.files["default"] ||
-        state.files[state.qualities[state.qualities.length - 1]];
-      if (/^\/\//gi.test(url)) {
-        url = "https:" + url;
-      }
-      return url;
-    },
-    getFiles: () => {
-      const file: string = (history.location.state as any).file;
-      const urls = file
-        .split(",")
-        .map((s) => s.trim())
-        .reduce((o, p) => {
-          if (/^\[/gi.test(p)) {
-            const [, quality, path] = /^\[(.+)\](.*)/gi.exec(p);
-            o[quality] = path;
-          } else {
-            o["default"] = p;
-          }
-          return o;
-        }, {});
-      return urls;
     },
     formatTime(seconds) {
       const hh = Math.floor(seconds / 3600);
@@ -238,102 +168,14 @@ export const Player = observer(() => {
       });
     },
     player: null,
-    engine: null as p2pMediaLoader.Engine,
-    torrentNumPeers: 0,
     async prepare() {
-      const url = String(state.file);
-      console.log(url);
-      // const htmlPlayer = document.getElementById(
-      //   "HtmlVideo"
-      // ) as HTMLVideoElement;
-      const config = {
-        segments: {
-          // swarmId: "swarmId",
-        },
-        loader: {
-          trackerAnnounce: [
-            "wss://tracker.novage.com.ua",
-            "wss://tracker.openwebtorrent.com",
-          ],
-        },
-      };
-      state.engine = new p2pMediaLoader.Engine(config);
-
       state.player = videojs(ref.current, {
         controls: false,
-        // autoplay: true,
-        // fluid: true,
-        // preload: "auto",
-        // techOrder: ["html5"],
-        html5: {
-          hlsjsConfig: {
-            liveSyncDurationCount: 7,
-            loader: WebTorrent.WEBRTC_SUPPORT
-              ? state.engine.createLoaderClass()
-              : (window as any).Hls.DefaultConfig.loader,
-          },
-        },
       });
 
-      if (WebTorrent.WEBRTC_SUPPORT) {
-        p2pMediaLoader.initVideoJsContribHlsJsPlayer(state.player);
-        state.engine.on(p2pm.Events.PeerConnect, () => {
-          state.torrentNumPeers++;
-        });
-        state.engine.on(p2pm.Events.PeerClose, () => {
-          state.torrentNumPeers--;
-        });
-      }
-
-      // if (/^magnet/i.test(url)) {
-      //   // const [magnet, fileName] = url.split("|");
-      //   const url =
-      //     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-      //   // const magnetUrl =
-      //   // "http://localhost:1111/register/" + url;
-      //   // "http://localhost:1111/torrent/" + url;
-
-      //   const fileName = url.substring(url.lastIndexOf("/") + 1);
-
-      //   const fileT = await fetch("http://localhost:1111/register/" + url);
-      //   const magnet = await fileT.text();
-      //   console.log(magnet);
-
-      //   state.client = new WebTorrent();
-      //   const torrentFile = await new Promise<{
-      //     torrent: WebTorrent.Torrent;
-      //     file: WebTorrent.TorrentFile;
-      //   }>((r) =>
-      //     state.client.add(magnet, (torrent) => {
-      //       console.log("here", torrent);
-      //       // torrent.addWebSeed("http://localhost:1111/torrent/" + url);
-      //       const file = torrent.files.find((file) => {
-      //         return fileName
-      //           ? file.name === fileName
-      //           : file.name.endsWith(".mp4");
-      //       });
-      //       r({ torrent, file });
-      //     })
-      //   );
-      //   state.torrent = torrentFile.torrent;
-      //   torrentFile.file.renderTo(ref.current, {
-      //     autoplay: true,
-      //     controls: false,
-      //   });
-      //   const blobUrl = ref.current.getAttribute("src");
-      //   state.player.cache_.source = { type: "video/mp4", src: blobUrl };
-      // } else {
-      state.player.src(
-        /\.m3u8$/i.test(state.file)
-          ? {
-              src: String(state.file),
-              type: "application/x-mpegURL",
-            }
-          : String(state.file)
-      );
+      state.player.src(String(state.server));
       state.player.load();
       await new Promise((r) => state.player.ready(r));
-      // }
       state.setEventListeners();
       await new Promise((r) => setTimeout(r, 500));
       state.playState = PlayState.PREPARED;
@@ -367,7 +209,6 @@ export const Player = observer(() => {
     setQuality: async (q: string) => {
       const time = state.currentTime;
       state.stop();
-      state.quality = q;
       await state.prepare();
       await state.play();
       state.focus();
@@ -405,11 +246,9 @@ export const Player = observer(() => {
       loadingService.setLoading(true, "player");
       state.setFocusTimeout();
       try {
-        state.files = state.getFiles();
         await state.prepare();
         await state.play();
         state.focus();
-        state.resume();
       } catch (error) {
         console.error(error);
       }
@@ -435,7 +274,6 @@ export const Player = observer(() => {
     mount() {
       try {
         state.setCheckProgressInterval();
-        state.setSaveProgressInterval();
         state.setIsFocusedInterval();
         state.setHandleKeyDown();
       } catch (error) {
@@ -444,7 +282,6 @@ export const Player = observer(() => {
     },
     unmount() {
       state.unsetCheckProgressInterval();
-      state.unsetSaveProgressInterval();
       state.unsetIsFocusedInterval();
       document.removeEventListener("keydown", state.onKeyDown);
       try {
@@ -454,7 +291,6 @@ export const Player = observer(() => {
       }
     },
   }));
-  useSimpleSyncLocalStorage(state, "quality");
   useLayoutConfig({
     scrollable: false,
     empty: true,
@@ -546,42 +382,8 @@ export const Player = observer(() => {
             background: "rgba(0, 0, 0, 0.8)",
           }}
         >
-          <div
-            className="p-8 rounded-lg flex justify-between items-start"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-            }}
-          >
-            <div
-              className="p-6 rounded-lg"
-              style={{
-                background: "rgba(0, 0, 0, 0.8)",
-              }}
-            >
-              <img src="/logo.svg" alt="logo" />
-            </div>
-            <div className="flex flex-col items-end rounded-lg text-right">
-              <img
-                style={{
-                  height: "250px",
-                }}
-                className="rounded-lg shadow-md border border-gray-700"
-                alt={state.header}
-                src={state.poster}
-              />
-              <div
-                className="ellipsis font-light text-3xl mt-3 p-6 rounded-lg leading-none"
-                style={{ maxWidth: "50vw", background: "rgba(0, 0, 0, 0.8)" }}
-              >
-                {state.header} / {state.title}
-              </div>
-            </div>
-          </div>
           <div className="w-full flex justify-between items-center">
-            <div className="pr-4">{state.title}</div>
+            <div className="pr-4">{state.server}</div>
             <div className="pl-4">
               <div className="time-info">
                 <span>
@@ -685,26 +487,6 @@ export const Player = observer(() => {
                   <i className="fas fa-expand"></i>
                 )}
               </XFocusable>
-            )}
-            {state.qualities.map((q) => {
-              return q === state.quality ? (
-                <div className="text-2xl px-8 py-5 mx-2 opacity-50">{q}</div>
-              ) : (
-                <XFocusable
-                  key={q}
-                  className={"text-2xl px-6 py-5 mx-2"}
-                  onClickEnter={() => state.setQuality(q)}
-                >
-                  {q}
-                </XFocusable>
-              );
-            })}
-            {state.torrentNumPeers > 0 && (
-              <div className="text-2xl px-8 py-5 mx-2 opacity-50">
-                {state.torrentNumPeers > 1
-                  ? `${state.torrentNumPeers} peers`
-                  : `${state.torrentNumPeers} peer`}
-              </div>
             )}
           </div>
         </div>

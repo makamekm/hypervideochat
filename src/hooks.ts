@@ -140,7 +140,7 @@ export const useSimpleSyncLocalStorage = <T, K extends keyof T>(
       return;
     }
     const localValue = localStorage.getItem(key);
-    setObservable(state, name, toJS(localValue));
+    if (localValue != null) setObservable(state, name, toJS(localValue));
     return reaction(
       () => [localStorage.getItem(key)],
       debounce(([localValue]) => {

@@ -2,11 +2,8 @@ import React from "react";
 import { ToastContainer } from "react-toastify";
 import { LayoutService } from "./LayoutService";
 import { observer } from "mobx-react";
-import { XFocusable } from "~/components/XFocusable/XFocusable";
 import { useHistory } from "react-router";
 import { TVKeys } from "./TVKeys";
-import { Logo } from "./Logo";
-import { SHOW_FULLSCREEN } from "@env/config";
 
 export const AppLayout: React.FC = observer(({ children }) => {
   const history = useHistory();
@@ -55,56 +52,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
         <div className="lg:flex">
           {/* {service.sidebar && <SideMenu />} */}
           <div className="relative flex-1 flex flex-col min-h-screen">
-            <div className="flex-1 flex flex-col">
-              {!service.empty && (
-                <div className="flex items-center justify-between px-10 py-6">
-                  <div>
-                    <XFocusable
-                      shouldTrapLeft
-                      className="text-gray-400 px-8 -mx-4"
-                      onClickEnter={() => {
-                        history.push("/");
-                      }}
-                    >
-                      <Logo />
-                    </XFocusable>
-                  </div>
-                  <div className="px-4">
-                    <XFocusable
-                      className="text-gray-400 leading-none font-bold text-3xl px-6 py-6"
-                      onClickEnter={() => {
-                        history.push("/search");
-                      }}
-                    >
-                      <i className="fas fa-search"></i>
-                    </XFocusable>
-                    {SHOW_FULLSCREEN && (
-                      <XFocusable
-                        className="text-gray-400 leading-none font-bold text-3xl px-6 py-6"
-                        onClickEnter={service.toggleFullScreen}
-                      >
-                        {service.isFullscreen ? (
-                          <i className="fas fa-compress"></i>
-                        ) : (
-                          <i className="fas fa-expand"></i>
-                        )}
-                      </XFocusable>
-                    )}
-                    <XFocusable
-                      shouldTrapRight
-                      className="text-gray-400 leading-none font-normal text-3xl px-6 py-6 ml-4"
-                      onClickEnter={() => {
-                        history.push("/top100");
-                      }}
-                    >
-                      ТОП 100
-                    </XFocusable>
-                  </div>
-                </div>
-              )}
-              {/* {service.topbar && <TopMenu />} */}
-              {children}
-            </div>
+            <div className="flex-1 flex flex-col">{children}</div>
             {!service.empty && (
               <div className="text-gray-600 dark-mode:text-gray-300 text-center text-xs pb-2 pt-5 mx-auto no-print">
                 #MaximKarpovApps |{" "}
