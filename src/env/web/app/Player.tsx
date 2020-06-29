@@ -173,7 +173,10 @@ export const Player = observer(() => {
         controls: false,
       });
 
-      state.player.src(String(state.server));
+      state.player.src({
+        src: String(state.server),
+        type: "video/mp4",
+      });
       state.player.load();
       await new Promise((r) => state.player.ready(r));
       state.setEventListeners();

@@ -171,7 +171,7 @@ export const DefaultPlayer = observer(() => {
           console.log("DRM callback: " + drmEvent + ", data: " + drmData);
         },
         onerror: (type, data) => {
-          console.log("OnError: " + data);
+          console.log("OnError: " + data, type);
         },
       };
 
@@ -202,11 +202,11 @@ export const DefaultPlayer = observer(() => {
     },
     play() {
       if (state.playState >= PlayState.PAUSED) {
-        if (ref.current) {
-          state.playState = PlayState.PLAYING;
-          ref.current.src = String(state.server);
-          webapis.avplay.play();
-        }
+        // if (ref.current) {
+        state.playState = PlayState.PLAYING;
+        // ref.current.src = String(state.server);
+        webapis.avplay.play();
+        // }
       }
     },
     goBack: () => {

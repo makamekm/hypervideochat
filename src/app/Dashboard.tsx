@@ -12,7 +12,7 @@ export const Dashboard = observer(() => {
   const history = useHistory();
   const state = useLocalStore(() => ({
     isInputFocused: false,
-    server: "http://192.168.0.213:8888",
+    server: "http://192.168.0.213:8888/",
   }));
   useLayoutConfig({});
   useSimpleSyncLocalStorage(state, "server");
