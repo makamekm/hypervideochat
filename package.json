@@ -68,7 +68,7 @@
     "build:worker": "cra-append-sw ./src/custom-service-worker.js",
     "build-tailwind": "tailwindcss build src/tailwind.css -o src/tailwind.generated.css",
     "deploy:tv-tizon": "cd build && ~/tizen-studio/tools/ide/bin/tizen package -t wgt && ~/tizen-studio/tools/ide/bin/tizen install --name AnimediaTV.wgt -- ./ && ~/tizen-studio/tools/ide/bin/tizen run -t UE55RU7172UXXH -p MAlXxWnEy4.AnimediaTV",
-    "test": "react-app-rewired test",
+    "test": "cross-env ENV=web react-app-rewired test",
     "eject": "react-app-rewired eject",
     "figma": "node ./figma.js",
     "build:tv-tizon-cp": "run-p build:tv-tizon-cp:0 build:tv-tizon-cp:1 build:tv-tizon-cp:2 build:tv-tizon-cp:3 build:tv-tizon-cp:4 build:tv-tizon-cp:5 build:tv-tizon-cp:6 build:tv-tizon-cp:7 build:tv-tizon-cp:8",
