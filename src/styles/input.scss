@@ -1,0 +1,20 @@
+.input {
+  transition: border 0.2s ease-in-out;
+  min-width: 100%;
+}
+
+.input:focus + .label,
+.input:active + .label,
+.input:not(:placeholder-shown) + .label {
+  font-size: 0.75rem;
+  transition: all 0.2s ease-out;
+  top: -0.1rem;
+  color: #667eea;
+}
+
+.label {
+  transition: all 0.2s ease-out;
+  top: 0.6rem;
+  left: 0;
+  pointer-events: none;
+}

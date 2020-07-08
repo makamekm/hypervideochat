@@ -3,7 +3,7 @@ import { render, fireEvent } from "@testing-library/react";
 import { Button } from "./Button";
 import { createHotPromise } from "../../utils";
 
-test("renders HELLO in Button", () => {
+test("render HELLO in Button", () => {
   const { getByText } = render(<Button>HELLO</Button>);
   const helloElement = getByText(/HELLO/i);
   expect(helloElement).toBeInTheDocument();

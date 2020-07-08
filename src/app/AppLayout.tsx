@@ -4,6 +4,7 @@ import { LayoutService } from "./LayoutService";
 import { observer } from "mobx-react";
 import { useHistory } from "react-router";
 import { Button } from "~/components/Button/Button";
+import { AddListModal } from "./AddListModal";
 // import { SHOW_FULLSCREEN } from "@env/config";
 
 export const AppLayout: React.FC = observer(({ children }) => {
@@ -39,6 +40,15 @@ export const AppLayout: React.FC = observer(({ children }) => {
                     >
                       Dashboard
                     </Button>
+                  </div>
+                  <div>
+                    <AddListModal>
+                      {({ open }) => (
+                        <Button className="-mx-4" onClickEnter={open}>
+                          + New List
+                        </Button>
+                      )}
+                    </AddListModal>
                   </div>
                 </div>
               )}

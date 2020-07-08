@@ -63,25 +63,14 @@
     "start:worker": "nodemon --watch src -e js --exec \"npm run dev:worker\"",
     "dev:worker": "cra-append-sw --mode dev ./src/custom-service-worker.js",
     "build": "cross-env ENV=web run-s build-tailwind build:app build:worker",
-    "build:tv-tizon": "cross-env ENV=tv-tizon run-s build-tailwind build:app build:worker build:tv-tizon-cp",
     "build:app": "react-app-rewired build",
     "build:worker": "cra-append-sw ./src/custom-service-worker.js",
     "build-tailwind": "tailwindcss build src/tailwind.css -o src/tailwind.generated.css",
-    "deploy:tv-tizon": "cd build && ~/tizen-studio/tools/ide/bin/tizen package -t wgt && ~/tizen-studio/tools/ide/bin/tizen install --name AnimediaTV.wgt -- ./ && ~/tizen-studio/tools/ide/bin/tizen run -t UE55RU7172UXXH -p MAlXxWnEy4.AnimediaTV",
     "test": "cross-env ENV=web react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "figma": "node ./figma.js",
-    "build:tv-tizon-cp": "run-p build:tv-tizon-cp:0 build:tv-tizon-cp:1 build:tv-tizon-cp:2 build:tv-tizon-cp:3 build:tv-tizon-cp:4 build:tv-tizon-cp:5 build:tv-tizon-cp:6 build:tv-tizon-cp:7 build:tv-tizon-cp:8",
-    "build:tv-tizon-cp:0": "ncp ./build/custom-service-worker.js ~/workspace/AnimediaTV/custom-service-worker.js",
-    "build:tv-tizon-cp:1": "ncp ./build/favicon.ico ~/workspace/AnimediaTV/favicon.ico",
-    "build:tv-tizon-cp:2": "ncp ./build/icon.png ~/workspace/AnimediaTV/icon.png",
-    "build:tv-tizon-cp:3": "ncp ./build/logo_appname_bg.png ~/workspace/AnimediaTV/logo_appname_bg.png",
-    "build:tv-tizon-cp:4": "ncp ./build/logo_appname_fg.png ~/workspace/AnimediaTV/logo_appname_fg.png",
-    "build:tv-tizon-cp:5": "ncp ./build/logo.svg ~/workspace/AnimediaTV/logo.svg",
-    "build:tv-tizon-cp:6": "ncp ./build/service-worker.js ~/workspace/AnimediaTV/service-worker.js",
-    "build:tv-tizon-cp:7": "ncp ./build/index.html ~/workspace/AnimediaTV/index.html",
-    "build:tv-tizon-cp:8": "ncp ./build/static ~/workspace/AnimediaTV/static"
+    "figma": "node ./figma.js"
   },
+  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": "react-app"
   },

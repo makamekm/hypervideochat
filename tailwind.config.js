@@ -4,6 +4,13 @@ module.exports = {
     borderWidth: ["responsive", "first", "last", "hover", "focus"],
   },
   theme: {
+    minWidth: {
+      "0": "0",
+      "1/4": "25%",
+      "1/2": "50%",
+      "3/4": "75%",
+      full: "100%",
+    },
     container: {
       padding: {
         default: "1rem",

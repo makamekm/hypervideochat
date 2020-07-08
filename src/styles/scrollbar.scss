@@ -8,11 +8,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  background: #f69234;
   transition: opacoty 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: #99500c;
 }
