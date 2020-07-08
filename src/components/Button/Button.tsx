@@ -3,7 +3,7 @@ import classNames from "classnames";
 
 export const Button: React.FC<{
   className?: string;
-  onClickEnter: () => void;
+  onClickEnter?: () => void;
 }> = ({ children, onClickEnter, className }) => (
   <React.Fragment>
     <button
