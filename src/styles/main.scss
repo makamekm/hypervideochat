@@ -3,5 +3,10 @@
 @import "~@fortawesome/fontawesome-free/scss/regular.scss";
 @import "~@fortawesome/fontawesome-free/scss/brands.scss";
 
+:root {
+  --theme: #0070d1;
+}
+
 @import "./wrap.scss";
 @import "./scrollbar.scss";
+@import "./button.scss";

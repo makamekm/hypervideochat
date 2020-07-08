@@ -6,16 +6,13 @@ const Dimmer = () => {
     <div className="initial-loader-wrap">
       <div className="initial-loader">
         <div className="initial-loader__row">
-          <img src="/logo.svg" alt="logo" />
-        </div>
-        <div className="initial-loader__row">
           <svg
             version="1.1"
             id="loader-circle"
             x="0px"
             y="0px"
-            width="150px"
-            height="150px"
+            width="100px"
+            height="100px"
             viewBox="0 0 40 40"
             enableBackground="new 0 0 40 40"
             xmlSpace="preserve"
