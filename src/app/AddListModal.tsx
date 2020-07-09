@@ -5,6 +5,7 @@ import { Modal } from "~/components/Modal/Modal";
 import { Button } from "~/components/Button/Button";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { ListService } from "./ListService";
+import { toast } from "react-toastify";
 
 const CloseIcon = () => (
   <svg
@@ -34,17 +35,27 @@ const AddListModalContent: React.FC<{
     urls: [""],
     send: async () => {
       loadingService.setLoading(true, "dashboard");
-      await fetch("http://localhost:5000/v1/add", {
-        method: "POST",
-        body: JSON.stringify({
-          name: state.name,
-          urls: state.urls,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      close();
+      try {
+        await fetch("http://localhost:5000/v1/add", {
+          method: "POST",
+          body: JSON.stringify({
+            name: state.name,
+            urls: state.urls,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        close();
+        toast("The list have been successfuly created!", {
+          type: "success",
+        });
+      } catch (error) {
+        console.error(error);
+        toast("There was an error whilte creating a list", {
+          type: "error",
+        });
+      }
       listService.load();
       loadingService.setLoading(false, "dashboard");
     },
@@ -57,10 +68,13 @@ const AddListModalContent: React.FC<{
     },
   }));
   useKeyPress("Escape", () => {
+    toast("You have successfuly created the list", {
+      type: "success",
+    });
     close();
   });
   return (
-    <div className="window rounded-lg shadow-md bg-white flex flex-col items-center pb-8">
+    <div className="window rounded-lg shadow-md bg-white flex flex-col items-center justify-start pb-8">
       <div className="w-full flex items-center justify-end px-3 py-3">
         <Button onClickEnter={close}>
           <CloseIcon />
@@ -105,12 +119,18 @@ const AddListModalContent: React.FC<{
       </div>
       <div className="text-lg w-8/12 flex items-center justify-between mt-2 px-2">
         <div>
-          <Button className="text-orange-500" onClickEnter={state.add}>
+          <Button
+            className="text-orange-500 whitespace-no-wrap"
+            onClickEnter={state.add}
+          >
             + ADD MORE INPUTS
           </Button>
         </div>
         <div>
-          <Button className="text-gray-900" onClickEnter={state.clear}>
+          <Button
+            className="text-gray-900 whitespace-no-wrap"
+            onClickEnter={state.clear}
+          >
             Clear all
           </Button>
         </div>
