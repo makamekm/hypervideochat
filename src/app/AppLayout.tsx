@@ -56,7 +56,7 @@ export const AppLayout: React.FC = observer(({ children }) => {
               {children}
             </div>
             {!service.empty && (
-              <div className="text-gray-600 dark-mode:text-gray-300 text-center text-xs pb-2 pt-5 mx-auto no-print">
+              <div className="text-gray-700 text-center text-xs pb-2 pt-5 mx-auto no-print">
                 #MaximKarpovApps |{" "}
                 <a className="link" href="https://github.com/makamekm">
                   github.com/makamekm
