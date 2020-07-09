@@ -58,11 +58,11 @@
     "webtorrent-hybrid": "^4.0.1"
   },
   "scripts": {
-    "start": "cross-env ENV=web run-p build-tailwind start:app start:worker",
+    "start": "cross-env ENV=dev run-p build-tailwind start:app start:worker",
     "start:app": "react-app-rewired start",
     "start:worker": "nodemon --watch src -e js --exec \"npm run dev:worker\"",
     "dev:worker": "cra-append-sw --mode dev ./src/custom-service-worker.js",
-    "build": "cross-env ENV=web run-s build-tailwind build:app build:worker",
+    "build": "cross-env ENV=prod run-s build-tailwind build:app build:worker",
     "build:app": "react-app-rewired build",
     "build:worker": "cra-append-sw ./src/custom-service-worker.js",
     "build-tailwind": "tailwindcss build src/tailwind.css -o src/tailwind.generated.css",
@@ -70,7 +70,6 @@
     "eject": "react-app-rewired eject",
     "figma": "node ./figma.js"
   },
-  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": "react-app"
   },

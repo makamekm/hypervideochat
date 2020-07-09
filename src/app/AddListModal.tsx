@@ -6,6 +6,7 @@ import { Button } from "~/components/Button/Button";
 import { LoadingService } from "~/components/Loading/LoadingService";
 import { ListService } from "./ListService";
 import { toast } from "react-toastify";
+import { API } from "@env/config";
 
 const CloseIcon = () => (
   <svg
@@ -36,7 +37,7 @@ const AddListModalContent: React.FC<{
     send: async () => {
       loadingService.setLoading(true, "dashboard");
       try {
-        await fetch("http://localhost:5000/v1/add", {
+        await fetch(`${API}v1/add`, {
           method: "POST",
           body: JSON.stringify({
             name: state.name,

@@ -7,6 +7,7 @@ import {
   LoadingStore,
 } from "~/components/Loading/LoadingService";
 import { IList } from "./dto.interface";
+import { API } from "@env/config";
 
 export const ListService = createService(
   () => {
@@ -75,7 +76,7 @@ export const ListService = createService(
         state.loadingService.setLoading(true, "dashboard");
         try {
           const responce = await fetch(
-            `http://localhost:5000/v1/list?limit=${state.limit}&skip=${state.skip}`
+            `${API}v1/list?limit=${state.limit}&skip=${state.skip}`
           );
           const json = await responce.json();
           state.total = json.total;
