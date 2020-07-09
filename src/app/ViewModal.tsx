@@ -44,7 +44,7 @@ const ViewModalContent: React.FC<{
         <div className="text-gray-900 px-3 font-medium -ml-2">
           {moment(data.date).format("YYYY-MM-DD")}
         </div>
-        <div className="text-gray-700 px-3">Num Contact</div>
+        <div className="text-gray-700 px-3">Num Contacts</div>
         <div className="text-gray-900 px-3 font-medium -ml-2">
           {data.contacts.length}
         </div>
