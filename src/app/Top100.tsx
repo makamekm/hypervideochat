@@ -39,7 +39,8 @@ export const Top100 = observer(() => {
             id: $(el)
               .find(".ads-list__item__thumb.js-postload a")
               .attr("href")
-              .replace("https://online.animedia.pro/anime/", ""),
+              .replace("/anime/", "")
+              .replace(/^\/+/, ""),
           });
         });
         (state.related as any).replace(related);

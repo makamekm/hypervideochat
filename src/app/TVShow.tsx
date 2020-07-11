@@ -100,7 +100,8 @@ export const TVShow = observer(() => {
               title: $(el).text(),
               id: $(el)
                 .attr("href")
-                .replace("https://online.animedia.pro/category/", ""),
+                .replace("https://online.animedia.pro/category/", "")
+                .replace(/^\/+/, ""),
             });
           }
         );
@@ -117,7 +118,8 @@ export const TVShow = observer(() => {
                 .attr("data-src"),
               id: $(el)
                 .attr("href")
-                .replace("https://online.animedia.pro/anime/", ""),
+                .replace("/anime/", "")
+                .replace(/^\/+/, ""),
             });
           }
         );

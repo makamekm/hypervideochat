@@ -53,7 +53,8 @@ export const Dashboard = observer(() => {
               id: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("href")
-                .replace("https://online.animedia.pro/anime/", ""),
+                .replace("/anime/", "")
+                .replace(/^\/+/, ""),
               title: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("title")
@@ -75,7 +76,8 @@ export const Dashboard = observer(() => {
               id: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("href")
-                .replace("https://online.animedia.pro/anime/", ""),
+                .replace("/anime/", "")
+                .replace(/^\/+/, ""),
               title: $(el)
                 .find(".title__list__index > .title__index > a")
                 .attr("title")
