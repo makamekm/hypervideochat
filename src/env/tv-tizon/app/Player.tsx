@@ -1,3 +1,3 @@
-import { Player as HTMLPlayer } from "../../web/app/Player";
+import { DefaultPlayer } from "./DefaultPlayer";
 
-export const Player = HTMLPlayer;
+export const Player = DefaultPlayer;
