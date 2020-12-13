@@ -64,11 +64,25 @@ export const Player = observer(() => {
     get id() {
       return (history.location?.state as any)?.id;
     },
+    get showId() {
+      return (history.location?.state as any)?.showId;
+    },
+    get seasonId() {
+      return (history.location?.state as any)?.seasonId;
+    },
+    get episodeId() {
+      return (history.location?.state as any)?.episodeId;
+    },
     get savedProgress() {
       return progressService.episodeProgress[state.id];
     },
     saveProgressInterval: 0,
     saveProgress: () => {
+      progressService.lastEpisodePlayed[state.showId] = {
+        id: state.id,
+        episodeId: state.episodeId,
+        seasonId: state.seasonId,
+      };
       progressService.episodeProgress[state.id] =
         state.currentTime / state.totalTime;
     },

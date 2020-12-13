@@ -15,7 +15,9 @@ import { PROXY } from "@env/config";
 
 export const TVShow = observer(() => {
   const history = useHistory();
-  const { id } = useParams();
+  const { id } = useParams<{
+    id: string;
+  }>();
   const loadingService = React.useContext(LoadingService);
   const favoriteService = React.useContext(FavoriteService);
   const progressService = React.useContext(ProgressService);
@@ -46,6 +48,55 @@ export const TVShow = observer(() => {
     }[],
     get isFavourite() {
       return !!favoriteService.favoriteShows.find((s) => s.id === state.id);
+    },
+    get continueLastEpisodePlayed(): {
+      season: typeof state["seasons"][0];
+      episode: typeof state["seasons"][0]["eposodes"][0];
+      index: number;
+    } {
+      let lastEpisodePlayed = progressService.lastEpisodePlayed[state.id];
+      if (lastEpisodePlayed != null) {
+        for (let season of state.seasons) {
+          let index = 1;
+          for (let episode of season.eposodes) {
+            if (episode.id === lastEpisodePlayed.episodeId) {
+              return {
+                season,
+                episode,
+                index,
+              };
+            }
+            index++;
+          }
+        }
+      }
+      return null;
+    },
+    get continueLastEpisodePlayedNext(): {
+      season: typeof state["seasons"][0];
+      episode: typeof state["seasons"][0]["eposodes"][0];
+      index: number;
+    } {
+      let lastEpisodePlayed = progressService.lastEpisodePlayed[state.id];
+      if (lastEpisodePlayed != null) {
+        let shouldReturnNext = false;
+        for (let season of state.seasons) {
+          let index = 1;
+          for (let episode of season.eposodes) {
+            if (episode.id === lastEpisodePlayed.episodeId) {
+              shouldReturnNext = true;
+            } else if (shouldReturnNext) {
+              return {
+                season,
+                episode,
+                index,
+              };
+            }
+            index++;
+          }
+        }
+      }
+      return null;
     },
     getSeasons: async (uuid: string, ids: string[]) => {
       const seasons = [];
@@ -144,6 +195,10 @@ export const TVShow = observer(() => {
   React.useEffect(() => {
     state.load(id);
   }, [state, id]);
+
+  let continueEpisode = state.continueLastEpisodePlayed;
+  let continueEpisodeNext = state.continueLastEpisodePlayedNext;
+
   return (
     <div className="flex flex-1 flex-col items-start justify-center">
       <div className="flex items-end justify-between font-light text-5xl mt-4 mb-4 text-gray-300 w-full px-10 max-h-screen leading-none">
@@ -204,6 +259,146 @@ export const TVShow = observer(() => {
           </XFocusable>
         ))}
       </div>
+
+      {!continueEpisode ? null : (
+        <React.Fragment>
+          <div className="font-light text-4xl mt-8 mb-8 text-gray-600 w-full px-10">
+            Продолжить:
+            <span className="text-xl text-gray-700 ml-4">
+              # {continueEpisode.season.title}
+            </span>
+          </div>
+
+          <XFocusableContainer className="px-10" style={{ maxWidth: "100vw" }}>
+            <XFocusable
+              shouldTrapLeft
+              shouldTrapRight
+              className="my-1 mx-2 p-1 relative"
+              key={continueEpisode.episode.id}
+              onClickEnter={() => {
+                loadingService.setLoading(true, "playerGlobal");
+                setTimeout(() => {
+                  history.push({
+                    pathname: /\.m3u8$/i.test(continueEpisode.episode.file)
+                      ? "/player"
+                      : "/default-player",
+                    state: {
+                      showId: state.id,
+                      episodeId: continueEpisode.episode.id,
+                      seasonId: continueEpisode.season.id,
+                      id: state.id + "__" + continueEpisode.episode.id,
+                      header: state.title,
+                      poster: state.poster,
+                      title: continueEpisode.episode.title,
+                      file: continueEpisode.episode.file,
+                      prevUrl: history.location.pathname,
+                    },
+                  });
+                }, 100);
+              }}
+            >
+              <img
+                style={{
+                  width: "270px",
+                  height: "150px",
+                }}
+                className="rounded-lg inline-block"
+                alt={continueEpisode.episode.title}
+                src={"https:" + continueEpisode.episode.poster}
+              />
+              <div
+                className="ellipsis py-1 px-2 text-lg font-light"
+                style={{
+                  maxWidth: "270px",
+                }}
+              >
+                {continueEpisode.episode.title}
+              </div>
+              <div
+                className="rounded-lg"
+                style={{
+                  content: "",
+                  position: "absolute",
+                  top: 10,
+                  left: 10,
+                  height: "6px",
+                  backgroundColor: "red",
+                  opacity: 0.8,
+                  width: `calc(${(progressService.episodeProgress[
+                    state.id + "__" + continueEpisode.episode.id
+                  ] || 0) * 100}% - 20px)`,
+                }}
+              ></div>
+            </XFocusable>
+
+            {!continueEpisodeNext ? null : (
+              <XFocusable
+                shouldTrapLeft
+                shouldTrapRight
+                className="my-1 mx-2 p-1 relative"
+                key={continueEpisodeNext.episode.id}
+                onClickEnter={() => {
+                  loadingService.setLoading(true, "playerGlobal");
+                  setTimeout(() => {
+                    history.push({
+                      pathname: /\.m3u8$/i.test(
+                        continueEpisodeNext.episode.file
+                      )
+                        ? "/player"
+                        : "/default-player",
+                      state: {
+                        showId: state.id,
+                        episodeId: continueEpisodeNext.episode.id,
+                        seasonId: continueEpisodeNext.season.id,
+                        id: state.id + "__" + continueEpisodeNext.episode.id,
+                        header: state.title,
+                        poster: state.poster,
+                        title: continueEpisodeNext.episode.title,
+                        file: continueEpisodeNext.episode.file,
+                        prevUrl: history.location.pathname,
+                      },
+                    });
+                  }, 100);
+                }}
+              >
+                <img
+                  style={{
+                    width: "270px",
+                    height: "150px",
+                  }}
+                  className="rounded-lg inline-block"
+                  alt={continueEpisodeNext.episode.title}
+                  src={"https:" + continueEpisodeNext.episode.poster}
+                />
+                <div
+                  className="ellipsis py-1 px-2 text-lg font-light"
+                  style={{
+                    maxWidth: "270px",
+                  }}
+                >
+                  {continueEpisodeNext.episode.title}
+                </div>
+                <div
+                  className="rounded-lg"
+                  style={{
+                    content: "",
+                    position: "absolute",
+                    top: 10,
+                    left: 10,
+                    height: "6px",
+                    backgroundColor: "red",
+                    opacity: 0.8,
+                    width: `calc(${(progressService.episodeProgress[
+                      state.id + "__" + continueEpisodeNext.episode.id
+                    ] || 0) * 100}% - 20px)`,
+                  }}
+                ></div>
+              </XFocusable>
+            )}
+          </XFocusableContainer>
+        </React.Fragment>
+      )}
+
       <div className="font-light text-2xl mt-4 text-gray-500 w-full px-10">
         {state.description}
       </div>
@@ -236,6 +431,9 @@ export const TVShow = observer(() => {
                             ? "/player"
                             : "/default-player",
                           state: {
+                            showId: state.id,
+                            episodeId: episode.id,
+                            seasonId: season.id,
                             id: state.id + "__" + episode.id,
                             header: state.title,
                             poster: state.poster,

@@ -8,10 +8,18 @@ export const ProgressService = createService(
       episodeProgress: {} as {
         [id: string]: number;
       },
+      lastEpisodePlayed: {} as {
+        [id: string]: {
+          seasonId: string;
+          episodeId: string;
+          id: string;
+        };
+      },
     }));
     return state;
   },
   (state) => {
     useSyncLocalStorage(state, "episodeProgress");
+    useSyncLocalStorage(state, "lastEpisodePlayed");
   }
 );
